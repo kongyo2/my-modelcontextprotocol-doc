@@ -1,0 +1,60 @@
+name: Sync Model Context Protocol Documentation
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create doc directory if it doesn't exist
+        run: mkdir -p doc
+      
+      - name: Download documentation file from upstream
+        run: |
+          echo "Downloading modelcontextprotocol-llms-full.txt from upstream..."
+          curl -f -o doc/modelcontextprotocol-llms-full.txt https://modelcontextprotocol.io/llms-full.txt
+          echo "Download completed successfully"
+      
+      - name: Check for changes and commit if needed
+        run: |
+          # Configure git for automated commits
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are any changes
+          if ! git diff --quiet; then
+            echo "Changes detected in documentation file"
+            git add doc/modelcontextprotocol-llms-full.txt
+            git commit -m "docs: sync modelcontextprotocol-llms-full.txt from upstream
+            
+            Updated documentation from https://modelcontextprotocol.io/llms-full.txt
+            Automated sync on $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push
+            echo "Changes committed and pushed successfully"
+          else
+            echo "No changes detected in documentation file - skipping commit"
+          fi
+      
+      - name: Verify sync completion
+        run: |
+          if [ -f "doc/modelcontextprotocol-llms-full.txt" ]; then
+            echo "✅ Sync completed successfully"
+            echo "File size: $(wc -c < doc/modelcontextprotocol-llms-full.txt) bytes"
+            echo "Last modified: $(stat -c %y doc/modelcontextprotocol-llms-full.txt)"
+          else
+            echo "❌ Sync failed - file not found"
+            exit 1
+          fi
