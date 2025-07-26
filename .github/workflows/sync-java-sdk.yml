@@ -1,0 +1,62 @@
+name: Sync MCP Java SDK Documentation
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC (offset from existing workflows to avoid conflicts)
+    - cron: '0 3 * * *'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  sync-java-sdk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create doc directory if it doesn't exist
+        run: mkdir -p doc
+      
+      - name: Download README.md from Java SDK repository
+        run: |
+          echo "Downloading README.md from modelcontextprotocol/java-sdk..."
+          curl -f -o doc/MCP-java-SDK.txt https://raw.githubusercontent.com/modelcontextprotocol/java-sdk/main/README.md
+          echo "Download completed successfully"
+      
+      - name: Check for changes and commit if needed
+        run: |
+          # Configure git for automated commits
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are any changes
+          if ! git diff --quiet; then
+            echo "Changes detected in MCP Java SDK documentation"
+            git add doc/MCP-java-SDK.txt
+            git commit -m "docs: sync MCP-java-SDK.txt from upstream
+            
+            Updated documentation from https://github.com/modelcontextprotocol/java-sdk/blob/main/README.md
+            Automated sync on $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push
+            echo "Changes committed and pushed successfully"
+          else
+            echo "No changes detected in MCP Java SDK documentation - skipping commit"
+          fi
+      
+      - name: Verify sync completion
+        run: |
+          if [ -f "doc/MCP-java-SDK.txt" ]; then
+            echo "✅ Sync completed successfully"
+            echo "File size: $(wc -c < doc/MCP-java-SDK.txt) bytes"
+            echo "Last modified: $(stat -c %y doc/MCP-java-SDK.txt)"
+            echo "First few lines of synced content:"
+            head -10 doc/MCP-java-SDK.txt
+          else
+            echo "❌ Sync failed - file not found"
+            exit 1
+          fi
