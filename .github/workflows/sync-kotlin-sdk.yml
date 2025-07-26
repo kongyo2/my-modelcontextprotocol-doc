@@ -1,0 +1,62 @@
+name: Sync MCP Kotlin SDK Documentation
+
+on:
+  schedule:
+    # Run daily at 5 AM UTC (offset from existing workflows to avoid conflicts)
+    - cron: '0 5 * * *'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  sync-kotlin-sdk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create doc directory if it doesn't exist
+        run: mkdir -p doc
+      
+      - name: Download README.md from Kotlin SDK repository
+        run: |
+          echo "Downloading README.md from modelcontextprotocol/kotlin-sdk..."
+          curl -f -o doc/MCP-kotlin-SDK.txt https://raw.githubusercontent.com/modelcontextprotocol/kotlin-sdk/main/README.md
+          echo "Download completed successfully"
+      
+      - name: Check for changes and commit if needed
+        run: |
+          # Configure git for automated commits
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are any changes
+          if ! git diff --quiet; then
+            echo "Changes detected in MCP Kotlin SDK documentation"
+            git add doc/MCP-kotlin-SDK.txt
+            git commit -m "docs: sync MCP-kotlin-SDK.txt from upstream
+            
+            Updated documentation from https://github.com/modelcontextprotocol/kotlin-sdk/blob/main/README.md
+            Automated sync on $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push
+            echo "Changes committed and pushed successfully"
+          else
+            echo "No changes detected in MCP Kotlin SDK documentation - skipping commit"
+          fi
+      
+      - name: Verify sync completion
+        run: |
+          if [ -f "doc/MCP-kotlin-SDK.txt" ]; then
+            echo "✅ Sync completed successfully"
+            echo "File size: $(wc -c < doc/MCP-kotlin-SDK.txt) bytes"
+            echo "Last modified: $(stat -c %y doc/MCP-kotlin-SDK.txt)"
+            echo "First few lines of synced content:"
+            head -10 doc/MCP-kotlin-SDK.txt
+          else
+            echo "❌ Sync failed - file not found"
+            exit 1
+          fi
