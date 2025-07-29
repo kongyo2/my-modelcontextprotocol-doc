@@ -2544,7 +2544,32 @@ async with client:
         print(f"Description: {prompt.description}")
         if prompt.arguments:
             print(f"Arguments: {[arg.name for arg in prompt.arguments]}")
+        # Access tags and other metadata
+        if hasattr(prompt, '_meta') and prompt._meta:
+            print(f"Tags: {prompt._meta.get('tags', [])}")
 ```
+
+### Filtering by Tags
+
+You can use the `meta` field to filter prompts based on their tags:
+
+```python
+async with client:
+    prompts = await client.list_prompts()
+    
+    # Filter prompts by tag
+    analysis_prompts = [
+        prompt for prompt in prompts 
+        if hasattr(prompt, '_meta') and prompt._meta and 
+           'analysis' in prompt._meta.get('tags', [])
+    ]
+    
+    print(f"Found {len(analysis_prompts)} analysis prompts")
+```
+
+<Note>
+  The `_meta` field is part of the standard MCP specification, but the inclusion of tags within it is specific to FastMCP servers. Other MCP server implementations may not provide tags in their metadata.
+</Note>
 
 ## Using Prompts
 
@@ -2747,6 +2772,9 @@ async with client:
         print(f"Name: {resource.name}")
         print(f"Description: {resource.description}")
         print(f"MIME Type: {resource.mimeType}")
+        # Access tags and other metadata
+        if hasattr(resource, '_meta') and resource._meta:
+            print(f"Tags: {resource._meta.get('tags', [])}")
 ```
 
 ### Resource Templates
@@ -2762,7 +2790,32 @@ async with client:
         print(f"Template URI: {template.uriTemplate}")
         print(f"Name: {template.name}")
         print(f"Description: {template.description}")
+        # Access tags and other metadata
+        if hasattr(template, '_meta') and template._meta:
+            print(f"Tags: {template._meta.get('tags', [])}")
 ```
+
+### Filtering by Tags
+
+You can use the `meta` field to filter resources based on their tags:
+
+```python
+async with client:
+    resources = await client.list_resources()
+    
+    # Filter resources by tag
+    config_resources = [
+        resource for resource in resources 
+        if hasattr(resource, '_meta') and resource._meta and 
+           'config' in resource._meta.get('tags', [])
+    ]
+    
+    print(f"Found {len(config_resources)} config resources")
+```
+
+<Note>
+  The `_meta` field is part of the standard MCP specification, but the inclusion of tags within it is specific to FastMCP servers. Other MCP server implementations may not provide tags in their metadata.
+</Note>
 
 ## Reading Resources
 
@@ -3124,7 +3177,32 @@ async with client:
         print(f"Description: {tool.description}")
         if tool.inputSchema:
             print(f"Parameters: {tool.inputSchema}")
+        # Access tags and other metadata
+        if hasattr(tool, '_meta') and tool._meta:
+            print(f"Tags: {tool._meta.get('tags', [])}")
 ```
+
+### Filtering by Tags
+
+You can use the `meta` field to filter tools based on their tags:
+
+```python
+async with client:
+    tools = await client.list_tools()
+    
+    # Filter tools by tag
+    analysis_tools = [
+        tool for tool in tools 
+        if hasattr(tool, '_meta') and tool._meta and 
+           'analysis' in tool._meta.get('tags', [])
+    ]
+    
+    print(f"Found {len(analysis_tools)} analysis tools")
+```
+
+<Note>
+  The `_meta` field is part of the standard MCP specification, but the inclusion of tags within it is specific to FastMCP servers. Other MCP server implementations may not provide tags in their metadata.
+</Note>
 
 ## Executing Tools
 
@@ -3530,6 +3608,7 @@ FastMCP provides convenience transports that are thin wrappers around `StdioTran
 
 * **`PythonStdioTransport`** - Uses `python` command for `.py` files
 * **`NodeStdioTransport`** - Uses `node` command for `.js` files
+* **`UvStdioTransport`** - Uses `uv` for Python packages (uses `env_vars` parameter)
 * **`UvxStdioTransport`** - Uses `uvx` for Python packages (uses `env_vars` parameter)
 * **`NpxStdioTransport`** - Uses `npx` for Node packages (uses `env_vars` parameter)
 
@@ -7286,6 +7365,39 @@ mcp = FastMCP.from_openapi(
     tags={"api-v2", "production", "external"}
 )
 ```
+
+#### OpenAPI Tags in Client Meta
+
+FastMCP automatically includes OpenAPI tags from your specification in the component's metadata. These tags are available to MCP clients through the `_meta` field, allowing clients to filter and organize components based on the original OpenAPI tagging:
+
+<CodeGroup>
+  ```json {5} OpenAPI spec with tags
+  {
+    "paths": {
+      "/users": {
+        "get": {
+          "tags": ["users", "public"],
+          "operationId": "list_users",
+          "summary": "List all users"
+        }
+      }
+    }
+  }
+  ```
+
+  ```python {6-8} Access OpenAPI tags in MCP client
+  async with client:
+      tools = await client.list_tools()
+      for tool in tools:
+          if hasattr(tool, '_meta') and tool._meta:
+              # OpenAPI tags are now available!
+              openapi_tags = tool._meta.get('tags', [])
+              if 'users' in openapi_tags:
+                  print(f"Found user-related tool: {tool.name}")
+  ```
+</CodeGroup>
+
+This makes it easy for clients to understand and organize API endpoints based on their original OpenAPI categorization.
 
 ### Advanced Customization
 
@@ -17458,9 +17570,9 @@ FastMCP middleware handles two types of operations differently:
 **Listing Operations** (`on_list_tools`, `on_list_resources`, `on_list_prompts`, etc.):
 
 * Middleware receives **FastMCP component objects** with full metadata
-* These objects include FastMCP-specific properties like `tags` that aren't part of the MCP specification
+* These objects include FastMCP-specific properties like `tags` that can be accessed directly from the component
 * The result contains complete component information before it's converted to MCP format
-* Tags and other metadata are stripped when finally returned to the MCP client
+* Tags are included in the component's `meta` field in the listing response returned to MCP clients
 
 **Execution Operations** (`on_call_tool`, `on_read_resource`, `on_get_prompt`):
 
@@ -17548,7 +17660,7 @@ class ListingFilterMiddleware(Middleware):
         return filtered_tools
 ```
 
-This filtering happens before the components are converted to MCP format and returned to the client, so the tags (which are FastMCP-specific) are naturally stripped in the final response.
+This filtering happens before the components are converted to MCP format and returned to the client. Tags are accessible both during filtering and are included in the component's `meta` field in the final listing response.
 
 <Tip>
   When filtering components in listing operations, ensure you also prevent execution of filtered components in the corresponding execution hooks (`on_call_tool`, `on_read_resource`, `on_get_prompt`) to maintain consistency.
@@ -18253,7 +18365,7 @@ def data_analysis_prompt(
   </ParamField>
 
   <ParamField body="tags" type="set[str] | None">
-    A set of strings used to categorize the prompt. Clients might use tags to filter or group available prompts
+    A set of strings used to categorize the prompt. Clients might use tags to filter or group available prompts. Tags are available to clients in the prompt's `meta` field when the prompt is listed (via `list_prompts`)
   </ParamField>
 
   <ParamField body="enabled" type="bool" default="True">
@@ -18943,7 +19055,7 @@ def get_application_status() -> dict:
   </ParamField>
 
   <ParamField body="tags" type="set[str] | None">
-    A set of strings for categorization, potentially used by clients for filtering
+    A set of strings for categorization, potentially used by clients for filtering. Tags are available to clients in the resource's `meta` field when the resource is listed (via `list_resources` or `list_resource_templates`)
   </ParamField>
 
   <ParamField body="enabled" type="bool" default="True">
@@ -20137,7 +20249,7 @@ def search_products_implementation(query: str, category: str | None = None) -> l
   </ParamField>
 
   <ParamField body="tags" type="set[str] | None">
-    A set of strings to categorize the tool. Clients might use tags to filter or group available tools
+    A set of strings to categorize the tool. Clients might use tags to filter or group available tools. Tags are available to clients in the tool's `meta` field when the tool is listed (via `list_tools`)
   </ParamField>
 
   <ParamField body="enabled" type="bool" default="True">
