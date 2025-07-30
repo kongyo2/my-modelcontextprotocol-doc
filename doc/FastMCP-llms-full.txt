@@ -2546,10 +2546,13 @@ async with client:
             print(f"Arguments: {[arg.name for arg in prompt.arguments]}")
         # Access tags and other metadata
         if hasattr(prompt, '_meta') and prompt._meta:
-            print(f"Tags: {prompt._meta.get('tags', [])}")
+            fastmcp_meta = prompt._meta.get('_fastmcp', {})
+            print(f"Tags: {fastmcp_meta.get('tags', [])}")
 ```
 
 ### Filtering by Tags
+
+<VersionBadge version="2.11.0" />
 
 You can use the `meta` field to filter prompts based on their tags:
 
@@ -2560,15 +2563,16 @@ async with client:
     # Filter prompts by tag
     analysis_prompts = [
         prompt for prompt in prompts 
-        if hasattr(prompt, '_meta') and prompt._meta and 
-           'analysis' in prompt._meta.get('tags', [])
+        if hasattr(prompt, '_meta') and prompt._meta and
+           prompt._meta.get('_fastmcp', {}) and
+           'analysis' in prompt._meta.get('_fastmcp', {}).get('tags', [])
     ]
     
     print(f"Found {len(analysis_prompts)} analysis prompts")
 ```
 
 <Note>
-  The `_meta` field is part of the standard MCP specification, but the inclusion of tags within it is specific to FastMCP servers. Other MCP server implementations may not provide tags in their metadata.
+  The `_meta` field is part of the standard MCP specification. FastMCP servers include tags and other metadata within a `_fastmcp` namespace (e.g., `_meta._fastmcp.tags`) to avoid conflicts with user-defined metadata. This behavior can be controlled with the server's `include_fastmcp_meta` setting - when disabled, the `_fastmcp` namespace won't be included. Other MCP server implementations may not provide this metadata structure.
 </Note>
 
 ## Using Prompts
@@ -2774,7 +2778,8 @@ async with client:
         print(f"MIME Type: {resource.mimeType}")
         # Access tags and other metadata
         if hasattr(resource, '_meta') and resource._meta:
-            print(f"Tags: {resource._meta.get('tags', [])}")
+            fastmcp_meta = resource._meta.get('_fastmcp', {})
+            print(f"Tags: {fastmcp_meta.get('tags', [])}")
 ```
 
 ### Resource Templates
@@ -2792,10 +2797,13 @@ async with client:
         print(f"Description: {template.description}")
         # Access tags and other metadata
         if hasattr(template, '_meta') and template._meta:
-            print(f"Tags: {template._meta.get('tags', [])}")
+            fastmcp_meta = template._meta.get('_fastmcp', {})
+            print(f"Tags: {fastmcp_meta.get('tags', [])}")
 ```
 
 ### Filtering by Tags
+
+<VersionBadge version="2.11.0" />
 
 You can use the `meta` field to filter resources based on their tags:
 
@@ -2806,15 +2814,16 @@ async with client:
     # Filter resources by tag
     config_resources = [
         resource for resource in resources 
-        if hasattr(resource, '_meta') and resource._meta and 
-           'config' in resource._meta.get('tags', [])
+        if hasattr(resource, '_meta') and resource._meta and
+           resource._meta.get('_fastmcp', {}) and
+           'config' in resource._meta.get('_fastmcp', {}).get('tags', [])
     ]
     
     print(f"Found {len(config_resources)} config resources")
 ```
 
 <Note>
-  The `_meta` field is part of the standard MCP specification, but the inclusion of tags within it is specific to FastMCP servers. Other MCP server implementations may not provide tags in their metadata.
+  The `_meta` field is part of the standard MCP specification. FastMCP servers include tags and other metadata within a `_fastmcp` namespace (e.g., `_meta._fastmcp.tags`) to avoid conflicts with user-defined metadata. This behavior can be controlled with the server's `include_fastmcp_meta` setting - when disabled, the `_fastmcp` namespace won't be included. Other MCP server implementations may not provide this metadata structure.
 </Note>
 
 ## Reading Resources
@@ -3179,10 +3188,13 @@ async with client:
             print(f"Parameters: {tool.inputSchema}")
         # Access tags and other metadata
         if hasattr(tool, '_meta') and tool._meta:
-            print(f"Tags: {tool._meta.get('tags', [])}")
+            fastmcp_meta = tool._meta.get('_fastmcp', {})
+            print(f"Tags: {fastmcp_meta.get('tags', [])}")
 ```
 
 ### Filtering by Tags
+
+<VersionBadge version="2.11.0" />
 
 You can use the `meta` field to filter tools based on their tags:
 
@@ -3193,15 +3205,16 @@ async with client:
     # Filter tools by tag
     analysis_tools = [
         tool for tool in tools 
-        if hasattr(tool, '_meta') and tool._meta and 
-           'analysis' in tool._meta.get('tags', [])
+        if hasattr(tool, '_meta') and tool._meta and
+           tool._meta.get('_fastmcp', {}) and
+           'analysis' in tool._meta.get('_fastmcp', {}).get('tags', [])
     ]
     
     print(f"Found {len(analysis_tools)} analysis tools")
 ```
 
 <Note>
-  The `_meta` field is part of the standard MCP specification, but the inclusion of tags within it is specific to FastMCP servers. Other MCP server implementations may not provide tags in their metadata.
+  The `_meta` field is part of the standard MCP specification. FastMCP servers include tags and other metadata within a `_fastmcp` namespace (e.g., `_meta._fastmcp.tags`) to avoid conflicts with user-defined metadata. This behavior can be controlled with the server's `include_fastmcp_meta` setting - when disabled, the `_fastmcp` namespace won't be included. Other MCP server implementations may not provide this metadata structure.
 </Note>
 
 ## Executing Tools
@@ -4643,7 +4656,7 @@ For this example, we'll quickly generate our own tokens with FastMCP's `RSAKeyPa
 We'll start by creating an RSA key pair to sign and verify tokens.
 
 ```python
-from fastmcp.server.auth.providers.bearer import RSAKeyPair
+from fastmcp.server.auth.verifiers import RSAKeyPair
 
 key_pair = RSAKeyPair.generate()
 access_token = key_pair.create_token(audience="dice-server")
@@ -4653,13 +4666,13 @@ access_token = key_pair.create_token(audience="dice-server")
   FastMCP's `RSAKeyPair` utility is for development and testing only.
 </Warning>
 
-Next, we'll create a `BearerAuthProvider` to authenticate the server.
+Next, we'll create a `JWTVerifier` to authenticate the server.
 
 ```python
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
+from fastmcp.server.auth import JWTVerifier
 
-auth = BearerAuthProvider(
+auth = JWTVerifier(
     public_key=key_pair.public_key,
     audience="dice-server",
 )
@@ -4671,14 +4684,14 @@ Here is a complete example that you can copy/paste. For simplicity and the purpo
 
 ```python server.py [expandable]
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
-from fastmcp.server.auth.providers.bearer import RSAKeyPair
+from fastmcp.server.auth import JWTVerifier
+from fastmcp.server.auth.verifiers import RSAKeyPair
 import random
 
 key_pair = RSAKeyPair.generate()
 access_token = key_pair.create_token(audience="dice-server")
 
-auth = BearerAuthProvider(
+auth = JWTVerifier(
     public_key=key_pair.public_key,
     audience="dice-server",
 )
@@ -6920,7 +6933,7 @@ For this example, we'll quickly generate our own tokens with FastMCP's `RSAKeyPa
 We'll start by creating an RSA key pair to sign and verify tokens.
 
 ```python
-from fastmcp.server.auth.providers.bearer import RSAKeyPair
+from fastmcp.server.auth.verifiers import RSAKeyPair
 
 key_pair = RSAKeyPair.generate()
 access_token = key_pair.create_token(audience="dice-server")
@@ -6930,13 +6943,13 @@ access_token = key_pair.create_token(audience="dice-server")
   FastMCP's `RSAKeyPair` utility is for development and testing only.
 </Warning>
 
-Next, we'll create a `BearerAuthProvider` to authenticate the server.
+Next, we'll create a `JWTVerifier` to authenticate the server.
 
 ```python
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
+from fastmcp.server.auth import JWTVerifier
 
-auth = BearerAuthProvider(
+auth = JWTVerifier(
     public_key=key_pair.public_key,
     audience="dice-server",
 )
@@ -6948,14 +6961,14 @@ Here is a complete example that you can copy/paste. For simplicity and the purpo
 
 ```python server.py [expandable]
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
-from fastmcp.server.auth.providers.bearer import RSAKeyPair
+from fastmcp.server.auth import JWTVerifier
+from fastmcp.server.auth.verifiers import RSAKeyPair
 import random
 
 key_pair = RSAKeyPair.generate()
 access_token = key_pair.create_token(audience="dice-server")
 
-auth = BearerAuthProvider(
+auth = JWTVerifier(
     public_key=key_pair.public_key,
     audience="dice-server",
 )
@@ -7368,7 +7381,7 @@ mcp = FastMCP.from_openapi(
 
 #### OpenAPI Tags in Client Meta
 
-FastMCP automatically includes OpenAPI tags from your specification in the component's metadata. These tags are available to MCP clients through the `_meta` field, allowing clients to filter and organize components based on the original OpenAPI tagging:
+FastMCP automatically includes OpenAPI tags from your specification in the component's metadata. These tags are available to MCP clients through the `_meta._fastmcp.tags` field, allowing clients to filter and organize components based on the original OpenAPI tagging:
 
 <CodeGroup>
   ```json {5} OpenAPI spec with tags
@@ -7385,13 +7398,14 @@ FastMCP automatically includes OpenAPI tags from your specification in the compo
   }
   ```
 
-  ```python {6-8} Access OpenAPI tags in MCP client
+  ```python {6-9} Access OpenAPI tags in MCP client
   async with client:
       tools = await client.list_tools()
       for tool in tools:
           if hasattr(tool, '_meta') and tool._meta:
-              # OpenAPI tags are now available!
-              openapi_tags = tool._meta.get('tags', [])
+              # OpenAPI tags are now available in _fastmcp namespace!
+              fastmcp_meta = tool._meta.get('_fastmcp', {})
+              openapi_tags = fastmcp_meta.get('tags', [])
               if 'users' in openapi_tags:
                   print(f"Found user-related tool: {tool.name}")
   ```
@@ -8992,6 +9006,7 @@ The `Tool.from_tool()` class method is the primary way to create a transformed t
 * `tags`: An optional set of tags for the new tool.
 * `annotations`: An optional set of `ToolAnnotations` for the new tool.
 * `serializer`: An optional function that will be called to serialize the result of the new tool.
+* `meta`: Control meta information for the tool. Use `None` to remove meta, any dict to set meta, or leave unset to inherit from parent.
 
 The result is a new `TransformedTool` object that wraps the parent tool and applies the transformations you specify. You can add this tool to your MCP server using its `add_tool()` method.
 
@@ -9152,6 +9167,50 @@ transform_args = {
 <Warning>
   `default_factory` can only be used with `hide=True`. This is because visible parameters need static defaults that can be represented in a JSON schema for the client.
 </Warning>
+
+### Meta Information
+
+<VersionBadge version="2.11.0" />
+
+You can control meta information on transformed tools using the `meta` parameter. Meta information is additional data about the tool that doesn't affect its functionality but can be used by clients for categorization, routing, or other purposes.
+
+```python {15-17}
+from fastmcp import FastMCP
+from fastmcp.tools import Tool
+
+mcp = FastMCP()
+
+@mcp.tool
+def analyze_data(data: str) -> dict:
+    """Analyzes the provided data."""
+    return {"result": f"Analysis of {data}"}
+
+# Add custom meta information
+enhanced_tool = Tool.from_tool(
+    analyze_data,
+    name="enhanced_analyzer",
+    meta={
+        "category": "analytics",
+        "priority": "high",
+        "requires_auth": True
+    }
+)
+
+mcp.add_tool(enhanced_tool)
+```
+
+You can also remove meta information entirely:
+
+```python {6}
+# Remove meta information from parent tool
+simplified_tool = Tool.from_tool(
+    analyze_data,
+    name="simple_analyzer", 
+    meta=None  # Removes any meta information
+)
+```
+
+If you don't specify the `meta` parameter, the transformed tool inherits the parent tool's meta information.
 
 ### Required Values
 
@@ -9355,6 +9414,10 @@ directly in the MCPConfig json file.
                 "weather_get_forecast": {
                     "name": "miami_weather",
                     "description": "Get the weather for Miami",
+                    "meta": {
+                        "category": "weather",
+                        "location": "miami"
+                    },
                     "arguments": {
                         "city": {
                             "name": "city",
@@ -16068,10 +16131,10 @@ to_resource_content(self, mime_type: str | None = None, annotations: Annotations
 ```
 
 
-# Bearer Token Authentication
-Source: https://gofastmcp.com/servers/auth/bearer
+# Token Verification
+Source: https://gofastmcp.com/servers/auth/verifiers
 
-Secure your FastMCP server's HTTP endpoints by validating JWT Bearer tokens.
+Secure your FastMCP server's HTTP endpoints by validating JWT tokens.
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -16082,15 +16145,11 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<VersionBadge version="2.6.0" />
+<VersionBadge version="2.11.0" />
 
 <Tip>
   Authentication and authorization are only relevant for HTTP-based transports.
 </Tip>
-
-<Note>
-  The [MCP specification](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization) requires servers to implement full OAuth 2.1 authorization flows with dynamic client registration, server metadata discovery, and complete token endpoints. FastMCP's Bearer Token authentication provides a simpler, more practical alternative by directly validating pre-issued JWT tokens—ideal for service-to-service communication and programmatic environments where full OAuth flows may be impractical, and in accordance with how the MCP ecosystem is pragmatically evolving. However, please note that since it doesn't implement the full OAuth 2.1 flow, this implementation does not strictly comply with the MCP specification.
-</Note>
 
 Bearer Token authentication is a common way to secure HTTP-based APIs. In this model, the client sends a token (usually a JSON Web Token or JWT) in the `Authorization` header with the "Bearer" scheme. The server then validates this token to grant or deny access.
 
@@ -16107,68 +16166,115 @@ FastMCP uses **asymmetric encryption** for token validation, which provides a cl
 
 This design allows you to integrate FastMCP servers into existing authentication infrastructures without compromising security boundaries.
 
-## Configuration
+## Token Verification Approaches
 
-To enable Bearer Token validation on your FastMCP server, use the `BearerAuthProvider` class. This provider validates incoming JWTs by verifying signatures, checking expiration, and optionally validating claims.
+FastMCP provides three token verification approaches:
+
+### JWTVerifier
+
+Validates JWT tokens using public key cryptography. Use when you have JWT tokens issued by an external identity provider (Auth0, Okta, Keycloak, etc.) and want self-contained validation without network calls.
+
+### IntrospectionTokenVerifier
+
+Validates tokens by calling a remote OAuth 2.0 authorization server's introspection endpoint (RFC 7662). Use when your authorization server is separate from your FastMCP server, you're using opaque tokens, or you need real-time token revocation.
+
+### StaticTokenVerifier
+
+Validates tokens against a predefined dictionary. Use for development and testing only - never in production.
 
 <Warning>
-  The `BearerAuthProvider` validates tokens; it does **not** issue them (or implement any part of an OAuth flow). You'll need to generate tokens separately, either using FastMCP utilities or an external Identity Provider (IdP) or OAuth 2.1 Authorization Server.
+  These verifiers validate tokens; they do **not** issue them (or implement any part of an OAuth flow). You'll need to generate tokens separately, either using FastMCP utilities or an external Identity Provider (IdP) or OAuth 2.1 Authorization Server.
 </Warning>
-
-### Basic Setup
-
-To configure bearer token authentication, instantiate a `BearerAuthProvider` instance and pass it to the `auth` parameter of the `FastMCP` instance.
-
-The `BearerAuthProvider` requires either a static public key or a JWKS URI (but not both!) in order to verify the token's signature. All other parameters are optional -- if they are provided, they will be used as additional validation criteria.
-
-```python {2, 10}
-from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
-
-auth = BearerAuthProvider(
-    jwks_uri="https://my-identity-provider.com/.well-known/jwks.json",
-    issuer="https://my-identity-provider.com/",
-    algorithm="RS512",
-    audience="my-mcp-server"
-)
-
-mcp = FastMCP(name="My MCP Server", auth=auth)
-```
 
 ### Configuration Parameters
 
-<Card icon="code" title="BearerAuthProvider Configuration">
-  <ParamField body="public_key" type="str">
-    RSA public key in PEM format for static key validation. Required if `jwks_uri` is not provided
-  </ParamField>
+<Tabs>
+  <Tab title="JWTVerifier">
+    <Card icon="code" title="JWTVerifier Configuration">
+      <ParamField body="public_key" type="str">
+        RSA public key in PEM format for static key validation. Required if `jwks_uri` is not provided
+      </ParamField>
 
-  <ParamField body="jwks_uri" type="str">
-    URL for JSON Web Key Set endpoint. Required if `public_key` is not provided
-  </ParamField>
+      <ParamField body="jwks_uri" type="str">
+        URL for JSON Web Key Set endpoint. Required if `public_key` is not provided
+      </ParamField>
 
-  <ParamField body="issuer" type="str | None">
-    Expected JWT `iss` claim value
-  </ParamField>
+      <ParamField body="issuer" type="str | None">
+        Expected JWT `iss` claim value
+      </ParamField>
 
-  <ParamField body="algorithm" type="str | None">
-    Algorithm for decoding JWT token. Defaults to 'RS256'
-  </ParamField>
+      <ParamField body="algorithm" type="str | None">
+        Algorithm for decoding JWT token. Defaults to 'RS256'
+      </ParamField>
 
-  <ParamField body="audience" type="str | None">
-    Expected JWT `aud` claim value
-  </ParamField>
+      <ParamField body="audience" type="str | None">
+        Expected JWT `aud` claim value
+      </ParamField>
 
-  <ParamField body="required_scopes" type="list[str] | None">
-    Global scopes required for all requests
-  </ParamField>
-</Card>
+      <ParamField body="required_scopes" type="list[str] | None">
+        Global scopes required for all requests
+      </ParamField>
+    </Card>
+  </Tab>
 
-#### Public Key
+  <Tab title="IntrospectionTokenVerifier">
+    <Card icon="code" title="IntrospectionTokenVerifier Configuration">
+      <ParamField body="introspection_endpoint" type="str">
+        OAuth 2.0 Token Introspection endpoint URL (RFC 7662)
+      </ParamField>
 
-If you have a public key in PEM format, you can provide it to the `BearerAuthProvider` as a string.
+      <ParamField body="client_id" type="str">
+        Resource server client ID for introspection authentication
+      </ParamField>
+
+      <ParamField body="client_secret" type="str">
+        Resource server client secret for introspection authentication
+      </ParamField>
+
+      <ParamField body="required_scopes" type="list[str] | None">
+        Global scopes required for all requests
+      </ParamField>
+    </Card>
+  </Tab>
+
+  <Tab title="StaticTokenVerifier">
+    <Card icon="code" title="StaticTokenVerifier Configuration">
+      <ParamField body="valid_tokens" type="dict[str, dict]">
+        Mapping of valid tokens to their claims. Each token maps to a dictionary containing token metadata like `sub`, `scope`, etc.
+      </ParamField>
+
+      <ParamField body="required_scopes" type="list[str] | None">
+        Global scopes required for all requests
+      </ParamField>
+    </Card>
+  </Tab>
+</Tabs>
+
+## JWT Verification
+
+The `JWTVerifier` validates JWT tokens using public key cryptography. Use this when you have JWT tokens issued by an external identity provider and want self-contained validation without network calls.
+
+```python
+from fastmcp import FastMCP
+from fastmcp.server.auth.verifiers import JWTVerifier
+
+verifier = JWTVerifier(
+    jwks_uri="https://my-identity-provider.com/.well-known/jwks.json",
+    issuer="https://my-identity-provider.com/",
+    audience="my-mcp-server"
+)
+
+mcp = FastMCP(name="My MCP Server", auth=verifier)
+```
+
+### Public Key Configuration
+
+#### Using a Static Public Key
+
+If you have a public key in PEM format, you can provide it to the `JWTVerifier` as a string.
 
 ```python {12}
-from fastmcp.server.auth import BearerAuthProvider
+from fastmcp.server.auth.verifiers import JWTVerifier
 import inspect
 
 public_key_pem = inspect.cleandoc(
@@ -16179,13 +16285,13 @@ public_key_pem = inspect.cleandoc(
     """
 )
 
-auth = BearerAuthProvider(public_key=public_key_pem)
+auth = JWTVerifier(public_key=public_key_pem)
 ```
 
-#### JWKS URI
+#### Using JWKS URI
 
 ```python
-provider = BearerAuthProvider(
+verifier = JWTVerifier(
     jwks_uri="https://idp.example.com/.well-known/jwks.json"
 )
 ```
@@ -16193,6 +16299,58 @@ provider = BearerAuthProvider(
 <Note>
   JWKS is recommended for production as it supports automatic key rotation and multiple signing keys.
 </Note>
+
+## OAuth 2.0 Token Introspection
+
+The `IntrospectionTokenVerifier` validates tokens by calling an OAuth 2.0 authorization server's introspection endpoint (RFC 7662). This is useful when your authorization server is separate from your FastMCP server, you're using opaque tokens, or you need real-time token validation with immediate revocation support.
+
+```python
+from fastmcp.server.auth.verifiers import IntrospectionTokenVerifier
+
+verifier = IntrospectionTokenVerifier(
+    introspection_endpoint="https://auth.company.com/oauth/introspect",
+    server_url="https://mcp.company.com",  # This server's URL
+    client_id="mcp-resource-server",
+    client_secret="your-secret",
+    required_scopes=["mcp:access"]
+)
+
+mcp = FastMCP(name="MCP Server", auth=verifier)
+```
+
+For each request, the verifier makes an HTTP call to the introspection endpoint to check if the token is valid and active. This provides real-time validation but requires network connectivity.
+
+## Static Token Verification
+
+The `StaticTokenVerifier` validates tokens against a predefined dictionary of token strings and claims. Use this for development and testing when you need predictable tokens without setting up a real OAuth server.
+
+```python
+from fastmcp.server.auth.verifiers import StaticTokenVerifier
+
+verifier = StaticTokenVerifier(
+    tokens={
+        "dev-token-123": {
+            "client_id": "dev-user",
+            "scopes": ["read", "write"],
+            "sub": "developer@example.com"
+        },
+        "readonly-token": {
+            "client_id": "readonly-user",
+            "scopes": ["read"],
+            "expires_at": 1735689600  # Optional expiration
+        }
+    },
+    required_scopes=["read"]
+)
+
+mcp = FastMCP(name="Development Server", auth=verifier)
+```
+
+Token claims can include `client_id` (required), `scopes`, `sub`, `expires_at`, and any custom metadata your application needs.
+
+<Warning>
+  Never use StaticTokenVerifier in production - tokens are stored in plain text.
+</Warning>
 
 ## Generating Tokens
 
@@ -16206,14 +16364,13 @@ For development and testing, FastMCP provides the `RSAKeyPair` utility class to 
 
 ```python
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
-from fastmcp.server.auth.providers.bearer import RSAKeyPair
+from fastmcp.server.auth.verifiers import JWTVerifier, RSAKeyPair
 
 # Generate a new key pair
 key_pair = RSAKeyPair.generate()
 
-# Configure the auth provider with the public key
-auth = BearerAuthProvider(
+# Configure the auth verifier with the public key
+auth = JWTVerifier(
     public_key=key_pair.public_key,
     issuer="https://dev.example.com",
     audience="my-dev-server"
@@ -17741,6 +17898,8 @@ You have complete control over the request flow:
 
 #### State Management
 
+<VersionBadge version="2.11.0" />
+
 In addition to modifying the request and response, you can also store state data that your tools can (optionally) access later. To do so, use the FastMCP Context to either `set_state` or `get_state` as appropriate. For more information, see the [Context State Management](/servers/context#state-management) docs.
 
 ## Creating Middleware
@@ -18345,7 +18504,8 @@ While FastMCP infers the name and description from your function, you can overri
 @mcp.prompt(
     name="analyze_data_request",          # Custom prompt name
     description="Creates a request to analyze data with specific parameters",  # Custom description
-    tags={"analysis", "data"}             # Optional categorization tags
+    tags={"analysis", "data"},            # Optional categorization tags
+    meta={"version": "1.1", "author": "data-team"}  # Custom metadata
 )
 def data_analysis_prompt(
     data_uri: str = Field(description="The URI of the resource containing the data."),
@@ -18365,11 +18525,17 @@ def data_analysis_prompt(
   </ParamField>
 
   <ParamField body="tags" type="set[str] | None">
-    A set of strings used to categorize the prompt. Clients might use tags to filter or group available prompts. Tags are available to clients in the prompt's `meta` field when the prompt is listed (via `list_prompts`)
+    A set of strings used to categorize the prompt. These can be used by the server and, in some cases, by clients to filter or group available prompts.
   </ParamField>
 
   <ParamField body="enabled" type="bool" default="True">
     A boolean to enable or disable the prompt. See [Disabling Prompts](#disabling-prompts) for more information
+  </ParamField>
+
+  <ParamField body="meta" type="dict[str, Any] | None">
+    <VersionBadge version="2.11.0" />
+
+    Optional meta information about the prompt. This data is passed through to the MCP client as the `_meta` field of the client-side prompt object and can be used for custom metadata, versioning, or other application-specific purposes.
   </ParamField>
 </Card>
 
@@ -19030,7 +19196,8 @@ mcp = FastMCP(name="DataServer")
     name="ApplicationStatus",     # Custom name
     description="Provides the current status of the application.", # Custom description
     mime_type="application/json", # Explicit MIME type
-    tags={"monitoring", "status"} # Categorization tags
+    tags={"monitoring", "status"}, # Categorization tags
+    meta={"version": "2.1", "team": "infrastructure"}  # Custom metadata
 )
 def get_application_status() -> dict:
     """Internal function description (ignored if description is provided above)."""
@@ -19055,7 +19222,7 @@ def get_application_status() -> dict:
   </ParamField>
 
   <ParamField body="tags" type="set[str] | None">
-    A set of strings for categorization, potentially used by clients for filtering. Tags are available to clients in the resource's `meta` field when the resource is listed (via `list_resources` or `list_resource_templates`)
+    A set of strings used to categorize the resource. These can be used by the server and, in some cases, by clients to filter or group available resources.
   </ParamField>
 
   <ParamField body="enabled" type="bool" default="True">
@@ -19074,6 +19241,12 @@ def get_application_status() -> dict:
         If true, reading the resource repeatedly will have no additional effect on its environment.
       </ParamField>
     </Expandable>
+  </ParamField>
+
+  <ParamField body="meta" type="dict[str, Any] | None">
+    <VersionBadge version="2.11.0" />
+
+    Optional meta information about the resource. This data is passed through to the MCP client as the `_meta` field of the client-side resource object and can be used for custom metadata, versioning, or other application-specific purposes.
   </ParamField>
 </Card>
 
@@ -19812,20 +19985,46 @@ The `FastMCP` constructor accepts several arguments:
     Description of how to interact with this server. These instructions help clients understand the server's purpose and available functionality
   </ParamField>
 
-  <ParamField body="lifespan" type="AsyncContextManager | None">
-    An async context manager function for server startup and shutdown logic
+  <ParamField body="auth" type="OAuthProvider | TokenVerifier | None">
+    Authentication provider for securing HTTP-based transports. See [Bearer Token Authentication](/servers/auth/bearer) for configuration options
   </ParamField>
 
-  <ParamField body="tags" type="set[str] | None">
-    A set of strings to tag the server itself
+  <ParamField body="lifespan" type="AsyncContextManager | None">
+    An async context manager function for server startup and shutdown logic
   </ParamField>
 
   <ParamField body="tools" type="list[Tool | Callable] | None">
     A list of tools (or functions to convert to tools) to add to the server. In some cases, providing tools programmatically may be more convenient than using the `@mcp.tool` decorator
   </ParamField>
 
-  <ParamField body="**settings" type="Any">
-    Keyword arguments corresponding to additional `ServerSettings` configuration
+  <ParamField body="dependencies" type="list[str] | None">
+    Optional server dependencies list with package specifications
+  </ParamField>
+
+  <ParamField body="include_tags" type="set[str] | None">
+    Only expose components with at least one matching tag
+  </ParamField>
+
+  <ParamField body="exclude_tags" type="set[str] | None">
+    Hide components with any matching tag
+  </ParamField>
+
+  <ParamField body="on_duplicate_tools" type="Literal[&#x22;error&#x22;, &#x22;warn&#x22;, &#x22;replace&#x22;]" default="error">
+    How to handle duplicate tool registrations
+  </ParamField>
+
+  <ParamField body="on_duplicate_resources" type="Literal[&#x22;error&#x22;, &#x22;warn&#x22;, &#x22;replace&#x22;]" default="warn">
+    How to handle duplicate resource registrations
+  </ParamField>
+
+  <ParamField body="on_duplicate_prompts" type="Literal[&#x22;error&#x22;, &#x22;warn&#x22;, &#x22;replace&#x22;]" default="replace">
+    How to handle duplicate prompt registrations
+  </ParamField>
+
+  <ParamField body="include_fastmcp_meta" type="bool" default="True">
+    <VersionBadge version="2.11.0" />
+
+    Whether to include FastMCP metadata in component responses. When `True`, component tags and other FastMCP-specific metadata are included in the `_fastmcp` namespace within each component's `meta` field. When `False`, this metadata is omitted, resulting in cleaner integration with external systems. Can be overridden globally via `FASTMCP_INCLUDE_FASTMCP_META` environment variable
   </ParamField>
 </Card>
 
@@ -20047,36 +20246,9 @@ mcp = FastMCP(
     on_duplicate_tools="error",                  # Handle duplicate registrations
     on_duplicate_resources="warn",
     on_duplicate_prompts="replace",
+    include_fastmcp_meta=False,                  # Disable FastMCP metadata for cleaner integration
 )
 ```
-
-### Constructor Parameters
-
-<Card icon="code" title="AdditionalFastMCP Constructor Parameters">
-  <ParamField body="dependencies" type="list[str] | None">
-    Optional server dependencies list with package specifications
-  </ParamField>
-
-  <ParamField body="include_tags" type="set[str] | None">
-    Only expose components with at least one matching tag
-  </ParamField>
-
-  <ParamField body="exclude_tags" type="set[str] | None">
-    Hide components with any matching tag
-  </ParamField>
-
-  <ParamField body="on_duplicate_tools" type="Literal[&#x22;error&#x22;, &#x22;warn&#x22;, &#x22;replace&#x22;]" default="error">
-    How to handle duplicate tool registrations
-  </ParamField>
-
-  <ParamField body="on_duplicate_resources" type="Literal[&#x22;error&#x22;, &#x22;warn&#x22;, &#x22;replace&#x22;]" default="warn">
-    How to handle duplicate resource registrations
-  </ParamField>
-
-  <ParamField body="on_duplicate_prompts" type="Literal[&#x22;error&#x22;, &#x22;warn&#x22;, &#x22;replace&#x22;]" default="replace">
-    How to handle duplicate prompt registrations
-  </ParamField>
-</Card>
 
 ### Global Settings
 
@@ -20089,6 +20261,7 @@ import fastmcp
 print(fastmcp.settings.log_level)        # Default: "INFO"
 print(fastmcp.settings.mask_error_details)  # Default: False
 print(fastmcp.settings.resource_prefix_format)  # Default: "path"
+print(fastmcp.settings.include_fastmcp_meta)   # Default: True
 ```
 
 Common global settings include:
@@ -20096,6 +20269,7 @@ Common global settings include:
 * **`log_level`**: Logging level ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"), set with `FASTMCP_LOG_LEVEL`
 * **`mask_error_details`**: Whether to hide detailed error information from clients, set with `FASTMCP_MASK_ERROR_DETAILS`
 * **`resource_prefix_format`**: How to format resource prefixes ("path" or "protocol"), set with `FASTMCP_RESOURCE_PREFIX_FORMAT`
+* **`include_fastmcp_meta`**: Whether to include FastMCP metadata in component responses (default: True), set with `FASTMCP_INCLUDE_FASTMCP_META`
 
 ### Transport-Specific Configuration
 
@@ -20127,6 +20301,7 @@ Global FastMCP settings can be configured via environment variables (prefixed wi
 export FASTMCP_LOG_LEVEL=DEBUG
 export FASTMCP_MASK_ERROR_DETAILS=True
 export FASTMCP_RESOURCE_PREFIX_FORMAT=protocol
+export FASTMCP_INCLUDE_FASTMCP_META=False
 ```
 
 ### Custom Tool Serialization
@@ -20231,6 +20406,7 @@ While FastMCP infers the name and description from your function, you can overri
     name="find_products",           # Custom tool name for the LLM
     description="Search the product catalog with optional category filtering.", # Custom description
     tags={"catalog", "search"},      # Optional tags for organization/filtering
+    meta={"version": "1.2", "author": "product-team"}  # Custom metadata
 )
 def search_products_implementation(query: str, category: str | None = None) -> list[dict]:
     """Internal function description (ignored if description is provided above)."""
@@ -20249,7 +20425,7 @@ def search_products_implementation(query: str, category: str | None = None) -> l
   </ParamField>
 
   <ParamField body="tags" type="set[str] | None">
-    A set of strings to categorize the tool. Clients might use tags to filter or group available tools. Tags are available to clients in the tool's `meta` field when the tool is listed (via `list_tools`)
+    A set of strings used to categorize the tool. These can be used by the server and, in some cases, by clients to filter or group available tools.
   </ParamField>
 
   <ParamField body="enabled" type="bool" default="True">
@@ -20284,6 +20460,12 @@ def search_products_implementation(query: str, category: str | None = None) -> l
         If true, this tool may interact with an "open world" of external entities. If false, the tool's domain of interaction is closed.
       </ParamField>
     </Expandable>
+  </ParamField>
+
+  <ParamField body="meta" type="dict[str, Any] | None">
+    <VersionBadge version="2.11.0" />
+
+    Optional meta information about the tool. This data is passed through to the MCP client as the `_meta` field of the client-side tool object and can be used for custom metadata, versioning, or other application-specific purposes.
   </ParamField>
 </Card>
 
