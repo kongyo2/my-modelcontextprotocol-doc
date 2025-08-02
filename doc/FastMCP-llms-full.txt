@@ -1718,6 +1718,7 @@ async with Client("https://fastmcp.cloud/mcp", auth=oauth) as client:
 * **`client_name`** (`str`, optional): Client name for dynamic registration. Defaults to `"FastMCP Client"`
 * **`token_storage_cache_dir`** (`Path`, optional): Token cache directory. Defaults to `~/.fastmcp/oauth-mcp-client-cache/`
 * **`additional_client_metadata`** (`dict[str, Any]`, optional): Extra metadata for client registration
+* **`callback_port`** (`int`, optional): Fixed port for OAuth callback server. If not specified, uses a random available port
 
 ## OAuth Flow
 
@@ -1737,7 +1738,7 @@ The OAuth flow is triggered when you use a FastMCP `Client` configured to use OA
   </Step>
 
   <Step title="Local Callback Server">
-    A temporary local HTTP server is started on an available port. This server's address (e.g., `http://127.0.0.1:<port>/callback`) acts as the `redirect_uri` for the OAuth flow.
+    A temporary local HTTP server is started on an available port (or the port specified via `callback_port`). This server's address (e.g., `http://127.0.0.1:<port>/callback`) acts as the `redirect_uri` for the OAuth flow.
   </Step>
 
   <Step title="Browser Interaction">
@@ -2238,23 +2239,56 @@ MCP servers can emit log messages to clients. The client can handle these logs t
 
 ## Log Handler
 
-Provide a `log_handler` function when creating the client:
+Provide a `log_handler` function when creating the client. For robust logging, the log messages can be integrated with Python's standard `logging` module.
 
 ```python
+import logging
 from fastmcp import Client
 from fastmcp.client.logging import LogMessage
 
+# In a real app, you might configure this in your main entry point
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Get a logger for the module where the client is used
+logger = logging.getLogger(__name__)
+
+# This mapping is useful for converting MCP level strings to Python's levels
+LOGGING_LEVEL_MAP = logging.getLevelNamesMapping()
+
 async def log_handler(message: LogMessage):
-    level = message.level.upper()
-    logger = message.logger or 'server'
-    data = message.data
-    print(f"[{level}] {logger}: {data}")
+    """
+    Handles incoming logs from the MCP server and forwards them
+    to the standard Python logging system.
+    """
+    msg = message.data.get('msg')
+    extra = message.data.get('extra')
+
+    # Convert the MCP log level to a Python log level
+    level = LOGGING_LEVEL_MAP.get(message.level.upper(), logging.INFO)
+
+    # Log the message using the standard logging library
+    logger.log(level, msg, extra=extra)
+
 
 client = Client(
     "my_mcp_server.py",
     log_handler=log_handler,
 )
 ```
+
+## Handling Structured Logs
+
+The `message.data` attribute is a dictionary that contains the log payload from the server. This enables structured logging, allowing you to receive rich, contextual information.
+
+The dictionary contains two keys:
+
+* `msg`: The string log message.
+* `extra`: A dictionary containing any extra data sent from the server.
+
+This structure is preserved even when logs are forwarded through a FastMCP proxy, making it a powerful tool for debugging complex, multi-server applications.
 
 ### Handler Parameters
 
@@ -2271,8 +2305,8 @@ The `log_handler` is called every time a log message is received. It receives a 
         The logger name (optional, may be None)
       </ResponseField>
 
-      <ResponseField name="data" type="Any">
-        The actual log message content
+      <ResponseField name="data" type="dict">
+        The log payload, containing `msg` and `extra` keys.
       </ResponseField>
     </Expandable>
   </ResponseField>
@@ -2280,12 +2314,15 @@ The `log_handler` is called every time a log message is received. It receives a 
 
 ```python
 async def detailed_log_handler(message: LogMessage):
+    msg = message.data.get('msg')
+    extra = message.data.get('extra')
+
     if message.level == "error":
-        print(f"ERROR: {message.data}")
+        print(f"ERROR: {msg} | Details: {extra}")
     elif message.level == "warning":
-        print(f"WARNING: {message.data}")
+        print(f"WARNING: {msg} | Details: {extra}")
     else:
-        print(f"{message.level.upper()}: {message.data}")
+        print(f"{message.level.upper()}: {msg}")
 ```
 
 ## Default Log Handling
@@ -4651,12 +4688,12 @@ The MCP connector supports OAuth authentication through authorization tokens, wh
 
 The simplest way to add authentication to the server is to use a bearer token scheme.
 
-For this example, we'll quickly generate our own tokens with FastMCP's `RSAKeyPair` utility, but this may not be appropriate for production use. For more details, see the complete server-side [Bearer Auth](/servers/auth/bearer) documentation.
+For this example, we'll quickly generate our own tokens with FastMCP's `RSAKeyPair` utility, but this may not be appropriate for production use. For more details, see the complete server-side [Token Verification](/servers/auth/token-verification) documentation.
 
 We'll start by creating an RSA key pair to sign and verify tokens.
 
 ```python
-from fastmcp.server.auth.verifiers import RSAKeyPair
+from fastmcp.server.auth.providers.jwt import RSAKeyPair
 
 key_pair = RSAKeyPair.generate()
 access_token = key_pair.create_token(audience="dice-server")
@@ -4685,7 +4722,7 @@ Here is a complete example that you can copy/paste. For simplicity and the purpo
 ```python server.py [expandable]
 from fastmcp import FastMCP
 from fastmcp.server.auth import JWTVerifier
-from fastmcp.server.auth.verifiers import RSAKeyPair
+from fastmcp.server.auth.providers.jwt import RSAKeyPair
 import random
 
 key_pair = RSAKeyPair.generate()
@@ -4757,6 +4794,115 @@ print(response.content)
 ```
 
 You should now see the dice roll results in the output.
+
+
+# WorkOS AuthKit 🤝 FastMCP
+Source: https://gofastmcp.com/integrations/authkit
+
+Secure your FastMCP server with WorkOS AuthKit
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.11.0" />
+
+This guide shows you how to secure your FastMCP server using **WorkOS AuthKit**, a complete authentication and user management solution. This integration uses the [**Remote Authentication**](/servers/auth/remote-authentication) pattern, where WorkOS handles user login and your FastMCP server validates the tokens.
+
+## Configuration
+
+### Prerequisites
+
+Before you begin, you will need:
+
+1. A **WorkOS Account** and a new **Project**.
+2. An **AuthKit** instance configured within your WorkOS project.
+3. Your FastMCP server's URL (can be localhost for development, e.g., `http://localhost:8000`).
+
+### Step 1: AuthKit Configuration
+
+In your WorkOS Dashboard, navigate to your AuthKit instance and configure the following settings:
+
+<Steps>
+  <Step title="Enable Dynamic Client Registration">
+    Go to **Applications → Configuration** and enable **Dynamic Client Registration**. This allows MCP clients register with your application automatically.
+
+    ![Enable Dynamic Client Registration](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/authkit/enable_dcr.png)
+  </Step>
+
+  <Step title="Note Your AuthKit Domain">
+    Find your **AuthKit Domain** on the configuration page. It will look like `https://your-project-12345.authkit.app`. You'll need this for your FastMCP server configuration.
+  </Step>
+</Steps>
+
+### Step 2: FastMCP Configuration
+
+Create your FastMCP server file and use the `AuthKitProvider` to handle all the OAuth integration automatically:
+
+```python server.py
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.workos import AuthKitProvider
+
+# The AuthKitProvider automatically discovers WorkOS endpoints
+# and configures JWT token validation
+auth_provider = AuthKitProvider(
+    authkit_domain="https://your-project-12345.authkit.app",
+    base_url="http://localhost:8000"  # Use your actual server URL
+)
+
+mcp = FastMCP(name="AuthKit Secured App", auth=auth_provider)
+```
+
+## Testing
+
+To test your server, you can use the `fastmcp` CLI to run it locally. Assuming you've saved the above code to `server.py` (after replacing the `authkit_domain` and `base_url` with your actual values!), you can run the following command:
+
+```bash
+fastmcp run server.py --transport http --port 8000
+```
+
+Now, you can use a FastMCP client to test that you can reach your server after authenticating:
+
+```python
+from fastmcp import Client
+import asyncio
+
+async def main():
+    async with Client("http://localhost:8000/mcp/", auth="oauth") as client:
+        assert await client.ping()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Environment Variables
+
+You can use environment variables to configure an AuthKit provider without instantiating the provider in your code.
+
+To do so, set the following environment variables:
+
+```bash
+# instruct FastMCP to use the AuthKit provider
+FASTMCP_SERVER_AUTH=AUTHKIT
+
+# configure the AuthKit provider
+FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_AUTHKIT_DOMAIN="https://your-project-12345.authkit.app"
+FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_BASE_URL="http://localhost:8000"
+```
+
+For clarity, you do **not** need to instantiate an auth provider when using environment variables:
+
+```python server.py
+from fastmcp import FastMCP
+
+# FastMCP automatically creates the AuthKitProvider from environment variables
+mcp = FastMCP(name="WorkOS Secured App")
+```
 
 
 # ChatGPT 🤝 FastMCP
@@ -5685,7 +5831,7 @@ The AI assistant can now access all the tools, resources, and prompts you've def
 # Eunomia Authorization 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/eunomia-authorization
 
-Add policy-based authorization to your FastMCP servers
+Add policy-based authorization to your FastMCP servers with Eunomia
 
 Add **policy-based authorization** to your FastMCP servers with one-line code addition with the **[Eunomia][eunomia-github] authorization middleware**.
 
@@ -5693,7 +5839,7 @@ Control which tools, resources and prompts MCP clients can view and execute on y
 
 ## How it Works
 
-Exploiting FastMCP's [Middleware][fastmcp-middleare], the Eunomia middleware intercepts all MCP requests to your server and, then, automatically maps MCP methods to authorization checks.
+Exploiting FastMCP's [Middleware][fastmcp-middleare], the Eunomia middleware intercepts all MCP requests to your server and automatically maps MCP methods to authorization checks.
 
 ### Listing Operations
 
@@ -5737,13 +5883,7 @@ sequenceDiagram
 ## Add Authorization to Your Server
 
 <Note>
-  Eunomia is an AI-specific standalone authorization server that handles policy decisions. You must have an Eunomia server running alongside your FastMCP server for the middleware to function.
-
-  Run it in the background with Docker:
-
-  ```bash
-  docker run -d -p 8000:8000 ttommitt/eunomia-server:latest
-  ```
+  Eunomia is an AI-specific authorization server that handles policy decisions. The server runs embedded within your MCP server by default for a zero-effort configuration, but can alternatively be run remotely for centralized policy decisions.
 </Note>
 
 ### Create a Server with Authorization
@@ -5758,17 +5898,19 @@ Then create a FastMCP server and add the Eunomia middleware in one line:
 
 ```python server.py
 from fastmcp import FastMCP
-from eunomia_mcp import EunomiaMcpMiddleware
+from eunomia_mcp import create_eunomia_middleware
 
-mcp = FastMCP("Secure FastMCP Server 🔒")
+# Create your FastMCP server
+mcp = FastMCP("Secure MCP Server 🔒")
 
 @mcp.tool()
 def add(a: int, b: int) -> int:
     """Add two numbers"""
     return a + b
 
-middleware = EunomiaMcpMiddleware()
-app = mcp.add_middleware(middleware)
+# Add middleware to your server
+middleware = create_eunomia_middleware(policy_file="mcp_policies.json")
+mcp.add_middleware(middleware)
 
 if __name__ == "__main__":
     mcp.run()
@@ -5779,18 +5921,18 @@ if __name__ == "__main__":
 Use the `eunomia-mcp` CLI in your terminal to manage your authorization policies:
 
 ```bash
-# Create a default policy configuration file
+# Create a default policy file
 eunomia-mcp init
+
+# Or create a policy file customized for your FastMCP server
+eunomia-mcp init --custom-mcp "app.server:mcp"
 ```
 
-This creates a policy file you can customize to control access to your MCP tools and resources.
+This creates `mcp_policies.json` file that you can further edit to your access control needs.
 
 ```bash
-# Once ready, validate your policy
+# Once edited, validate your policy file
 eunomia-mcp validate mcp_policies.json
-
-# And push it to the Eunomia server
-eunomia-mcp push mcp_policies.json
 ```
 
 ### Run the Server
@@ -5804,8 +5946,8 @@ python server.py
 The middleware will now intercept all MCP requests and check them against your policies. Requests include agent identification through headers like `X-Agent-ID`, `X-User-ID`, `User-Agent`, or `Authorization` and an automatic mapping of MCP methods to authorization resources and actions.
 
 <Tip>
-  For detailed policy configuration, custom authentication, and advanced
-  deployment patterns, visit the [Eunomia MCP Middleware
+  For detailed policy configuration, custom authentication, and remote
+  deployments, visit the [Eunomia MCP Middleware
   repository][eunomia-mcp-github].
 </Tip>
 
@@ -6928,12 +7070,12 @@ The Responses API can include headers to authenticate the request, which means y
 
 The simplest way to add authentication to the server is to use a bearer token scheme.
 
-For this example, we'll quickly generate our own tokens with FastMCP's `RSAKeyPair` utility, but this may not be appropriate for production use. For more details, see the complete server-side [Bearer Auth](/servers/auth/bearer) documentation.
+For this example, we'll quickly generate our own tokens with FastMCP's `RSAKeyPair` utility, but this may not be appropriate for production use. For more details, see the complete server-side [Token Verification](/servers/auth/token-verification) documentation.
 
 We'll start by creating an RSA key pair to sign and verify tokens.
 
 ```python
-from fastmcp.server.auth.verifiers import RSAKeyPair
+from fastmcp.server.auth.providers.jwt import RSAKeyPair
 
 key_pair = RSAKeyPair.generate()
 access_token = key_pair.create_token(audience="dice-server")
@@ -6962,7 +7104,7 @@ Here is a complete example that you can copy/paste. For simplicity and the purpo
 ```python server.py [expandable]
 from fastmcp import FastMCP
 from fastmcp.server.auth import JWTVerifier
-from fastmcp.server.auth.verifiers import RSAKeyPair
+from fastmcp.server.auth.providers.jwt import RSAKeyPair
 import random
 
 key_pair = RSAKeyPair.generate()
@@ -7546,14 +7688,14 @@ The middleware automatically maps MCP methods to Permit.io resources and actions
   * **Resource**: `{server_name}` (e.g., `myserver`)
   * **Action**: The tool name (e.g., `greet`)
 
-![Permit.io Policy Mapping Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/policy_mapping.png)
+![Permit.io Policy Mapping Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/policy_mapping.png)
 
 *Example: In Permit.io, the 'Admin' role is granted permissions on resources and actions as mapped by the middleware. For example, 'greet', 'greet-jwt', and 'login' are actions on the 'mcp\_server' resource, and 'list' is an action on the 'mcp\_server\_tools' resource.*
 
 > **Note:**
 > Don't forget to assign the relevant role (e.g., Admin, User) to the user authenticating to your MCP server (such as the user in the JWT) in the Permit.io Directory. Without the correct role assignment, users will not have access to the resources and actions you've configured in your policies.
 >
-> ![Permit.io Directory Role Assignment Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/role_assignement.png)
+> ![Permit.io Directory Role Assignment Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/role_assignement.png)
 >
 > *Example: In Permit.io Directory, both 'client' and 'admin' users are assigned the 'Admin' role, granting them the permissions defined in your policy mapping.*
 
@@ -7743,7 +7885,7 @@ mcp.add_middleware(PermitMcpMiddleware(
 
 The middleware supports Attribute-Based Access Control (ABAC) policies that can evaluate tool arguments as attributes. Tool arguments are automatically flattened as individual attributes (e.g., `arg_name`, `arg_number`) for granular policy conditions.
 
-![ABAC Condition Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/abac_condition_example.png)
+![ABAC Condition Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/abac_condition_example.png)
 
 *Example: Create dynamic resources with conditions like `resource.arg_number greater-than 10` to allow the `conditional-greet` tool only when the number argument exceeds 10.*
 
@@ -7758,7 +7900,7 @@ def conditional_greet(name: str, number: int) -> str:
     return f"Hello, {name}! Your number is {number}"
 ```
 
-![ABAC Policy Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/abac_policy_example.png)
+![ABAC Policy Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/abac_policy_example.png)
 
 *Example: The Admin role is granted access to the "conditional-greet" action on the "Big-greets" dynamic resource, while other tools like "greet", "greet-jwt", and "login" are granted on the base "mcp\_server" resource.*
 
@@ -9488,7 +9630,7 @@ Tool transformation is a flexible feature that supports many powerful patterns. 
 
 ### Adapting Remote or Generated Tools
 
-This is one of the most common reasons to use tool transformation. Tools from remote servers (via a [proxy](/servers/proxy)) or generated from an [OpenAPI spec](/servers/openapi) are often too generic for direct use by an LLM. You can use transformation to create a simpler, more intuitive version for your specific needs.
+This is one of the most common reasons to use tool transformation. Tools from remote servers (via a [proxy](/servers/proxy)) or generated from an [OpenAPI spec](/integrations/openapi) are often too generic for direct use by an LLM. You can use transformation to create a simpler, more intuitive version for your specific needs.
 
 ### Chaining Transformations
 
@@ -15314,38 +15456,6 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-__init__
 FastMCP utility modules.
 
 
-# cache
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-cache
-
-
-
-# `fastmcp.utilities.cache`
-
-## Classes
-
-### `TimedCache` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cache.py#L7" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-**Methods:**
-
-#### `set` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cache.py#L14" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-set(self, key: Any, value: Any) -> None
-```
-
-#### `get` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cache.py#L18" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-get(self, key: Any) -> Any
-```
-
-#### `clear` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cache.py#L25" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-clear(self) -> None
-```
-
-
 # cli
 Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-cli
 
@@ -16131,10 +16241,10 @@ to_resource_content(self, mime_type: str | None = None, annotations: Annotations
 ```
 
 
-# Token Verification
-Source: https://gofastmcp.com/servers/auth/verifiers
+# Authentication
+Source: https://gofastmcp.com/servers/auth/authentication
 
-Secure your FastMCP server's HTTP endpoints by validating JWT tokens.
+Secure your FastMCP server with flexible authentication patterns, from simple API keys to full OAuth 2.1 integration with external identity providers.
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -16148,325 +16258,672 @@ export const VersionBadge = ({version}) => {
 <VersionBadge version="2.11.0" />
 
 <Tip>
-  Authentication and authorization are only relevant for HTTP-based transports.
+  Authentication is only relevant for FastMCP's HTTP-based transports (`http` and `sse`). STDIO transport relies on the security of the local environment where it runs.
 </Tip>
 
-Bearer Token authentication is a common way to secure HTTP-based APIs. In this model, the client sends a token (usually a JSON Web Token or JWT) in the `Authorization` header with the "Bearer" scheme. The server then validates this token to grant or deny access.
-
-FastMCP supports Bearer Token authentication for its HTTP-based transports (`http` and `sse`), allowing you to protect your server from unauthorized access.
-
-## Authentication Strategy
-
-FastMCP uses **asymmetric encryption** for token validation, which provides a clean security separation between token issuers and FastMCP servers. This approach means:
-
-* **No shared secrets**: Your FastMCP server never needs access to private keys or client secrets
-* **Public key verification**: The server only needs a public key (or JWKS endpoint) to verify token signatures
-* **Secure token issuance**: Tokens are signed by an external service using a private key that never leaves the issuer
-* **Scalable architecture**: Multiple FastMCP servers can validate tokens without coordinating secrets
-
-This design allows you to integrate FastMCP servers into existing authentication infrastructures without compromising security boundaries.
-
-## Token Verification Approaches
-
-FastMCP provides three token verification approaches:
-
-### JWTVerifier
-
-Validates JWT tokens using public key cryptography. Use when you have JWT tokens issued by an external identity provider (Auth0, Okta, Keycloak, etc.) and want self-contained validation without network calls.
-
-### IntrospectionTokenVerifier
-
-Validates tokens by calling a remote OAuth 2.0 authorization server's introspection endpoint (RFC 7662). Use when your authorization server is separate from your FastMCP server, you're using opaque tokens, or you need real-time token revocation.
-
-### StaticTokenVerifier
-
-Validates tokens against a predefined dictionary. Use for development and testing only - never in production.
+FastMCP provides a powerful and flexible authentication system designed to fit modern application needs. Authentication is a fast-moving and often confusing part of the MCP specification, so FastMCP endeavors to make it as straightforward as possible while adhering to industry best practices as the MCP community evolves new standards.
 
 <Warning>
-  These verifiers validate tokens; they do **not** issue them (or implement any part of an OAuth flow). You'll need to generate tokens separately, either using FastMCP utilities or an external Identity Provider (IdP) or OAuth 2.1 Authorization Server.
+  **Authentication is rapidly evolving in MCP.** The specification and best practices are changing quickly. FastMCP aims to provide stable, secure patterns that adapt to these changes while keeping your code simple and maintainable.
 </Warning>
 
-### Configuration Parameters
+## Authentication Patterns
 
-<Tabs>
-  <Tab title="JWTVerifier">
-    <Card icon="code" title="JWTVerifier Configuration">
-      <ParamField body="public_key" type="str">
-        RSA public key in PEM format for static key validation. Required if `jwks_uri` is not provided
-      </ParamField>
+MCP supports a variety of authentication options depending on how much of the authentication complexity you want to pull into your server itself. This can be thought of as a trade-off between whether your MCP server acts as a **Resource Server (RS)** that protects resources, an **Authorization Server (AS)** that handles user authentication and issues tokens, or neither.
 
-      <ParamField body="jwks_uri" type="str">
-        URL for JSON Web Key Set endpoint. Required if `public_key` is not provided
-      </ParamField>
+Think of it as a spectrum:
 
-      <ParamField body="issuer" type="str | None">
-        Expected JWT `iss` claim value
-      </ParamField>
+* **No responsibility:** Your server has no authentication *(none)*
+* **Minimal responsibility:** Your server only validates tokens issued elsewhere *(RS)*
+* **Moderate responsibility:** Your server coordinates with external identity providers *(RS + remote AS)* — **recommended for most users**
+* **Full responsibility:** Your server handles the entire authentication lifecycle *(RS + AS)*
 
-      <ParamField body="algorithm" type="str | None">
-        Algorithm for decoding JWT token. Defaults to 'RS256'
-      </ParamField>
+### Unauthenticated
 
-      <ParamField body="audience" type="str | None">
-        Expected JWT `aud` claim value
-      </ParamField>
+Unauthenticated FastMCP servers run without any mechanisms to protect their components. All tools and resources are publicly accessible to any client that can connect to your server.
 
-      <ParamField body="required_scopes" type="list[str] | None">
-        Global scopes required for all requests
-      </ParamField>
-    </Card>
-  </Tab>
+**Use this when:**
 
-  <Tab title="IntrospectionTokenVerifier">
-    <Card icon="code" title="IntrospectionTokenVerifier Configuration">
-      <ParamField body="introspection_endpoint" type="str">
-        OAuth 2.0 Token Introspection endpoint URL (RFC 7662)
-      </ParamField>
+* Building development or testing environments
+* Creating internal tools where network access controls provide sufficient security
+* Prototyping before implementing proper authentication
 
-      <ParamField body="client_id" type="str">
-        Resource server client ID for introspection authentication
-      </ParamField>
+<Warning>
+  **Security considerations:**
 
-      <ParamField body="client_secret" type="str">
-        Resource server client secret for introspection authentication
-      </ParamField>
+  * Only suitable for trusted environments or carefully designed public APIs
+  * Consider network-level security (VPNs, firewalls, private networks)
+  * Exercise extreme caution when exposing unauthenticated servers to the public internet
+  * Ensure any public endpoints only expose non-sensitive data or operations
+</Warning>
 
-      <ParamField body="required_scopes" type="list[str] | None">
-        Global scopes required for all requests
-      </ParamField>
-    </Card>
-  </Tab>
+### Token Verification
 
-  <Tab title="StaticTokenVerifier">
-    <Card icon="code" title="StaticTokenVerifier Configuration">
-      <ParamField body="valid_tokens" type="dict[str, dict]">
-        Mapping of valid tokens to their claims. Each token maps to a dictionary containing token metadata like `sub`, `scope`, etc.
-      </ParamField>
+Token verification is the conceptually simplest approach to authentication, where your FastMCP server acts as a pure **Resource Server**. Your server validates `Bearer` tokens on incoming requests but has no knowledge of how those tokens were obtained. This is analogous to how a web server validates API keys on incoming requests. Read more in the [token verification documentation](/servers/auth/token-verification).
 
-      <ParamField body="required_scopes" type="list[str] | None">
-        Global scopes required for all requests
-      </ParamField>
-    </Card>
-  </Tab>
-</Tabs>
+<Note>
+  **Protocol Note:** While simple to implement, this pattern operates somewhat outside the formal MCP authentication flow, which expects OAuth-style interactions. It's best suited for internal systems or when you have full control over token generation.
+</Note>
 
-## JWT Verification
+**Use this when:**
 
-The `JWTVerifier` validates JWT tokens using public key cryptography. Use this when you have JWT tokens issued by an external identity provider and want self-contained validation without network calls.
+* You just need to validate tokens issued by another system
+* Building internal microservices that trust a central auth service
+* Working with static, long-lived API keys
+* You control both the token issuer and your FastMCP server
+
+**Responsibilities you're taking on:**
+
+* Token validation logic
+* Ensuring tokens are securely transmitted to your server
+* Managing token lifecycle in your issuing system
+
+### Remote Authentication
+
+This is the **recommended pattern for most FastMCP users** and follows the 2025-6-18 MCP protocol update. Your FastMCP server acts as a **Resource Server** and integrates with an external, trusted **Authorization Server** like WorkOS, Auth0, or Okta. You can learn more about this pattern in the [remote authentication documentation](/servers/auth/remote-authentication).
+
+**Use this when:**
+
+* You want to integrate with external identity providers
+* Building user-facing applications that need SSO
+* You want enterprise-grade authentication without building it yourself
+* You need features like multi-factor authentication, social logins, or directory sync
+
+**Responsibilities you're taking on:**
+
+* Configuring your server to trust the external provider
+* Token validation using the provider's public keys
+* Mapping token claims to your application's user model
+
+**What the external provider handles:**
+
+* User login and consent flows
+* Token issuance and management
+* User account management
+* Security features like MFA and fraud detection
+
+### Full OAuth Server
+
+<Warning>
+  **This is extremely advanced.** Most people should not build their own OAuth server. It requires deep security expertise and ongoing maintenance. Consider this only if you need complete control and have the resources to implement it securely.
+</Warning>
+
+In this pattern, your FastMCP server acts as both the **Authorization Server** and **Resource Server**, handling the entire authentication lifecycle from user login to token validation. Read more in the [full OAuth server documentation](/servers/auth/full-oauth-server).
+
+**Use this when:**
+
+* Building a completely standalone application with its own user database
+* You need full control over every aspect of authentication
+* Prototyping OAuth flows locally without external dependencies
+* You have the security expertise to implement OAuth securely
+
+**Responsibilities you're taking on:**
+
+* Secure user credential storage and verification
+* OAuth flow implementation
+* Token lifecycle management
+* Security measures like rate limiting and attack prevention
+* User consent and account management interfaces
+* Ongoing security updates and compliance
+
+## Configuring Authentication
+
+FastMCP provides a variety of `AuthProvider` classes that can be used to configure your server. To use one, instantiate it and pass it to your FastMCP server's `auth` parameter.
+
+<CodeGroup>
+  ```python Token Verification
+  from fastmcp import FastMCP
+  from fastmcp.server.auth.providers.jwt import JWTVerifier
+
+  jwt_verifier = JWTVerifier(...)
+
+  mcp = FastMCP(name="My Server", auth=jwt_verifier)
+  ```
+
+  ```python Remote Authentication
+  from fastmcp import FastMCP
+  from fastmcp.server.auth.providers.workos import AuthKitProvider
+
+  auth_provider = AuthKitProvider(...)
+
+  mcp = FastMCP(name="My Server", auth=auth_provider)
+  ```
+</CodeGroup>
+
+### Environment Variables
+
+For providers that support it, you can configure authentication entirely through environment variables.
+
+There are two steps to this process:
+
+1. Set `FASTMCP_SERVER_AUTH` to the registered name of your provider. For example, `JWT` for the `JWTVerifier` or `AUTHKIT` for the `AuthKitProvider`.
+2. Set the appropriate environment variables for your provider in order to configure it. These are provider-specific and can be found in the provider's documentation. Not all providers will support environment variable configuration for all of their settings.
+
+For example, to configure a JWT verifier, you would set:
+
+```bash
+export FASTMCP_SERVER_AUTH=JWT
+export FASTMCP_SERVER_AUTH_JWT_JWKS_URI="https://your-idp.com/.well-known/jwks.json"
+```
+
+And now your FastMCP server will automatically be configured with the JWT verifier:
 
 ```python
 from fastmcp import FastMCP
-from fastmcp.server.auth.verifiers import JWTVerifier
 
-verifier = JWTVerifier(
-    jwks_uri="https://my-identity-provider.com/.well-known/jwks.json",
-    issuer="https://my-identity-provider.com/",
-    audience="my-mcp-server"
-)
+# Assumes the environment variables are set as above
+mcp = FastMCP(name="My Protected Server")
 
-mcp = FastMCP(name="My MCP Server", auth=verifier)
+assert mcp.auth is not None
+assert mcp.auth.jwks_uri == "https://your-idp.com/.well-known/jwks.json"
 ```
 
-### Public Key Configuration
+Note that if you provide an `auth` parameter to your FastMCP server, it will override the environment variable configuration. You can also set `auth=None` to disable authentication entirely and prohibit environment variable configuration.
 
-#### Using a Static Public Key
 
-If you have a public key in PEM format, you can provide it to the `JWTVerifier` as a string.
+# Full OAuth Server
+Source: https://gofastmcp.com/servers/auth/full-oauth-server
 
-```python {12}
-from fastmcp.server.auth.verifiers import JWTVerifier
-import inspect
+Build a self-contained authentication system where your FastMCP server manages users, issues tokens, and validates them.
 
-public_key_pem = inspect.cleandoc(
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.11.0" />
+
+<Warning>
+  **This is an extremely advanced pattern.** Building a secure, production-ready OAuth 2.1 server is a complex undertaking that requires deep expertise in authentication protocols, cryptography, and security best practices.
+
+  This pattern exists primarily to support the MCP protocol specification's requirements. **Most users should strongly prefer the [Remote Authentication pattern](/servers/auth/remote-authentication)** to integrate with a dedicated identity provider like WorkOS, Auth0, or Okta.
+</Warning>
+
+In the **Full OAuth Server** pattern, your FastMCP server acts as both the **Authorization Server (AS)** and the **Resource Server (RS)**. It becomes responsible for the entire authentication lifecycle:
+
+* **User Management**: Storing user credentials, profiles, and permissions
+* **Client Registration**: Managing MCP client applications and their credentials
+* **Authentication Flow**: Handling login pages, multi-factor authentication, and user consent
+* **Token Lifecycle**: Issuing, refreshing, and revoking access tokens
+* **Security Controls**: Rate limiting, audit logging, and threat detection
+
+This pattern should only be considered if you have strict requirements that prevent using external identity providers, such as air-gapped environments or highly specialized compliance needs.
+
+## Building an OAuth Provider
+
+To implement this pattern, you must subclass `fastmcp.server.auth.auth.OAuthProvider` and implement all of its abstract methods. This class extends the low-level OAuth authorization server interface and requires implementing the complete OAuth 2.1 specification.
+
+```python
+from fastmcp.server.auth.auth import OAuthProvider
+from mcp.server.auth.provider import (
+    AccessToken, AuthorizationCode, RefreshToken, AuthorizationParams
+)
+from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
+
+class MyOAuthProvider(OAuthProvider):
     """
-    -----BEGIN PUBLIC KEY-----
-    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy...
-    -----END PUBLIC KEY-----
+    A production OAuth provider implementation.
+    
+    WARNING: This is a simplified example. A real implementation
+    requires extensive security considerations, persistent storage,
+    proper error handling, and adherence to OAuth 2.1 security
+    best practices.
     """
-)
-
-auth = JWTVerifier(public_key=public_key_pem)
+    
+    def __init__(self, base_url: str):
+        super().__init__(base_url=base_url)
+        # Initialize your database connections, cryptographic keys, etc.
+    
+    # === Client Management ===
+    async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
+        """Retrieve client information by ID from your database."""
+        # Query your client database and return client info or None if not found
+        raise NotImplementedError
+    
+    async def register_client(self, client_info: OAuthClientInformationFull) -> None:
+        """Store new client registration information."""
+        # Validate and save client metadata to your database
+        # May raise RegistrationError if client data is invalid
+        raise NotImplementedError
+    
+    # === Authorization Flow ===
+    async def authorize(
+        self, client: OAuthClientInformationFull, params: AuthorizationParams
+    ) -> str:
+        """
+        Handle authorization request and return redirect URL.
+        
+        Many implementations redirect to a third-party OAuth provider, creating
+        a chain: Client -> MCP Server -> External IdP -> MCP Server -> Client.
+        You must generate an authorization code with at least 128 bits of entropy.
+        """
+        # Authenticate user, get consent, generate auth code, return redirect URL
+        raise NotImplementedError
+    
+    async def load_authorization_code(
+        self, client: OAuthClientInformationFull, authorization_code: str
+    ) -> AuthorizationCode | None:
+        """Load authorization code from storage by code string."""
+        # Look up stored authorization code, return None if not found or expired
+        raise NotImplementedError
+    
+    # === Token Management ===
+    async def exchange_authorization_code(
+        self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode
+    ) -> OAuthToken:
+        """Exchange authorization code for access and refresh tokens."""
+        # Validate code, generate new token pair, invalidate the auth code
+        raise NotImplementedError
+    
+    async def load_refresh_token(
+        self, client: OAuthClientInformationFull, refresh_token: str
+    ) -> RefreshToken | None:
+        """Load refresh token from storage by token string."""
+        # Look up refresh token, return None if not found or expired
+        raise NotImplementedError
+    
+    async def exchange_refresh_token(
+        self, 
+        client: OAuthClientInformationFull, 
+        refresh_token: RefreshToken,
+        scopes: list[str]
+    ) -> OAuthToken:
+        """Exchange refresh token for new access/refresh token pair."""
+        # Should rotate both tokens for security best practices
+        raise NotImplementedError
+    
+    async def load_access_token(self, token: str) -> AccessToken | None:
+        """Load and validate access token - called on every protected request."""
+        # Look up token, check expiration, return None if invalid
+        raise NotImplementedError
+    
+    async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
+        """Revoke access or refresh token."""
+        # Should revoke both access and refresh tokens regardless of which is provided
+        # Do nothing if token is already invalid or revoked
+        raise NotImplementedError
+    
+    # === Token Verification (AuthProvider interface) ===
+    async def verify_token(self, token: str) -> AccessToken | None:
+        """Verify bearer token for incoming requests."""
+        # This is called on every protected MCP request
+        # Typically delegates to load_access_token
+        return await self.load_access_token(token)
 ```
 
-#### Using JWKS URI
 
-```python
-verifier = JWTVerifier(
-    jwks_uri="https://idp.example.com/.well-known/jwks.json"
-)
+# Remote Authentication
+Source: https://gofastmcp.com/servers/auth/remote-authentication
+
+Integrate with external identity providers like WorkOS, Auth0, or Okta by trusting them to handle user authentication.
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.11.0" />
+
+**Remote Authentication** is the recommended pattern for securing most production applications. In this model, your FastMCP server acts as a **Resource Server (RS)** and integrates with an external, trusted **Authorization Server (AS)**, such as WorkOS, Auth0, or a corporate SSO system.
+
+This approach lets you leverage robust, feature-rich identity platforms for user management, multi-factor authentication, and social logins, while your FastMCP server focuses on its core job: providing tools and resources.
+
+### How It Works
+
+The flow relies on the MCP client's ability to discover your server's authentication requirements. Your server doesn't handle logins itself; it tells the client where to find the real identity provider.
+
+The key endpoint is **`/.well-known/oauth-protected-resource`** which returns static metadata pointing to the authorization server. You can optionally also provide **`/.well-known/oauth-authorization-server`** that forwards the authorization server's metadata for convenience.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant FastMCPServer as FastMCP (RS)
+    participant ExternalIdP as External IdP (AS)
+
+    Client->>FastMCPServer: 1. GET /.well-known/oauth-protected-resource
+    FastMCPServer-->>Client: 2. "Use https://my-idp.com for auth"
+    
+    note over Client, ExternalIdP: Client goes directly to the IdP
+    Client->>ExternalIdP: 3. GET /.well-known/oauth-authorization-server
+    ExternalIdP-->>Client: 4. OAuth endpoints & capabilities
+    
+    Client->>ExternalIdP: 5. User authenticates & gets token
+    ExternalIdP-->>Client: 
+    
+    Client->>FastMCPServer: 6. MCP request with Bearer token
+    note right of FastMCPServer: Server verifies the token
+    FastMCPServer->>FastMCPServer: 7. Verify token signature <br/> (using IdP's public keys)
+    FastMCPServer-->>Client: 8. MCP Response
 ```
 
-<Note>
-  JWKS is recommended for production as it supports automatic key rotation and multiple signing keys.
-</Note>
+## Building a Custom Provider
 
-## OAuth 2.0 Token Introspection
+To connect to any identity provider, you create a custom `AuthProvider` subclass. This class has two main responsibilities:
 
-The `IntrospectionTokenVerifier` validates tokens by calling an OAuth 2.0 authorization server's introspection endpoint (RFC 7662). This is useful when your authorization server is separate from your FastMCP server, you're using opaque tokens, or you need real-time token validation with immediate revocation support.
+1. **Verifying Tokens:** Validate tokens issued by the external provider.
+2. **Forwarding Metadata:** Tell MCP clients where to find the external provider's login pages and token endpoints.
+
+### Step 1: Verifying Tokens
+
+Your provider must implement the `verify_token` method. For most modern identity providers that issue JWTs, you can simply delegate this task to FastMCP's built-in `JWTVerifier`.
 
 ```python
-from fastmcp.server.auth.verifiers import IntrospectionTokenVerifier
+from fastmcp.server.auth.auth import AuthProvider
+from fastmcp.server.auth.providers.jwt import JWTVerifier
+from mcp.server.auth.provider import AccessToken
 
-verifier = IntrospectionTokenVerifier(
-    introspection_endpoint="https://auth.company.com/oauth/introspect",
-    server_url="https://mcp.company.com",  # This server's URL
-    client_id="mcp-resource-server",
-    client_secret="your-secret",
-    required_scopes=["mcp:access"]
-)
+class MyIdPAuthProvider(AuthProvider):
+    def __init__(self):
+        super().__init__()
+        # The verifier validates tokens from the upstream provider.
+        self.token_verifier = JWTVerifier(
+            jwks_uri="https://my-idp.com/.well-known/jwks.json",
+            issuer="https://my-idp.com",
+            audience="my-fastmcp-api"
+        )
 
-mcp = FastMCP(name="MCP Server", auth=verifier)
+    async def verify_token(self, token: str) -> AccessToken | None:
+        return await self.token_verifier.verify_token(token)
 ```
 
-For each request, the verifier makes an HTTP call to the introspection endpoint to check if the token is valid and active. This provides real-time validation but requires network connectivity.
+### Step 2: Adding Discovery Metadata
 
-## Static Token Verification
-
-The `StaticTokenVerifier` validates tokens against a predefined dictionary of token strings and claims. Use this for development and testing when you need predictable tokens without setting up a real OAuth server.
+Next, implement the `customize_auth_routes` method. The essential endpoint is `/.well-known/oauth-protected-resource` which tells clients where to find your authorization server. You can optionally add the authorization server forwarding endpoint for convenience.
 
 ```python
-from fastmcp.server.auth.verifiers import StaticTokenVerifier
+import httpx
+from starlette.responses import JSONResponse
+from starlette.routing import Route
+
+class MyIdPAuthProvider(AuthProvider):
+    # ... (init and verify_token from above) ...
+    
+    def customize_auth_routes(self, routes: list[Route]) -> list[Route]:
+        # Essential: Tell clients which authorization server to use
+        async def protected_resource_metadata(request):
+            return JSONResponse({
+                "resource": "https://my-fastmcp-server.com",
+                "authorization_servers": ["https://my-idp.com"],
+                "bearer_methods_supported": ["header"],
+            })
+        
+        routes.append(Route("/.well-known/oauth-protected-resource", protected_resource_metadata))
+        
+        # Optional: Forward the authorization server's metadata for convenience
+        # (Clients can also fetch this directly from the IdP)
+        async def authorization_server_metadata(request):
+            async with httpx.AsyncClient() as client:
+                resp = await client.get("https://my-idp.com/.well-known/oauth-authorization-server")
+                resp.raise_for_status()
+                return JSONResponse(resp.json())
+
+        routes.append(Route("/.well-known/oauth-authorization-server", authorization_server_metadata))
+        return routes
+```
+
+### Step 3: Using Your Provider
+
+With these two methods implemented, your auth provider is now fully integrated with your identity provider. You can now use your custom provider with FastMCP by passing it to the `auth` parameter of your `FastMCP` instance:
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP(name="My Secure Server", auth=MyIdPAuthProvider())
+```
+
+## Example: WorkOS AuthKit Provider
+
+FastMCP provides a built-in provider for **WorkOS AuthKit** that handles this entire pattern for you. It's a perfect example of the remote authentication pattern in action.
+
+**Prerequisites:**
+
+1. A WorkOS account with an AuthKit project.
+2. **Dynamic Client Registration (DCR)** must be enabled in your WorkOS application settings.
+3. Your FastMCP server's URL must be added as a **Redirect URI** in your WorkOS project (can be localhost for development).
+
+```python
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.workos import AuthKitProvider
+
+# The AuthKitProvider implements both metadata forwarding and token validation.
+auth_provider = AuthKitProvider(
+    # Your unique AuthKit domain from the WorkOS dashboard
+    authkit_domain="https://your-project.authkit.app",
+    # The URL of THIS FastMCP server (can be localhost for development)
+    base_url="https://your-fastmcp-server.com"
+)
+
+mcp = FastMCP(name="My WorkOS-Protected Server", auth=auth_provider)
+```
+
+<Tip>
+  For a complete, step-by-step tutorial on using this provider, see the [**WorkOS AuthKit Integration Guide**](/integrations/authkit).
+</Tip>
+
+
+# Token Verification
+Source: https://gofastmcp.com/servers/auth/token-verification
+
+Protect your server by validating bearer tokens.
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.11.0" />
+
+In the **Token Verification** pattern, your FastMCP server acts as a pure **Resource Server**. It validates Bearer tokens on incoming requests and uses the token claims to authorize access to protected resources (tools, resources, and prompts). It does not participate in user login, token issuance, or consent flows - it trusts tokens issued by another system. This is equivalent to how a traditional web server validates API keys on incoming requests.
+
+This is the right pattern if you have another system responsible for generating tokens and you simply need your FastMCP server to trust them or use the information in the token to make decisions.
+
+## JWT Verification
+
+JWT (JSON Web Token) verification is the recommended approach for production environments. The `JWTVerifier` class validates tokens using secure, asymmetric public key cryptography. This means your server only needs access to a public key to verify tokens, while the corresponding private key used for signing remains secure on your identity provider.
+
+### Using the JWTVerifier
+
+The most common and flexible approach is to point the verifier at a **JSON Web Key Set (JWKS)** endpoint. This allows your identity provider to rotate signing keys automatically without requiring you to update your server's configuration.
+
+<CodeGroup>
+  ```python Using a JWKS Endpoint (Recommended)
+  from fastmcp import FastMCP
+  from fastmcp.server.auth.providers.jwt import JWTVerifier
+
+  # The verifier will periodically fetch keys from this URL 
+  # to validate incoming tokens.
+  verifier = JWTVerifier(
+      jwks_uri="https://my-identity-provider.com/.well-known/jwks.json",
+      issuer="https://my-identity-provider.com/",
+      audience="my-mcp-server-identifier"
+  )
+
+  mcp = FastMCP(name="My Secure Server", auth=verifier)
+  ```
+
+  ```python Using a Static Public Key
+  from fastmcp import FastMCP
+  from fastmcp.server.auth.providers.jwt import JWTVerifier
+
+  # This public key corresponds to the private key used by your token issuer.
+  # Use this only if a JWKS endpoint is not available.
+  public_key_pem = """-----BEGIN PUBLIC KEY-----
+  MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy...
+  -----END PUBLIC KEY-----"""
+
+  verifier = JWTVerifier(
+      public_key=public_key_pem,
+      issuer="https://my-identity-provider.com/",
+      audience="my-mcp-server-identifier"
+  )
+
+  mcp = FastMCP(name="My Secure Server", auth=verifier)
+  ```
+</CodeGroup>
+
+<Card icon="code" title="JWTVerifier Constructor">
+  <ResponseField name="JWTVerifier" type="class">
+    <Expandable title="Parameters">
+      <ResponseField name="public_key" type="str | None">
+        PEM-encoded public key for JWT verification. Use this for static public key configuration. Cannot be used together with `jwks_uri`.
+      </ResponseField>
+
+      <ResponseField name="jwks_uri" type="str | None">
+        URI to fetch JSON Web Key Set (JWKS) for automatic key rotation. Cannot be used together with `public_key`.
+      </ResponseField>
+
+      <ResponseField name="issuer" type="str | None">
+        Expected JWT issuer claim (`iss`) for validation. If provided, tokens must have a matching issuer.
+      </ResponseField>
+
+      <ResponseField name="audience" type="str | list[str] | None">
+        Expected JWT audience claim (`aud`) for validation. Can be a single string or list of accepted audiences.
+      </ResponseField>
+
+      <ResponseField name="algorithm" type="str | None" default="RS256">
+        JWT signing algorithm (e.g., RS256, HS256, ES256, PS256)
+      </ResponseField>
+
+      <ResponseField name="required_scopes" type="list[str] | None">
+        List of scopes that all tokens must have. Tokens missing any required scope will be rejected.
+      </ResponseField>
+
+      <ResponseField name="resource_server_url" type="str | None">
+        Resource server URL for OAuth protocol compliance
+      </ResponseField>
+    </Expandable>
+  </ResponseField>
+</Card>
+
+### Environment Variable Configuration
+
+You can configure the `JWTVerifier` entirely through environment variables. Set `FASTMCP_SERVER_AUTH=JWT` to enable automatic configuration, then provide the verifier's settings.
+
+Example configuration:
+
+```bash
+export FASTMCP_SERVER_AUTH=JWT
+export FASTMCP_SERVER_AUTH_JWT_JWKS_URI="https://your-idp.com/.well-known/jwks.json"
+export FASTMCP_SERVER_AUTH_JWT_ISSUER="https://your-idp.com"
+export FASTMCP_SERVER_AUTH_JWT_AUDIENCE="your-server-id"
+```
+
+Your FastMCP server will now be automatically configured with JWT verification:
+
+```python
+from fastmcp import FastMCP
+
+# This server is automatically protected with JWT verification 
+# based on the environment variables.
+mcp = FastMCP(name="My Protected Server")
+```
+
+<Expandable title="JWTVerifier Environment Variables">
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY" type="str">
+    PEM-encoded public key for JWT verification. Use this for static public key configuration.
+  </ParamField>
+
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_JWKS_URI" type="str">
+    URI to fetch JSON Web Key Set (JWKS). Use this for automatic key rotation support.
+  </ParamField>
+
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_ISSUER" type="str">
+    Expected JWT issuer claim for validation
+  </ParamField>
+
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_AUDIENCE" type="str">
+    Expected JWT audience claim for validation
+  </ParamField>
+
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_ALGORITHM" type="str" default="RS256">
+    JWT signing algorithm (e.g., RS256, HS256, ES256)
+  </ParamField>
+
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES" type="str">
+    Comma-separated list of required scopes that all tokens must have
+  </ParamField>
+
+  <ParamField body="FASTMCP_SERVER_AUTH_JWT_RESOURCE_SERVER_URL" type="str">
+    Resource server URL for OAuth protocol compliance
+  </ParamField>
+</Expandable>
+
+## Development Tools
+
+For local development and testing, managing JWTs can be cumbersome. FastMCP provides simpler tools for these scenarios.
+
+### Static Token Verification
+
+The `StaticTokenVerifier` validates tokens against a hardcoded set of tokens and claims. It's perfect for quickly getting a secure server running in your local environment for testing or prototyping without the complexity of a real identity provider.
+
+<Warning>
+  **Never use static token verification in production.** Tokens are stored as plain text strings, which is highly insecure.
+</Warning>
+
+To use the static token verifier, you need to provide a dictionary of tokens and their claims. Each key of the dictionary is a token, and the value is a dictionary of token data. Note that the tokens will be stored as plain text strings and validated as-is. For example, the following configuration would recognize a token provided in the `Authorization` header as `Bearer dev-token-for-alice` and load `alice@example.com` as the client ID:
+
+```python
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
 
 verifier = StaticTokenVerifier(
     tokens={
-        "dev-token-123": {
-            "client_id": "dev-user",
-            "scopes": ["read", "write"],
-            "sub": "developer@example.com"
+        "dev-token-for-alice": {
+            "client_id": "alice@example.com",
+            "scopes": ["read:data", "write:data"]
         },
-        "readonly-token": {
-            "client_id": "readonly-user",
-            "scopes": ["read"],
-            "expires_at": 1735689600  # Optional expiration
+        "readonly-token-for-guest": {
+            "client_id": "guest-user",
+            "scopes": ["read:data"]
         }
     },
-    required_scopes=["read"]
+    required_scopes=["read:data"] # Optionally enforce a base scope for all tokens.
 )
 
 mcp = FastMCP(name="Development Server", auth=verifier)
 ```
 
-Token claims can include `client_id` (required), `scopes`, `sub`, `expires_at`, and any custom metadata your application needs.
+### Generating Test Tokens
 
-<Warning>
-  Never use StaticTokenVerifier in production - tokens are stored in plain text.
-</Warning>
-
-## Generating Tokens
-
-For development and testing, FastMCP provides the `RSAKeyPair` utility class to generate tokens without needing an external OAuth provider.
-
-<Warning>
-  The `RSAKeyPair` utility is intended for development and testing only. For production, use a proper OAuth 2.1 Authorization Server or Identity Provider.
-</Warning>
-
-### Basic Token Generation
+To help test a `JWTVerifier`-protected server, FastMCP includes a simple `RSAKeyPair` utility to generate a key pair and sign your own JWTs. This is for convenience in development and is not intended for production use.
 
 ```python
 from fastmcp import FastMCP
-from fastmcp.server.auth.verifiers import JWTVerifier, RSAKeyPair
+from fastmcp.server.auth.providers.jwt import JWTVerifier, RSAKeyPair
 
-# Generate a new key pair
+# 1. In a secure part of your test setup, generate a key pair.
 key_pair = RSAKeyPair.generate()
 
-# Configure the auth verifier with the public key
-auth = JWTVerifier(
+# 2. Configure your FastMCP server's verifier with the PUBLIC key.
+auth_verifier = JWTVerifier(
     public_key=key_pair.public_key,
-    issuer="https://dev.example.com",
-    audience="my-dev-server"
+    issuer="https://dev.fastmcp.com",
+    audience="test-server"
 )
+mcp = FastMCP(name="Test Server", auth=auth_verifier)
 
-mcp = FastMCP(name="Development Server", auth=auth)
-
-# Generate a token for testing
-token = key_pair.create_token(
-    subject="dev-user",
-    issuer="https://dev.example.com",
-    audience="my-dev-server",
+# 3. Use the PRIVATE key to create a valid token for your client tests.
+test_token = key_pair.create_token(
+    subject="test-user-123",
+    issuer="https://dev.fastmcp.com",
+    audience="test-server",
     scopes=["read", "write"]
 )
 
-print(f"Test token: {token}")
+print(f"Generated Test Token:\n{test_token}")
 ```
-
-### Token Creation Parameters
-
-The `create_token()` method accepts these parameters:
-
-<Card icon="code" title="create_token() Parameters">
-  <ParamField body="subject" type="str" default="fastmcp-user">
-    JWT subject claim (usually user ID)
-  </ParamField>
-
-  <ParamField body="issuer" type="str" default="https://fastmcp.example.com">
-    JWT issuer claim
-  </ParamField>
-
-  <ParamField body="audience" type="str | None">
-    JWT audience claim
-  </ParamField>
-
-  <ParamField body="scopes" type="list[str] | None">
-    OAuth scopes to include
-  </ParamField>
-
-  <ParamField body="expires_in_seconds" type="int" default="3600">
-    Token expiration time in seconds
-  </ParamField>
-
-  <ParamField body="additional_claims" type="dict | None">
-    Extra claims to include in the token
-  </ParamField>
-
-  <ParamField body="kid" type="str | None">
-    Key ID for JWKS lookup
-  </ParamField>
-</Card>
-
-## Accessing Token Claims
-
-Once authenticated, your tools, resources, or prompts can access token information using the `get_access_token()` dependency function:
-
-```python
-from fastmcp import FastMCP, Context, ToolError
-from fastmcp.server.dependencies import get_access_token, AccessToken
-
-@mcp.tool
-async def get_my_data(ctx: Context) -> dict:
-    access_token: AccessToken = get_access_token()
-    
-    user_id = access_token.client_id  # From JWT 'sub' or 'client_id' claim
-    user_scopes = access_token.scopes
-    
-    if "data:read_sensitive" not in user_scopes:
-        raise ToolError("Insufficient permissions: 'data:read_sensitive' scope required.")
-    
-    return {
-        "user": user_id,
-        "sensitive_data": f"Private data for {user_id}",
-        "granted_scopes": user_scopes
-    }
-```
-
-### AccessToken Properties
-
-<Card icon="code" title="AccessToken Properties">
-  <ParamField body="token" type="str">
-    The raw JWT string
-  </ParamField>
-
-  <ParamField body="client_id" type="str">
-    Authenticated principal identifier
-  </ParamField>
-
-  <ParamField body="scopes" type="list[str]">
-    Granted scopes
-  </ParamField>
-
-  <ParamField body="expires_at" type="datetime | None">
-    Token expiration timestamp
-  </ParamField>
-</Card>
 
 
 # Server Composition
@@ -17463,6 +17920,24 @@ async def analyze_data(data: list[float], ctx: Context) -> dict:
         raise
 ```
 
+## Structured Logging with `extra`
+
+All logging methods (`debug`, `info`, `warning`, `error`, `log`) now accept an `extra` parameter, which is a dictionary of arbitrary data. This allows you to send structured data to the client, which is useful for creating rich, queryable logs.
+
+```python
+@mcp.tool
+async def process_transaction(transaction_id: str, amount: float, ctx: Context):
+    await ctx.info(
+        f"Processing transaction {transaction_id}",
+        extra={
+            "transaction_id": transaction_id,
+            "amount": amount,
+            "currency": "USD"
+        }
+    )
+    # ... processing logic ...
+```
+
 ## Logging Methods
 
 <Card icon="code" title="Context Logging Methods">
@@ -17472,6 +17947,10 @@ async def analyze_data(data: list[float], ctx: Context) -> dict:
     <Expandable title="parameters">
       <ResponseField name="message" type="str">
         The debug message to send to the client
+      </ResponseField>
+
+      <ResponseField name="extra" type="dict | None" default="None">
+        Optional dictionary for structured logging data
       </ResponseField>
     </Expandable>
   </ResponseField>
@@ -17483,6 +17962,10 @@ async def analyze_data(data: list[float], ctx: Context) -> dict:
       <ResponseField name="message" type="str">
         The information message to send to the client
       </ResponseField>
+
+      <ResponseField name="extra" type="dict | None" default="None">
+        Optional dictionary for structured logging data
+      </ResponseField>
     </Expandable>
   </ResponseField>
 
@@ -17493,6 +17976,10 @@ async def analyze_data(data: list[float], ctx: Context) -> dict:
       <ResponseField name="message" type="str">
         The warning message to send to the client
       </ResponseField>
+
+      <ResponseField name="extra" type="dict | None" default="None">
+        Optional dictionary for structured logging data
+      </ResponseField>
     </Expandable>
   </ResponseField>
 
@@ -17502,6 +17989,10 @@ async def analyze_data(data: list[float], ctx: Context) -> dict:
     <Expandable title="parameters">
       <ResponseField name="message" type="str">
         The error message to send to the client
+      </ResponseField>
+
+      <ResponseField name="extra" type="dict | None" default="None">
+        Optional dictionary for structured logging data
       </ResponseField>
     </Expandable>
   </ResponseField>
@@ -17520,6 +18011,10 @@ async def analyze_data(data: list[float], ctx: Context) -> dict:
 
       <ResponseField name="logger_name" type="str | None" default="None">
         Optional custom logger name for categorizing messages
+      </ResponseField>
+
+      <ResponseField name="extra" type="dict | None" default="None">
+        Optional dictionary for structured logging data
       </ResponseField>
     </Expandable>
   </ResponseField>
@@ -17566,10 +18061,16 @@ Use for potentially harmful situations that don't prevent execution:
 async def validate_config(config: dict, ctx: Context) -> dict:
     """Validate configuration with warnings for deprecated options."""
     if "old_api_key" in config:
-        await ctx.warning("Using deprecated 'old_api_key' field. Please use 'api_key' instead")
+        await ctx.warning(
+            "Using deprecated 'old_api_key' field. Please use 'api_key' instead",
+            extra={"deprecated_field": "old_api_key"}
+        )
     
     if config.get("timeout", 30) > 300:
-        await ctx.warning("Timeout value is very high (>5 minutes), this may cause issues")
+        await ctx.warning(
+            "Timeout value is very high (>5 minutes), this may cause issues",
+            extra={"timeout_value": config.get("timeout")}
+        )
     
     return {"status": "valid", "warnings": "see logs"}
 ```
@@ -17590,7 +18091,10 @@ async def batch_process(items: list[str], ctx: Context) -> dict:
             # Process item
             successful += 1
         except Exception as e:
-            await ctx.error(f"Failed to process item '{item}': {str(e)}")
+            await ctx.error(
+                f"Failed to process item '{item}': {str(e)}",
+                extra={"failed_item": item}
+            )
             failed += 1
     
     return {"successful": successful, "failed": failed}
@@ -17822,6 +18326,30 @@ This filtering happens before the components are converted to MCP format and ret
 <Tip>
   When filtering components in listing operations, ensure you also prevent execution of filtered components in the corresponding execution hooks (`on_call_tool`, `on_read_resource`, `on_get_prompt`) to maintain consistency.
 </Tip>
+
+### Tool Call Denial
+
+You can deny access to specific tools by raising a `ToolError` in your middleware. This is the correct way to block tool execution, as it integrates properly with the FastMCP error handling system.
+
+```python
+from fastmcp.server.middleware import Middleware, MiddlewareContext
+from fastmcp.exceptions import ToolError
+
+class AuthMiddleware(Middleware):
+    async def on_call_tool(self, context: MiddlewareContext, call_next):
+        tool_name = context.message.name
+        
+        # Deny access to restricted tools
+        if tool_name.lower() in ["delete", "admin_config"]:
+            raise ToolError("Access denied: tool requires admin privileges")
+        
+        # Allow other tools to proceed
+        return await call_next(context)
+```
+
+<Warning>
+  When denying tool calls, always raise `ToolError` rather than returning `ToolResult` objects or other values. `ToolError` ensures proper error propagation through the middleware chain and converts to the correct MCP error response format.
+</Warning>
 
 ### Tool Call Modification
 
@@ -19625,7 +20153,7 @@ def search_resources(query: str, max_results: int = 10, include_archived: bool =
 
 With this template, clients can request `search://python` and the function will be called with `query="python", max_results=10, include_archived=False`. MCP Developers can still call the underlying `search_resources` function directly with more specific parameters.
 
-An even more powerful pattern is registering a single function with multiple URI templates, allowing different ways to access the same data:
+You can also create multiple resource templates that provide different ways to access the same underlying data by manually applying decorators to a single function:
 
 ```python
 from fastmcp import FastMCP
@@ -19633,16 +20161,18 @@ from fastmcp import FastMCP
 mcp = FastMCP(name="DataServer")
 
 # Define a user lookup function that can be accessed by different identifiers
-@mcp.resource("users://email/{email}")
-@mcp.resource("users://name/{name}")
 def lookup_user(name: str | None = None, email: str | None = None) -> dict:
     """Look up a user by either name or email."""
     if email:
-        return find_user_by_email(email) # pseudocode
+        return find_user_by_email(email)  # pseudocode
     elif name:
-        return find_user_by_name(name) # pseudocode
+        return find_user_by_name(name)  # pseudocode
     else:
         return {"error": "No lookup parameters provided"}
+
+# Manually apply multiple decorators to the same function
+mcp.resource("users://email/{email}")(lookup_user)
+mcp.resource("users://name/{name}")(lookup_user)
 ```
 
 Now an LLM or client can retrieve user information in two different ways:
@@ -19650,12 +20180,7 @@ Now an LLM or client can retrieve user information in two different ways:
 * `users://email/alice@example.com` → Looks up user by email (with name=None)
 * `users://name/Bob` → Looks up user by name (with email=None)
 
-In this stacked decorator pattern:
-
-* The `name` parameter is only provided when using the `users://name/{name}` template
-* The `email` parameter is only provided when using the `users://email/{email}` template
-* Each parameter defaults to `None` when not included in the URI
-* The function logic handles whichever parameter is provided
+This approach allows a single function to be registered with multiple URI patterns while keeping the implementation clean and straightforward.
 
 Templates provide a powerful way to expose parameterized data access points following REST-like principles.
 
@@ -19986,7 +20511,7 @@ The `FastMCP` constructor accepts several arguments:
   </ParamField>
 
   <ParamField body="auth" type="OAuthProvider | TokenVerifier | None">
-    Authentication provider for securing HTTP-based transports. See [Bearer Token Authentication](/servers/auth/bearer) for configuration options
+    Authentication provider for securing HTTP-based transports. See [Authentication](/servers/auth/authentication) for configuration options
   </ParamField>
 
   <ParamField body="lifespan" type="AsyncContextManager | None">
@@ -21811,7 +22336,7 @@ For this tutorial, we'll use the [JSONPlaceholder API](https://jsonplaceholder.t
 Now for the magic. We'll use `FastMCP.from_openapi`. This method takes an `httpx.AsyncClient` configured for your API and its OpenAPI specification, and automatically converts **every endpoint** into a callable MCP `Tool`.
 
 <Tip>
-  Learn more about working with OpenAPI specs in the [OpenAPI integration docs](/servers/openapi).
+  Learn more about working with OpenAPI specs in the [OpenAPI integration docs](/integrations/openapi).
 </Tip>
 
 <Note>
@@ -21921,7 +22446,7 @@ However, for clients that support the full MCP spec, representing `GET` requests
 FastMCP allows users to customize this behavior using the concept of "route maps". A `RouteMap` is a mapping of an API route to an MCP type. FastMCP checks each API route against your custom maps in order. If a route matches a map, it's converted to the specified `mcp_type`. Any route that doesn't match your custom maps will fall back to the default behavior (becoming a `Tool`).
 
 <Tip>
-  Learn more about route maps in the [OpenAPI integration docs](/servers/openapi#route-mapping).
+  Learn more about route maps in the [OpenAPI integration docs](/integrations/openapi#route-mapping).
 </Tip>
 
 Here’s how you can add custom route maps to turn `GET` requests into `Resources` and `ResourceTemplates` (if they have path parameters):
