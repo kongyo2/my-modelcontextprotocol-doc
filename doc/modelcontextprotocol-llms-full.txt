@@ -1192,7 +1192,7 @@ All communication within the MCP community is governed by our [Code of Conduct](
 
 ## Communication Channels
 
-We support three primary communication channels: the public Discord server, [GitHub Issues](https://github.com/modelcontextprotocol/modelcontextprotocol/issues), and [GitHub Discussions](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions) in the [main project repository](https://github.com/modelcontextprotocol/modelcontextprotocol).
+We support three primary communication channels: the [public Discord server][discord-join], [GitHub Issues](https://github.com/modelcontextprotocol/modelcontextprotocol/issues), and [GitHub Discussions](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions) in the [main project repository](https://github.com/modelcontextprotocol/modelcontextprotocol).
 
 ### Discord
 
@@ -1200,6 +1200,8 @@ For real-time contributor discussion and collaboration. The server is designed a
 to be a place for general MCP support.
 
 The Discord server will have both public and private channels.
+
+[Join the Discord server here][discord-join].
 
 #### Public Channels (Default)
 
@@ -1280,6 +1282,8 @@ When documenting decisions, we will retain as much context as possible:
 * Rationale for the chosen approach
 * Implementation steps
 
+[discord-join]: https://discord.gg/6CSzBmMkjX
+
 
 # Governance and Stewardship
 Source: https://modelcontextprotocol.io/community/governance
@@ -1302,7 +1306,7 @@ All maintainers are expected to have a strong bias towards MCP's design philosop
 
 ### Channels
 
-Technical Governance is facilitated through a shared Discord server of all **maintainers, core maintainers** and **lead maintainers**. Each maintainer group can choose additional communication channels, but all decisions and their supporting discussions must be recorded and made transparently available on the core group Discord server.
+Technical Governance is facilitated through a shared [Discord server](/community/communication#discord) of all **maintainers, core maintainers** and **lead maintainers**. Each maintainer group can choose additional communication channels, but all decisions and their supporting discussions must be recorded and made transparently available on the Discord server.
 
 ### Maintainers
 
@@ -1375,7 +1379,7 @@ Both must:
 Projects and working groups without specified processes default to:
 
 * GitHub pull requests and issues for contributions
-* A public channel in the official MCP Discord (TBD)
+* A public channel in the official [MCP Contributor Discord](/community/communication#discord)
 
 #### Maintenance Responsibilities
 
@@ -1401,7 +1405,7 @@ The core maintainer group meets on a bi-weekly basis to discuss proposals and th
 
 ### Public Chat
 
-The MCP project maintains a public Discord server with open chats for interest groups. The MCP project may have private channels for certain communications.
+The MCP project maintains a [public Discord server](/community/communication#discord) with open chats for interest groups. The MCP project may have private channels for certain communications.
 
 ## Nominating, Confirming and Removing Maintainers
 
@@ -3251,7 +3255,7 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     # Activate virtual environment
     # On Windows:
     .venv\Scripts\activate
-    # On Unix or MacOS:
+    # On Unix or macOS:
     source .venv/bin/activate
 
     # Install required packages
@@ -3260,7 +3264,7 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     # Remove boilerplate files
     # On Windows:
     del main.py
-    # On Unix or MacOS:
+    # On Unix or macOS:
     rm main.py
 
     # Create our main file
@@ -3656,7 +3660,7 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     First, let's create and set up our project:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       # Create project directory
       mkdir mcp-client-typescript
       cd mcp-client-typescript
@@ -4244,7 +4248,7 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     Now, let's create and set up your project:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       # Create a new directory for our project
       mkdir kotlin-mcp-client
       cd kotlin-mcp-client
@@ -4639,7 +4643,7 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
 
     * .NET 8.0 or higher
     * Anthropic API key (Claude)
-    * Windows, Linux, or MacOS
+    * Windows, Linux, or macOS
 
     ## Setting up your environment
 
@@ -4938,7 +4942,7 @@ This tutorial will primarily focus on tools.
     First, let's install `uv` and set up our Python project and environment:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       curl -LsSf https://astral.sh/uv/install.sh | sh
       ```
 
@@ -4952,7 +4956,7 @@ This tutorial will primarily focus on tools.
     Now, let's create and set up our project:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       # Create a new directory for our project
       uv init weather
       cd weather
@@ -5128,7 +5132,7 @@ This tutorial will primarily focus on tools.
     For example, if you have [VS Code](https://code.visualstudio.com/) installed:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       code ~/Library/Application\ Support/Claude/claude_desktop_config.json
       ```
 
@@ -5142,7 +5146,7 @@ This tutorial will primarily focus on tools.
     In this case, we'll add our single weather server like so:
 
     <CodeGroup>
-      ```json MacOS/Linux
+      ```json macOS/Linux
       {
         "mcpServers": {
           "weather": {
@@ -5176,11 +5180,11 @@ This tutorial will primarily focus on tools.
     </CodeGroup>
 
     <Warning>
-      You may need to put the full path to the `uv` executable in the `command` field. You can get this by running `which uv` on MacOS/Linux or `where uv` on Windows.
+      You may need to put the full path to the `uv` executable in the `command` field. You can get this by running `which uv` on macOS/Linux or `where uv` on Windows.
     </Warning>
 
     <Note>
-      Make sure you pass in the absolute path to your server. You can get this by running `pwd` on MacOS/Linux or `cd` on Windows Command Prompt. On Windows, remember to use double backslashes (`\\`) or forward slashes (`/`) in the JSON path.
+      Make sure you pass in the absolute path to your server. You can get this by running `pwd` on macOS/Linux or `cd` on Windows Command Prompt. On Windows, remember to use double backslashes (`\\`) or forward slashes (`/`) in the JSON path.
     </Note>
 
     This tells Claude for Desktop:
@@ -5250,7 +5254,7 @@ This tutorial will primarily focus on tools.
     Now, let's create and set up our project:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       # Create a new directory for our project
       mkdir weather
       cd weather
@@ -5598,7 +5602,7 @@ This tutorial will primarily focus on tools.
     For example, if you have [VS Code](https://code.visualstudio.com/) installed:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       code ~/Library/Application\ Support/Claude/claude_desktop_config.json
       ```
 
@@ -5612,7 +5616,7 @@ This tutorial will primarily focus on tools.
     In this case, we'll add our single weather server like so:
 
     <CodeGroup>
-      ```json MacOS/Linux
+      ```json macOS/Linux
       {
         "mcpServers": {
           "weather": {
@@ -5830,7 +5834,7 @@ This tutorial will primarily focus on tools.
     For example, if you have [VS Code](https://code.visualstudio.com/) installed:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       code ~/Library/Application\ Support/Claude/claude_desktop_config.json
       ```
 
@@ -5845,7 +5849,7 @@ This tutorial will primarily focus on tools.
     In this case, we'll add our single weather server like so:
 
     <CodeGroup>
-      ```json MacOS/Linux
+      ```json macOS/Linux
       {
         "mcpServers": {
           "spring-ai-mcp-weather": {
@@ -5971,7 +5975,7 @@ This tutorial will primarily focus on tools.
     Now, let's create and set up your project:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       # Create a new directory for our project
       mkdir weather
       cd weather
@@ -6260,7 +6264,7 @@ This tutorial will primarily focus on tools.
     For example, if you have [VS Code](https://code.visualstudio.com/) installed:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       code ~/Library/Application\ Support/Claude/claude_desktop_config.json
       ```
 
@@ -6275,7 +6279,7 @@ This tutorial will primarily focus on tools.
     In this case, we'll add our single weather server like so:
 
     <CodeGroup>
-      ```json MacOS/Linux
+      ```json macOS/Linux
       {
         "mcpServers": {
           "weather": {
@@ -6357,7 +6361,7 @@ This tutorial will primarily focus on tools.
     Now, let's create and set up your project:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       # Create a new directory for our project
       mkdir weather
       cd weather
@@ -6526,7 +6530,7 @@ This tutorial will primarily focus on tools.
     For example, if you have [VS Code](https://code.visualstudio.com/) installed:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       code ~/Library/Application\ Support/Claude/claude_desktop_config.json
       ```
 
@@ -6539,7 +6543,7 @@ This tutorial will primarily focus on tools.
     In this case, we'll add our single weather server like so:
 
     <CodeGroup>
-      ```json MacOS/Linux
+      ```json macOS/Linux
       {
         "mcpServers": {
           "weather": {
@@ -6886,7 +6890,7 @@ If you encounter issues setting up or using the Filesystem Server, these solutio
     5. In your command line, try manually running the server (replacing `username` as you did in `claude_desktop_config.json`) to see if you get any errors:
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       npx -y @modelcontextprotocol/server-filesystem /Users/username/Desktop /Users/username/Downloads
       ```
 
@@ -6910,7 +6914,7 @@ If you encounter issues setting up or using the Filesystem Server, these solutio
     You can run the following command to list recent logs and follow along with any new ones (on Windows, it will only show recent logs):
 
     <CodeGroup>
-      ```bash MacOS/Linux
+      ```bash macOS/Linux
       tail -n 20 -f ~/Library/Logs/Claude/mcp*.log
       ```
 
