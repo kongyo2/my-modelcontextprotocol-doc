@@ -1746,7 +1746,7 @@ Source: https://modelcontextprotocol.io/docs/getting-started/intro
 
 Get started with the Model Context Protocol (MCP)
 
-MCP is an open protocol that standardizes how applications provide context to large language models (LLMs). Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools. MCP enables you build agents and complex workflows on top of LLMs and connects your models with the world.
+MCP is an open protocol that standardizes how applications provide context to large language models (LLMs). Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools. MCP enables you to build agents and complex workflows on top of LLMs and connects your models with the world.
 
 MCP provides:
 
@@ -2024,7 +2024,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
   </Step>
 
   <Step title="Tool Discovery (Primitives)">
-    Now that the connection is established, the client can discover available tools by sending a `tools/list` request. This request is fundamental to MCP's tool discovery mechanism — it allows clients to understand what tool are available on the server before attempting to use them.
+    Now that the connection is established, the client can discover available tools by sending a `tools/list` request. This request is fundamental to MCP's tool discovery mechanism — it allows clients to understand what tools are available on the server before attempting to use them.
 
     <CodeGroup>
       ```json Request
@@ -2042,7 +2042,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
         "result": {
           "tools": [
             {
-              "name": "com.example.calculator/arithmetic",
+              "name": "calculator_arithmetic",
               "title": "Calculator",
               "description": "Perform mathematical calculations including basic arithmetic, trigonometric functions, and algebraic operations",
               "inputSchema": {
@@ -2057,7 +2057,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
               }
             },
             {
-              "name": "com.example.weather/current",
+              "name": "weather_current",
               "title": "Weather Information",
               "description": "Get current weather information for any location worldwide",
               "inputSchema": {
@@ -2093,7 +2093,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
 
     Each tool object in the response includes several key fields:
 
-    * **`name`**: A unique identifier for the tool within the server's namespace. This serves as the primary key for tool execution and should be URI-like for better namespacing (e.g., `com.example.calculator/arithmetic` rather than just `calculate`)
+    * **`name`**: A unique identifier for the tool within the server's namespace. This serves as the primary key for tool execution and should follow a clear naming pattern (e.g., `calculator_arithmetic` rather than just `calculate`)
     * **`title`**: A human-readable display name for the tool that clients can show to users
     * **`description`**: Detailed explanation of what the tool does and when to use it
     * **`inputSchema`**: A JSON Schema that defines the expected input parameters, enabling type validation and providing clear documentation about required and optional parameters
@@ -2117,7 +2117,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
 
     #### Understanding the Tool Execution Request
 
-    The `tools/call` request follows a structured format that ensures type safety and clear communication between client and server. Note that we're using the proper tool name from the discovery response (`com.example.weather/current`) rather than a simplified name:
+    The `tools/call` request follows a structured format that ensures type safety and clear communication between client and server. Note that we're using the proper tool name from the discovery response (`weather_current`) rather than a simplified name:
 
     <CodeGroup>
       ```json Request
@@ -2126,7 +2126,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
         "id": 3,
         "method": "tools/call",
         "params": {
-          "name": "com.example.weather/current",
+          "name": "weather_current",
           "arguments": {
             "location": "San Francisco",
             "units": "imperial"
@@ -2155,7 +2155,7 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
 
     The request structure includes several important components:
 
-    1. **`name`**: Must match exactly the tool name from the discovery response (`com.example.weather/current`). This ensures the server can correctly identify which tool to execute.
+    1. **`name`**: Must match exactly the tool name from the discovery response (`weather_current`). This ensures the server can correctly identify which tool to execute.
 
     2. **`arguments`**: Contains the input parameters as defined by the tool's `inputSchema`. In this example:
 
