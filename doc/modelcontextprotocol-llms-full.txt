@@ -206,7 +206,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [WhatsMCP][WhatsMCP]                                       | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❓             |
   | [Windsurf Editor][Windsurf]                                | ❌           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             |
   | [Witsy][Witsy]                                             | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
-  | [Zed][Zed]                                                 | ❌           | ✅         | ❌       | ❌           | ❌          | ❌       | ❓             |
+  | [Zed][Zed]                                                 | ❌           | ✅         | ✅       | ❌           | ❌          | ❌       | ❓             |
   | [Zencoder][Zencoder]                                       | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❓             |
 
   {/* prettier-ignore-end */}
@@ -2170,7 +2170,6 @@ This section provides a step-by-step walkthrough of an MCP client-server interac
     1. **`name`**: Must match exactly the tool name from the discovery response (`weather_current`). This ensures the server can correctly identify which tool to execute.
 
     2. **`arguments`**: Contains the input parameters as defined by the tool's `inputSchema`. In this example:
-
        * `location`: "San Francisco" (required parameter)
        * `units`: "imperial" (optional parameter, defaults to "metric" if not specified)
 
@@ -2716,7 +2715,6 @@ Consider an AI application with three connected servers:
    ```
 
 2. **User selects resources to include:**
-
    * `calendar://my-calendar/June-2024` (from Calendar Server)
    * `travel://preferences/europe` (from Travel Server)
    * `travel://past-trips/Spain-2023` (from Travel Server)
@@ -3210,13 +3208,11 @@ The Inspector provides several features for interacting with your MCP server:
 ### Development workflow
 
 1. Start Development
-
    * Launch Inspector with your server
    * Verify basic connectivity
    * Check capability negotiation
 
 2. Iterative testing
-
    * Make server changes
    * Rebuild the server
    * Reconnect the Inspector
@@ -3546,13 +3542,11 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     ## Common Customization Points
 
     1. **Tool Handling**
-
        * Modify `process_query()` to handle specific tool types
        * Add custom error handling for tool calls
        * Implement tool-specific response formatting
 
     2. **Response Processing**
-
        * Customize how tool results are formatted
        * Add response filtering or transformation
        * Implement custom logging
@@ -3605,13 +3599,11 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     ## Best practices
 
     1. **Error Handling**
-
        * Always wrap tool calls in try-catch blocks
        * Provide meaningful error messages
        * Gracefully handle connection issues
 
     2. **Resource Management**
-
        * Use `AsyncExitStack` for proper cleanup
        * Close connections when done
        * Handle server disconnections
@@ -4007,7 +3999,6 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     ## Best practices
 
     1. **Error Handling**
-
        * Use TypeScript's type system for better error detection
        * Wrap tool calls in try-catch blocks
        * Provide meaningful error messages
@@ -4601,7 +4592,6 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     ## Best practices
 
     1. **Error Handling**
-
        * Leverage Kotlin's type system to model errors explicitly
        * Wrap external tool and API calls in `try-catch` blocks when exceptions are possible
        * Provide clear and meaningful error messages
@@ -7101,14 +7091,12 @@ MCP is built on several key design principles that inform its architecture and
 implementation:
 
 1. **Servers should be extremely easy to build**
-
    * Host applications handle complex orchestration responsibilities
    * Servers focus on specific, well-defined capabilities
    * Simple interfaces minimize implementation overhead
    * Clear separation enables maintainable code
 
 2. **Servers should be highly composable**
-
    * Each server provides focused functionality in isolation
    * Multiple servers can be combined seamlessly
    * Shared protocol enables interoperability
@@ -7116,7 +7104,6 @@ implementation:
 
 3. **Servers should not be able to read the whole conversation, nor "see into" other
    servers**
-
    * Servers receive only necessary contextual information
    * Full conversation history stays with the host
    * Each server connection maintains isolation
@@ -8173,7 +8160,6 @@ When you have multiple stateful HTTP servers that handle MCP requests, the follo
 1. The client connects to **Server A** and receives a session ID.
 
 2. The attacker obtains an existing session ID and sends a malicious event to **Server B** with said session ID.
-
    * When a server supports [redelivery/resumable streams](/specification/2025-06-18/basic/transports#resumability-and-redelivery), deliberately terminating the request before receiving the response could lead to it being resumed by the original client via the GET request for server sent events.
    * If a particular server initiates server sent events as a consequence of a tool call such as a `notifications/tools/list_changed`, where it is possible to affect the tools that are offered by the server, a client could end up with tools that they were not aware were enabled.
 
@@ -8729,7 +8715,6 @@ The receiver **MAY** then send progress notifications containing:
 ## Behavior Requirements
 
 1. Progress notifications **MUST** only reference tokens that:
-
    * Were provided in an active request
    * Are associated with an in-progress operation
 
@@ -9110,12 +9095,10 @@ Elicitation responses use a three-action model to clearly distinguish between di
 The three response actions are:
 
 1. **Accept** (`action: "accept"`): User explicitly approved and submitted with data
-
    * The `content` field contains the submitted data matching the requested schema
    * Example: User clicked "Submit", "OK", "Confirm", etc.
 
 2. **Decline** (`action: "decline"`): User explicitly declined the request
-
    * The `content` field is typically omitted
    * Example: User clicked "Reject", "Decline", "No", etc.
 
@@ -9308,7 +9291,6 @@ Example error:
 ## Security Considerations
 
 1. Clients **MUST**:
-
    * Only expose roots with appropriate permissions
    * Validate all root URIs to prevent path traversal
    * Implement proper access controls
@@ -9322,7 +9304,6 @@ Example error:
 ## Implementation Guidelines
 
 1. Clients **SHOULD**:
-
    * Prompt users for consent before exposing roots to servers
    * Provide clear user interfaces for root management
    * Validate root accessibility before exposing
@@ -9663,19 +9644,16 @@ considerations that all implementors must carefully address.
 ### Key Principles
 
 1. **User Consent and Control**
-
    * Users must explicitly consent to and understand all data access and operations
    * Users must retain control over what data is shared and what actions are taken
    * Implementors should provide clear UIs for reviewing and authorizing activities
 
 2. **Data Privacy**
-
    * Hosts must obtain explicit user consent before exposing user data to servers
    * Hosts must not transmit resource data elsewhere without user consent
    * User data should be protected with appropriate access controls
 
 3. **Tool Safety**
-
    * Tools represent arbitrary code execution and must be treated with appropriate
      caution.
      * In particular, descriptions of tool behavior such as annotations should be
@@ -9733,7 +9711,7 @@ Source: https://modelcontextprotocol.io/specification/2025-06-18/schema
 <div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">Annotations</span> <span class="tsd-signature-symbol">\{</span><br />  <a class="tsd-kind-property" href="#annotations-audience">audience</a><span class="tsd-signature-symbol">?:</span> <a href="#role" class="tsd-signature-type tsd-kind-type-alias">Role</a><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />  <a class="tsd-kind-property" href="#annotations-lastmodified">lastModified</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />  <a class="tsd-kind-property" href="#annotations-priority">priority</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-comment tsd-typography"><p>Optional annotations for the client. The client can use annotations to inform how objects are used or displayed</p> </div><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="annotations-audience"><code class="tsd-tag">Optional</code><span>audience</span><a href="#annotations-audience" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">audience</span><span class="tsd-signature-symbol">?:</span> <a href="#role" class="tsd-signature-type tsd-kind-type-alias">Role</a><span class="tsd-signature-symbol">\[]</span></div><div class="tsd-comment tsd-typography"><p>Describes who the intended customer of this object or data is.</p> <p>It can include multiple entries to indicate content useful for multiple audiences (e.g., <code>\["user", "assistant"]</code>).</p> </div><div class="tsd-comment tsd-typography" /></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="annotations-lastmodified"><code class="tsd-tag">Optional</code><span>last<wbr />Modified</span><a href="#annotations-lastmodified" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">lastModified</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><div class="tsd-comment tsd-typography"><p>The moment the resource was last modified, as an ISO 8601 formatted string.</p> <p>Should be an ISO 8601 formatted string (e.g., "2025-01-12T15:00:58Z").</p> <p>Examples: last activity timestamp in an open file, timestamp when the resource
 was attached, etc.</p> </div><div class="tsd-comment tsd-typography" /></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="annotations-priority"><code class="tsd-tag">Optional</code><span>priority</span><a href="#annotations-priority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>Describes how important this data is for operating the server.</p> <p>A value of 1 means "most important," and indicates that the data is
 effectively required, while 0 means "least important," and indicates that
-the data is entirely optional.</p>  </div><div class="tsd-comment tsd-typography" /></section>
+the data is entirely optional.</p> </div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type">TJS-type<a href="#tjs-type" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></section>
 
 ### `AudioContent`
 
@@ -9818,13 +9796,13 @@ dimensions to help clients make an appropriate selection for their use case.</p>
 up to the client to decide how to interpret these preferences and how to
 balance them against other considerations.</p> </div><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="modelpreferences-costpriority"><code class="tsd-tag">Optional</code><span>cost<wbr />Priority</span><a href="#modelpreferences-costpriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">costPriority</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>How much to prioritize cost when selecting a model. A value of 0 means cost
 is not important, while a value of 1 means cost is the most important
-factor.</p>  </div><div class="tsd-comment tsd-typography" /></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="modelpreferences-hints"><code class="tsd-tag">Optional</code><span>hints</span><a href="#modelpreferences-hints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">hints</span><span class="tsd-signature-symbol">?:</span> <a href="#modelhint" class="tsd-signature-type tsd-kind-interface">ModelHint</a><span class="tsd-signature-symbol">\[]</span></div><div class="tsd-comment tsd-typography"><p>Optional hints to use for model selection.</p> <p>If multiple hints are specified, the client MUST evaluate them in order
+factor.</p> </div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type">TJS-type<a href="#tjs-type" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="modelpreferences-hints"><code class="tsd-tag">Optional</code><span>hints</span><a href="#modelpreferences-hints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">hints</span><span class="tsd-signature-symbol">?:</span> <a href="#modelhint" class="tsd-signature-type tsd-kind-interface">ModelHint</a><span class="tsd-signature-symbol">\[]</span></div><div class="tsd-comment tsd-typography"><p>Optional hints to use for model selection.</p> <p>If multiple hints are specified, the client MUST evaluate them in order
 (such that the first match is taken).</p> <p>The client SHOULD prioritize these hints over the numeric priorities, but
 MAY still use the priorities to select from ambiguous matches.</p> </div><div class="tsd-comment tsd-typography" /></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="modelpreferences-intelligencepriority"><code class="tsd-tag">Optional</code><span>intelligence<wbr />Priority</span><a href="#modelpreferences-intelligencepriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">intelligencePriority</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>How much to prioritize intelligence and capabilities when selecting a
 model. A value of 0 means intelligence is not important, while a value of 1
-means intelligence is the most important factor.</p>  </div><div class="tsd-comment tsd-typography" /></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="modelpreferences-speedpriority"><code class="tsd-tag">Optional</code><span>speed<wbr />Priority</span><a href="#modelpreferences-speedpriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">speedPriority</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>How much to prioritize sampling speed (latency) when selecting a model. A
+means intelligence is the most important factor.</p> </div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type-1">TJS-type<a href="#tjs-type-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></section><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="modelpreferences-speedpriority"><code class="tsd-tag">Optional</code><span>speed<wbr />Priority</span><a href="#modelpreferences-speedpriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">speedPriority</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>How much to prioritize sampling speed (latency) when selecting a model. A
 value of 0 means speed is not important, while a value of 1 means speed is
-the most important factor.</p>  </div><div class="tsd-comment tsd-typography" /></section>
+the most important factor.</p> </div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type-2">TJS-type<a href="#tjs-type-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></section>
 
 ### `NumberSchema`
 
@@ -10014,7 +9992,7 @@ Contains values matching the requested schema.</p> </div><div class="tsd-comment
 
 ### `ProgressNotification`
 
-<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">ProgressNotification</span> <span class="tsd-signature-symbol">\{</span><br />  <a class="tsd-kind-property" href="#">method</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"notifications/progress"</span><span class="tsd-signature-symbol">;</span><br />  <a class="tsd-kind-property" href="#progressnotification-params">params</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />    <span class="tsd-kind-property">message</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">progress</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">progressToken</span><span class="tsd-signature-symbol">:</span> <a href="#progresstoken" class="tsd-signature-type tsd-kind-type-alias">ProgressToken</a><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">total</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-comment tsd-typography"><p>An out-of-band notification used to inform the receiver of a progress update for a long-running request.</p> </div><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="progressnotification-params"><span>params</span><a href="#progressnotification-params" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">params</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />  <span class="tsd-kind-property">message</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">progress</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">progressToken</span><span class="tsd-signature-symbol">:</span> <a href="#progresstoken" class="tsd-signature-type tsd-kind-type-alias">ProgressToken</a><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">total</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-type-declaration"><div data-typedoc-h="4">Type declaration</div><ul class="tsd-parameters"><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">message</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></div><div class="tsd-comment tsd-typography"><p>An optional message describing the current progress.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">progress</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>The progress thus far. This should increase every time progress is made, even if the total is unknown.</p>  </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">progressToken</span><span class="tsd-signature-symbol">: </span><a href="#progresstoken" class="tsd-signature-type tsd-kind-type-alias">ProgressToken</a></div><div class="tsd-comment tsd-typography"><p>The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">total</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>Total number of items to process (or total progress required), if known.</p>  </div><div class="tsd-comment tsd-typography" /></li></ul></div><aside class="tsd-sources"><p>Overrides Notification.params</p></aside></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">ProgressNotification</span> <span class="tsd-signature-symbol">\{</span><br />  <a class="tsd-kind-property" href="#">method</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"notifications/progress"</span><span class="tsd-signature-symbol">;</span><br />  <a class="tsd-kind-property" href="#progressnotification-params">params</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />    <span class="tsd-kind-property">message</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">progress</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">progressToken</span><span class="tsd-signature-symbol">:</span> <a href="#progresstoken" class="tsd-signature-type tsd-kind-type-alias">ProgressToken</a><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">total</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-comment tsd-typography"><p>An out-of-band notification used to inform the receiver of a progress update for a long-running request.</p> </div><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="progressnotification-params"><span>params</span><a href="#progressnotification-params" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">params</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />  <span class="tsd-kind-property">message</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">progress</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">progressToken</span><span class="tsd-signature-symbol">:</span> <a href="#progresstoken" class="tsd-signature-type tsd-kind-type-alias">ProgressToken</a><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">total</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-type-declaration"><div data-typedoc-h="4">Type declaration</div><ul class="tsd-parameters"><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">message</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></div><div class="tsd-comment tsd-typography"><p>An optional message describing the current progress.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">progress</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>The progress thus far. This should increase every time progress is made, even if the total is unknown.</p> </div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type">TJS-type<a href="#tjs-type" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">progressToken</span><span class="tsd-signature-symbol">: </span><a href="#progresstoken" class="tsd-signature-type tsd-kind-type-alias">ProgressToken</a></div><div class="tsd-comment tsd-typography"><p>The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">total</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>Total number of items to process (or total progress required), if known.</p> </div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type-1">TJS-type<a href="#tjs-type-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></li></ul></div><aside class="tsd-sources"><p>Overrides Notification.params</p></aside></section>
 
 ## `notifications/prompts/list_changed`
 
@@ -10142,7 +10120,7 @@ or file that the server can operate on.</p> </div><section class="tsd-panel tsd-
 
 ### `CreateMessageRequest`
 
-<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">CreateMessageRequest</span> <span class="tsd-signature-symbol">\{</span><br />  <a class="tsd-kind-property" href="#">method</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"sampling/createMessage"</span><span class="tsd-signature-symbol">;</span><br />  <a class="tsd-kind-property" href="#createmessagerequest-params">params</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />    <span class="tsd-kind-property">includeContext</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">"none"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"thisServer"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"allServers"</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">maxTokens</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">messages</span><span class="tsd-signature-symbol">:</span> <a href="#samplingmessage" class="tsd-signature-type tsd-kind-interface">SamplingMessage</a><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">metadata</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">modelPreferences</span><span class="tsd-signature-symbol">?:</span> <a href="#modelpreferences" class="tsd-signature-type tsd-kind-interface">ModelPreferences</a><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">stopSequences</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">systemPrompt</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">temperature</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-comment tsd-typography"><p>A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it.</p> </div><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="createmessagerequest-params"><span>params</span><a href="#createmessagerequest-params" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">params</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />  <span class="tsd-kind-property">includeContext</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">"none"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"thisServer"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"allServers"</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">maxTokens</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">messages</span><span class="tsd-signature-symbol">:</span> <a href="#samplingmessage" class="tsd-signature-type tsd-kind-interface">SamplingMessage</a><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">metadata</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">modelPreferences</span><span class="tsd-signature-symbol">?:</span> <a href="#modelpreferences" class="tsd-signature-type tsd-kind-interface">ModelPreferences</a><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">stopSequences</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">systemPrompt</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">temperature</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-type-declaration"><div data-typedoc-h="4">Type declaration</div><ul class="tsd-parameters"><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">includeContext</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">"none"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"thisServer"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"allServers"</span></div><div class="tsd-comment tsd-typography"><p>A request to include context from one or more MCP servers (including the caller), to be attached to the prompt. The client MAY ignore this request.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">maxTokens</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>The maximum number of tokens to sample, as requested by the server. The client MAY choose to sample fewer tokens than requested.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">messages</span><span class="tsd-signature-symbol">: </span><a href="#samplingmessage" class="tsd-signature-type tsd-kind-interface">SamplingMessage</a><span class="tsd-signature-symbol">\[]</span></div></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">metadata</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span></div><div class="tsd-comment tsd-typography"><p>Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">modelPreferences</span><span class="tsd-signature-symbol">?: </span><a href="#modelpreferences" class="tsd-signature-type tsd-kind-interface">ModelPreferences</a></div><div class="tsd-comment tsd-typography"><p>The server's preferences for which model to select. The client MAY ignore these preferences.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">stopSequences</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">\[]</span></div></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">systemPrompt</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></div><div class="tsd-comment tsd-typography"><p>An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">temperature</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"> </div><div class="tsd-comment tsd-typography" /></li></ul></div><aside class="tsd-sources"><p>Overrides Request.params</p></aside></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">CreateMessageRequest</span> <span class="tsd-signature-symbol">\{</span><br />  <a class="tsd-kind-property" href="#">method</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"sampling/createMessage"</span><span class="tsd-signature-symbol">;</span><br />  <a class="tsd-kind-property" href="#createmessagerequest-params">params</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />    <span class="tsd-kind-property">includeContext</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">"none"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"thisServer"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"allServers"</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">maxTokens</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">messages</span><span class="tsd-signature-symbol">:</span> <a href="#samplingmessage" class="tsd-signature-type tsd-kind-interface">SamplingMessage</a><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">metadata</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">modelPreferences</span><span class="tsd-signature-symbol">?:</span> <a href="#modelpreferences" class="tsd-signature-type tsd-kind-interface">ModelPreferences</a><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">stopSequences</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">systemPrompt</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />    <span class="tsd-kind-property">temperature</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-comment tsd-typography"><p>A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it.</p> </div><section class="tsd-panel tsd-member"><div data-typedoc-h="3" class="tsd-anchor-link" id="createmessagerequest-params"><span>params</span><a href="#createmessagerequest-params" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><div class="tsd-signature"><span class="tsd-kind-property">params</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">\{</span><br />  <span class="tsd-kind-property">includeContext</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">"none"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"thisServer"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"allServers"</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">maxTokens</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">messages</span><span class="tsd-signature-symbol">:</span> <a href="#samplingmessage" class="tsd-signature-type tsd-kind-interface">SamplingMessage</a><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">metadata</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">modelPreferences</span><span class="tsd-signature-symbol">?:</span> <a href="#modelpreferences" class="tsd-signature-type tsd-kind-interface">ModelPreferences</a><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">stopSequences</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">\[]</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">systemPrompt</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br />  <span class="tsd-kind-property">temperature</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br /><span class="tsd-signature-symbol">}</span></div><div class="tsd-type-declaration"><div data-typedoc-h="4">Type declaration</div><ul class="tsd-parameters"><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">includeContext</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">"none"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"thisServer"</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">"allServers"</span></div><div class="tsd-comment tsd-typography"><p>A request to include context from one or more MCP servers (including the caller), to be attached to the prompt. The client MAY ignore this request.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">maxTokens</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><p>The maximum number of tokens to sample, as requested by the server. The client MAY choose to sample fewer tokens than requested.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><span class="tsd-kind-property">messages</span><span class="tsd-signature-symbol">: </span><a href="#samplingmessage" class="tsd-signature-type tsd-kind-interface">SamplingMessage</a><span class="tsd-signature-symbol">\[]</span></div></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">metadata</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span></div><div class="tsd-comment tsd-typography"><p>Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">modelPreferences</span><span class="tsd-signature-symbol">?: </span><a href="#modelpreferences" class="tsd-signature-type tsd-kind-interface">ModelPreferences</a></div><div class="tsd-comment tsd-typography"><p>The server's preferences for which model to select. The client MAY ignore these preferences.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">stopSequences</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">\[]</span></div></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">systemPrompt</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></div><div class="tsd-comment tsd-typography"><p>An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.</p> </div><div class="tsd-comment tsd-typography" /></li><li class="tsd-parameter"><div data-typedoc-h="5"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">temperature</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></div><div class="tsd-comment tsd-typography"><div class="tsd-tag-TJS-type"><div data-typedoc-h="4" class="tsd-anchor-link" id="tjs-type">TJS-type<a href="#tjs-type" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor" /></svg></a></div><p>number</p> </div></div></li></ul></div><aside class="tsd-sources"><p>Overrides Request.params</p></aside></section>
 
 ### `CreateMessageResult`
 
@@ -11284,7 +11262,6 @@ Providing an output schema helps clients and LLMs understand and properly handle
 Tools use two error reporting mechanisms:
 
 1. **Protocol Errors**: Standard JSON-RPC errors for issues like:
-
    * Unknown tools
    * Invalid arguments
    * Server errors
@@ -11328,7 +11305,6 @@ Example tool execution error:
 ## Security Considerations
 
 1. Servers **MUST**:
-
    * Validate all tool inputs
    * Implement proper access controls
    * Rate limit tool invocations
@@ -11530,7 +11506,6 @@ Servers **SHOULD** return standard JSON-RPC errors for common failure cases:
 ## Implementation Considerations
 
 1. Servers **SHOULD**:
-
    * Return suggestions sorted by relevance
    * Implement fuzzy matching where appropriate
    * Rate limit completion requests
@@ -11671,7 +11646,6 @@ Servers **SHOULD** return standard JSON-RPC errors for common failure cases:
 ## Implementation Considerations
 
 1. Servers **SHOULD**:
-
    * Rate limit log messages
    * Include relevant context in data field
    * Use consistent logger names
@@ -11686,7 +11660,6 @@ Servers **SHOULD** return standard JSON-RPC errors for common failure cases:
 ## Security
 
 1. Log messages **MUST NOT** contain:
-
    * Credentials or secrets
    * Personal identifying information
    * Internal system details that could aid attacks
@@ -11782,12 +11755,10 @@ The following MCP operations support pagination:
 ## Implementation Guidelines
 
 1. Servers **SHOULD**:
-
    * Provide stable cursors
    * Handle invalid cursors gracefully
 
 2. Clients **SHOULD**:
-
    * Treat a missing `nextCursor` as the end of results
    * Support both paginated and non-paginated flows
 
