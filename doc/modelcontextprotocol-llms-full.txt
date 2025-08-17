@@ -1618,7 +1618,7 @@ Consider proposing a SEP if your change involves any of the following:
 There are three kinds of SEP:
 
 1. **Standards Track** SEP describes a new feature or implementation for the Model Context Protocol. It may also describe an interoperability standard that will be supported outside the core protocol specification.
-2. **Informational** SEP describes a Model Context Protocol design issue, or provides general guidelines or information to the MCP community, but does not propose a new feature. Informational SEPs do not necessarily represent a MCP community consensus or recommendation.
+2. **Informational** SEP describes a Model Context Protocol design issue, or provides general guidelines or information to the MCP community, but does not propose a new feature. Informational SEPs do not necessarily represent an MCP community consensus or recommendation.
 3. **Process** SEP describes a process surrounding MCP, or proposes a change to (or an event in) a process. Process SEPs are like Standards Track SEPs but apply to areas other than the MCP protocol itself.
 
 ## Submitting a SEP
@@ -4742,7 +4742,7 @@ In this tutorial, you'll learn how to build an LLM-powered chatbot client that c
     }
     ```
 
-    This creates a MCP client that will connect to a server that is provided as a command line argument. It then lists the available tools from the connected server.
+    This creates an MCP client that will connect to a server that is provided as a command line argument. It then lists the available tools from the connected server.
 
     ### Query processing logic
 
@@ -5904,7 +5904,7 @@ This tutorial will primarily focus on tools.
 
     ## Testing your server with Java client
 
-    ### Create a MCP Client manually
+    ### Create an MCP Client manually
 
     Use the `McpClient` to connect to the server:
 
@@ -5955,7 +5955,7 @@ This tutorial will primarily focus on tools.
 
     ## More Java MCP Server examples
 
-    The [starter-webflux-server](https://github.com/spring-projects/spring-ai-examples/tree/main/model-context-protocol/weather/starter-webflux-server) demonstrates how to create a MCP server using SSE transport.
+    The [starter-webflux-server](https://github.com/spring-projects/spring-ai-examples/tree/main/model-context-protocol/weather/starter-webflux-server) demonstrates how to create an MCP server using SSE transport.
     It showcases how to define and register MCP Tools, Resources, and Prompts, using the Spring Boot's auto-configuration capabilities.
   </Tab>
 
@@ -7537,7 +7537,7 @@ registered client before forwarding to third-party authorization servers (which 
 
 ### Access Token Privilege Restriction
 
-An attacker can gain unauthorized access or otherwise compromise a MCP server if the server accepts tokens issued for other resources.
+An attacker can gain unauthorized access or otherwise compromise an MCP server if the server accepts tokens issued for other resources.
 
 This vulnerability has two critical dimensions:
 
