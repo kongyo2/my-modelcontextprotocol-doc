@@ -3418,6 +3418,55 @@ client = Client(
 )
 ```
 
+## Sampling fallback
+
+Client support for sampling is optional, if the client does not support sampling, the server will report an error indicating
+that the client does not support sampling.
+
+A `sampling_handler` can also be provided to the FastMCP server, which will be used to handle sampling requests if the client
+does not support sampling. This sampling handler bypasses the client and sends sampling requests directly to the LLM provider.
+
+Sampling handlers can be implemented using any LLM provider but a sample implementation for OpenAI is provided as a Contrib
+module. Sampling lacks the full capabilities of typical LLM completions. For this reason, the OpenAI sampling handler, pointed at
+a third-party provider's OpenAI-compatible API, is often sufficient to implement a sampling handler.
+
+```python
+import asyncio
+import os
+
+from mcp.types import ContentBlock
+from openai import OpenAI
+
+from fastmcp import FastMCP
+from fastmcp.experimental.sampling.handlers.openai import OpenAISamplingHandler
+from fastmcp.server.context import Context
+
+
+async def async_main():
+    server = FastMCP(
+        name="OpenAI Sampling Fallback Example",
+        sampling_handler=OpenAISamplingHandler(
+            default_model="gpt-4o-mini",
+            client=OpenAI(
+                api_key=os.getenv("API_KEY"),
+                base_url=os.getenv("BASE_URL"),
+            ),
+        ),
+    )
+
+    @server.tool
+    async def test_sample_fallback(ctx: Context) -> ContentBlock:
+        return await ctx.sample(
+            messages=["hello world!"],
+        )
+
+    await server.run_http_async()
+
+
+if __name__ == "__main__":
+    asyncio.run(async_main())
+```
+
 
 # Tool Operations
 Source: https://gofastmcp.com/clients/tools
@@ -4611,7 +4660,7 @@ If you already have a web application running, you can add MCP capabilities by m
 For detailed integration guides, see:
 
 * [FastAPI Integration](/integrations/fastapi)
-* [Starlette Integration](/integrations/starlette)
+* [ASGI / Starlette Integration](/integrations/asgi)
 
 Here's a quick example showing how to add MCP to an existing FastAPI application:
 
@@ -5755,7 +5804,7 @@ Finally, you can copy the contents of any page as markdown by pressing "Cmd+C" (
 # Anthropic API 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/anthropic
 
-Call FastMCP servers from the Anthropic API
+Connect FastMCP servers to the Anthropic API
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -5985,6 +6034,225 @@ print(response.content)
 You should now see the dice roll results in the output.
 
 
+# ASGI / Starlette 🤝 FastMCP
+Source: https://gofastmcp.com/integrations/asgi
+
+Integrate FastMCP servers into ASGI applications
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.3.1" />
+
+FastMCP servers can be integrated into existing ASGI applications, allowing you to add MCP functionality to your web applications. This is useful for:
+
+* Adding MCP functionality to an existing website or API
+* Mounting MCP servers under specific URL paths
+* Combining multiple services in a single application
+* Leveraging existing authentication and middleware
+
+## Basic Usage
+
+To integrate a FastMCP server into an ASGI application, use the `http_app()` method to obtain a Starlette application instance:
+
+<Tip>
+  The `http_app()` method is new in FastMCP 2.3.2. In older versions, use `sse_app()` for SSE transport or `streamable_http_app()` for Streamable HTTP transport.
+</Tip>
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP("MyServer")
+
+@mcp.tool
+def hello(name: str) -> str:
+    return f"Hello, {name}!"
+
+# Get a Starlette app instance for Streamable HTTP transport (recommended)
+http_app = mcp.http_app()
+
+# For legacy SSE transport (deprecated)
+sse_app = mcp.http_app(transport="sse")
+```
+
+The returned Starlette application can be integrated with other ASGI-compatible web frameworks. The MCP server's endpoint is mounted at `/mcp/` for Streamable HTTP transport and `/sse/` for SSE transport.
+
+### Configuration Options
+
+You can customize the endpoint path and access the FastMCP server instance:
+
+```python
+# Custom endpoint path
+http_app = mcp.http_app(path="/custom-mcp-path")
+
+# Access the FastMCP server from middleware/routes
+# The server is available at: request.app.state.fastmcp_server
+```
+
+### Adding Custom Routes
+
+You can add custom web routes directly to your FastMCP server using the `@custom_route` decorator:
+
+```python
+from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+mcp = FastMCP("MyServer")
+
+@mcp.custom_route("/api/status", methods=["GET"])
+async def get_status(request: Request):
+    return JSONResponse({"server": "running"})
+
+http_app = mcp.http_app()
+```
+
+#### Health Check Endpoints
+
+Health checks are commonly needed for monitoring and load balancing:
+
+```python
+from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+mcp = FastMCP("MyServer")
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request: Request):
+    return JSONResponse({"status": "healthy"})
+
+http_app = mcp.http_app()
+```
+
+The health endpoint will be available at `/health` alongside your MCP endpoint at `/mcp/`.
+
+## Starlette Integration
+
+Mount your FastMCP server in another Starlette application:
+
+```python
+from fastmcp import FastMCP
+from starlette.applications import Starlette
+from starlette.routing import Mount
+
+# Create your FastMCP server
+mcp = FastMCP("MyServer")
+
+@mcp.tool
+def analyze(data: str) -> dict:
+    return {"result": f"Analyzed: {data}"}
+
+# Create the ASGI app
+mcp_app = mcp.http_app(path='/mcp')
+
+# Create a Starlette app and mount the MCP server
+app = Starlette(
+    routes=[
+        Mount("/mcp-server", app=mcp_app),
+        # Add other routes as needed
+    ],
+    lifespan=mcp_app.lifespan,
+)
+```
+
+The MCP endpoint will be available at `/mcp-server/mcp/` of the resulting Starlette app.
+
+<Warning>
+  For Streamable HTTP transport, you **must** pass the lifespan context from the FastMCP app to the resulting Starlette app, as nested lifespans are not recognized. Otherwise, the FastMCP server's session manager will not be properly initialized.
+</Warning>
+
+### Nested Mounts
+
+You can create complex routing structures by nesting mounts:
+
+```python
+from fastmcp import FastMCP
+from starlette.applications import Starlette
+from starlette.routing import Mount
+
+# Create your FastMCP server
+mcp = FastMCP("MyServer")
+
+# Create the ASGI app
+mcp_app = mcp.http_app(path='/mcp')
+
+# Create nested application structure
+inner_app = Starlette(routes=[Mount("/inner", app=mcp_app)])
+app = Starlette(
+    routes=[Mount("/outer", app=inner_app)],
+    lifespan=mcp_app.lifespan,
+)
+```
+
+In this setup, the MCP server is accessible at the `/outer/inner/mcp/` path.
+
+## Custom Middleware
+
+<VersionBadge version="2.3.2" />
+
+Add custom Starlette middleware to your FastMCP ASGI apps by passing a list of middleware instances:
+
+```python
+from fastmcp import FastMCP
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
+
+# Create your FastMCP server
+mcp = FastMCP("MyServer")
+
+# Define custom middleware
+custom_middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+]
+
+# Create ASGI app with middleware
+http_app = mcp.http_app(custom_middleware=custom_middleware)
+```
+
+## Running the Server
+
+To run your ASGI application, use an ASGI server like `uvicorn`:
+
+```python
+import uvicorn
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+Or from the command line:
+
+```bash
+uvicorn path.to.your.app:app --host 0.0.0.0 --port 8000
+```
+
+## Framework-Specific Integration
+
+### FastAPI
+
+For FastAPI-specific integration patterns including both mounting MCP servers into FastAPI apps and generating MCP servers from FastAPI apps, see the [FastAPI Integration guide](/integrations/fastapi).
+
+### Other ASGI Frameworks
+
+The patterns shown here work with any ASGI-compatible framework. The key requirements are:
+
+1. Mount the FastMCP ASGI app at your desired path
+2. Pass the lifespan context to your root application
+3. Configure any necessary middleware or authentication
+
+
 # AuthKit 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/authkit
 
@@ -6091,6 +6359,264 @@ from fastmcp import FastMCP
 
 # FastMCP automatically creates the AuthKitProvider from environment variables
 mcp = FastMCP(name="WorkOS Secured App")
+```
+
+
+# Azure (Microsoft Entra) OAuth 🤝 FastMCP
+Source: https://gofastmcp.com/integrations/azure
+
+Secure your FastMCP server with Azure/Microsoft Entra OAuth
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.12.0" />
+
+This guide shows you how to secure your FastMCP server using **Azure OAuth** (Microsoft Entra ID). Since Azure doesn't support Dynamic Client Registration, this integration uses the [**OAuth Proxy**](/servers/auth/oauth-proxy) pattern to bridge Azure's traditional OAuth with MCP's authentication requirements.
+
+## Configuration
+
+### Prerequisites
+
+Before you begin, you will need:
+
+1. An **[Azure Account](https://portal.azure.com/)** with access to create App registrations
+2. Your FastMCP server's URL (can be localhost for development, e.g., `http://localhost:8000`)
+3. Your Azure tenant ID (found in Azure Portal under Microsoft Entra ID)
+
+### Step 1: Create an Azure App Registration
+
+Create an App registration in Azure Portal to get the credentials needed for authentication:
+
+<Steps>
+  <Step title="Navigate to App registrations">
+    Go to the [Azure Portal](https://portal.azure.com) and navigate to **Microsoft Entra ID → App registrations**.
+
+    Click **"New registration"** to create a new application.
+  </Step>
+
+  <Step title="Configure Your Application">
+    Fill in the application details:
+
+    * **Name**: Choose a name users will recognize (e.g., "My FastMCP Server")
+    * **Supported account types**: Choose based on your needs:
+      * **Single tenant**: Only users in your organization
+      * **Multitenant**: Users in any Microsoft Entra directory
+      * **Multitenant + personal accounts**: Any Microsoft account
+    * **Redirect URI**: Select "Web" and enter your server URL + `/auth/callback` (e.g., `http://localhost:8000/auth/callback`)
+
+    <Warning>
+      The redirect URI must match exactly. The default path is `/auth/callback`, but you can customize it using the `redirect_path` parameter. For local development, Azure allows `http://localhost` URLs. For production, you must use HTTPS.
+    </Warning>
+
+    <Tip>
+      If you want to use a custom callback path (e.g., `/auth/azure/callback`), make sure to set the same path in both your Azure App registration and the `redirect_path` parameter when configuring the AzureProvider.
+    </Tip>
+  </Step>
+
+  <Step title="Create Client Secret">
+    After registration, navigate to **Certificates & secrets** in your app's settings.
+
+    * Click **"New client secret"**
+    * Add a description (e.g., "FastMCP Server")
+    * Choose an expiration period
+    * Click **"Add"**
+
+    <Warning>
+      Copy the secret value immediately - it won't be shown again! You'll need to create a new secret if you lose it.
+    </Warning>
+  </Step>
+
+  <Step title="Note Your Credentials">
+    From the **Overview** page of your app registration, note:
+
+    * **Application (client) ID**: A UUID like `835f09b6-0f0f-40cc-85cb-f32c5829a149`
+    * **Directory (tenant) ID**: A UUID like `08541b6e-646d-43de-a0eb-834e6713d6d5`
+    * **Client Secret**: The value you copied in the previous step
+
+    <Tip>
+      Store these credentials securely. Never commit them to version control. Use environment variables or a secrets manager in production.
+    </Tip>
+  </Step>
+</Steps>
+
+### Step 2: FastMCP Configuration
+
+Create your FastMCP server using the `AzureProvider`, which handles Azure's OAuth flow automatically:
+
+```python server.py
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.azure import AzureProvider
+
+# The AzureProvider handles Azure's token format and validation
+auth_provider = AzureProvider(
+    client_id="835f09b6-0f0f-40cc-85cb-f32c5829a149",  # Your Azure App Client ID
+    client_secret="your-client-secret",                 # Your Azure App Client Secret
+    tenant_id="08541b6e-646d-43de-a0eb-834e6713d6d5", # Your Azure Tenant ID (REQUIRED)
+    base_url="http://localhost:8000",                   # Must match your App registration
+    required_scopes=["User.Read", "email", "openid", "profile"],  # Microsoft Graph permissions
+    # redirect_path="/auth/callback"                  # Default value, customize if needed
+)
+
+mcp = FastMCP(name="Azure Secured App", auth=auth_provider)
+
+# Add a protected tool to test authentication
+@mcp.tool
+async def get_user_info() -> dict:
+    """Returns information about the authenticated Azure user."""
+    from fastmcp.server.dependencies import get_access_token
+    
+    token = get_access_token()
+    # The AzureProvider stores user data in token claims
+    return {
+        "azure_id": token.claims.get("sub"),
+        "email": token.claims.get("email"),
+        "name": token.claims.get("name"),
+        "job_title": token.claims.get("job_title"),
+        "office_location": token.claims.get("office_location")
+    }
+```
+
+<Note>
+  **Important**: The `tenant_id` parameter is **REQUIRED**. Azure no longer supports using "common" for new applications due to security requirements. You must use one of:
+
+  * **Your specific tenant ID**: Found in Azure Portal (e.g., `08541b6e-646d-43de-a0eb-834e6713d6d5`)
+  * **"organizations"**: For work and school accounts only
+  * **"consumers"**: For personal Microsoft accounts only
+
+  Using your specific tenant ID is recommended for better security and control.
+</Note>
+
+## Testing
+
+### Running the Server
+
+Start your FastMCP server with HTTP transport to enable OAuth flows:
+
+```bash
+fastmcp run server.py --transport http --port 8000
+```
+
+Your server is now running and protected by Azure OAuth authentication.
+
+### Testing with a Client
+
+Create a test client that authenticates with your Azure-protected server:
+
+```python test_client.py
+from fastmcp import Client
+import asyncio
+
+async def main():
+    # The client will automatically handle Azure OAuth
+    async with Client("http://localhost:8000/mcp/", auth="oauth") as client:
+        # First-time connection will open Azure login in your browser
+        print("✓ Authenticated with Azure!")
+        
+        # Test the protected tool
+        result = await client.call_tool("get_user_info")
+        print(f"Azure user: {result['email']}")
+        print(f"Name: {result['name']}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+When you run the client for the first time:
+
+1. Your browser will open to Microsoft's authorization page
+2. Sign in with your Microsoft account (work, school, or personal based on your tenant configuration)
+3. Grant the requested permissions
+4. After authorization, you'll be redirected back
+5. The client receives the token and can make authenticated requests
+
+<Info>
+  The client caches tokens locally, so you won't need to re-authenticate for subsequent runs unless the token expires or you explicitly clear the cache.
+</Info>
+
+## Environment Variables
+
+For production deployments, use environment variables instead of hardcoding credentials.
+
+<Info>
+  To use the registered Azure provider, you must set `FASTMCP_SERVER_AUTH=AZURE`. Learn more about [registered providers](/servers/auth/authentication#registered-providers).
+</Info>
+
+### Provider Selection
+
+<ParamField path="FASTMCP_SERVER_AUTH" default="Not set" required>
+  Set to `AZURE` to use the registered AzureProvider with default configuration.
+</ParamField>
+
+### Azure-Specific Configuration
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_CLIENT_ID" required>
+    Your Azure App registration Client ID (e.g., `835f09b6-0f0f-40cc-85cb-f32c5829a149`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_CLIENT_SECRET" required>
+    Your Azure App registration Client Secret
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_TENANT_ID" required>
+    Your Azure tenant ID (specific ID, "organizations", or "consumers")
+
+    <Note>
+      This is **REQUIRED**. Find your tenant ID in Azure Portal under Microsoft Entra ID → Overview.
+    </Note>
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_BASE_URL" default="http://localhost:8000">
+    Public URL of your FastMCP server for OAuth callbacks
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_REDIRECT_PATH" default="/auth/callback">
+    Redirect path configured in your Azure App registration
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES" default="[&#x22;User.Read&#x22;, &#x22;email&#x22;, &#x22;openid&#x22;, &#x22;profile&#x22;]">
+    Comma-separated list of required Microsoft Graph scopes
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_TIMEOUT_SECONDS" default="10">
+    HTTP request timeout for Microsoft Graph API calls
+  </ParamField>
+</Card>
+
+Example `.env` file:
+
+```bash
+# Use the registered Azure provider
+FASTMCP_SERVER_AUTH=AZURE
+
+# Azure OAuth credentials
+FASTMCP_SERVER_AUTH_AZURE_CLIENT_ID=835f09b6-0f0f-40cc-85cb-f32c5829a149
+FASTMCP_SERVER_AUTH_AZURE_CLIENT_SECRET=your-client-secret-here
+FASTMCP_SERVER_AUTH_AZURE_TENANT_ID=08541b6e-646d-43de-a0eb-834e6713d6d5
+FASTMCP_SERVER_AUTH_AZURE_BASE_URL=https://your-server.com
+FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES=User.Read,email,profile
+```
+
+With environment variables set, your server code simplifies to:
+
+```python server.py
+from fastmcp import FastMCP
+
+# Authentication is automatically configured from environment
+mcp = FastMCP(name="Azure Secured App")
+
+@mcp.tool
+async def protected_tool(query: str) -> str:
+    """A tool that requires Azure authentication to access."""
+    # Your tool implementation here
+    return f"Processing authenticated request: {query}"
 ```
 
 
@@ -6443,7 +6969,7 @@ If your server provides resources, you can reference them with `@` mentions usin
 # Claude Desktop 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/claude-desktop
 
-Call FastMCP servers from Claude Desktop
+Connect FastMCP servers to Claude Desktop
 
 export const LocalFocusTip = () => {
   return <Tip>
@@ -7623,7 +8149,7 @@ For more details on configuration options, see the [OpenAPI Integration guide](/
 # Gemini SDK 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/gemini
 
-Call FastMCP servers from the Google Gemini SDK
+Connect FastMCP servers to the Google Gemini SDK
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -7775,10 +8301,10 @@ Create an OAuth App in your GitHub settings to get the credentials needed for au
 
     * **Application name**: Choose a name users will recognize (e.g., "My FastMCP Server")
     * **Homepage URL**: Your application's homepage or documentation URL
-    * **Authorization callback URL**: Your server URL + `/oauth/callback` (e.g., `http://localhost:8000/oauth/callback`)
+    * **Authorization callback URL**: Your server URL + `/auth/callback` (e.g., `http://localhost:8000/auth/callback`)
 
     <Warning>
-      The callback URL must match exactly. The default path is `/oauth/callback`, but you can customize it using the `redirect_path` parameter. For local development, GitHub allows `http://localhost` URLs. For production, you must use HTTPS.
+      The callback URL must match exactly. The default path is `/auth/callback`, but you can customize it using the `redirect_path` parameter. For local development, GitHub allows `http://localhost` URLs. For production, you must use HTTPS.
     </Warning>
 
     <Tip>
@@ -7811,7 +8337,7 @@ auth_provider = GitHubProvider(
     client_id="Ov23liAbcDefGhiJkLmN",  # Your GitHub OAuth App Client ID
     client_secret="github_pat_...",     # Your GitHub OAuth App Client Secret
     base_url="http://localhost:8000",   # Must match your OAuth App configuration
-    # redirect_path="/oauth/callback"   # Default value, customize if needed
+    # redirect_path="/auth/callback"   # Default value, customize if needed
 )
 
 mcp = FastMCP(name="GitHub Secured App", auth=auth_provider)
@@ -7904,7 +8430,7 @@ For production deployments, use environment variables instead of hardcoding cred
     Public URL of your FastMCP server for OAuth callbacks
   </ParamField>
 
-  <ParamField path="FASTMCP_SERVER_AUTH_GITHUB_REDIRECT_PATH" default="/oauth/callback">
+  <ParamField path="FASTMCP_SERVER_AUTH_GITHUB_REDIRECT_PATH" default="/auth/callback">
     Redirect path configured in your GitHub OAuth App
   </ParamField>
 
@@ -7992,10 +8518,10 @@ Create an OAuth 2.0 Client ID in your Google Cloud Console to get the credential
     * **Application type**: Web application
     * **Name**: Choose a descriptive name (e.g., "FastMCP Server")
     * **Authorized JavaScript origins**: Add your server's base URL (e.g., `http://localhost:8000`)
-    * **Authorized redirect URIs**: Add your server URL + `/oauth/callback` (e.g., `http://localhost:8000/oauth/callback`)
+    * **Authorized redirect URIs**: Add your server URL + `/auth/callback` (e.g., `http://localhost:8000/auth/callback`)
 
     <Warning>
-      The redirect URI must match exactly. The default path is `/oauth/callback`, but you can customize it using the `redirect_path` parameter. For local development, Google allows `http://localhost` URLs with various ports. For production, you must use HTTPS.
+      The redirect URI must match exactly. The default path is `/auth/callback`, but you can customize it using the `redirect_path` parameter. For local development, Google allows `http://localhost` URLs with various ports. For production, you must use HTTPS.
     </Warning>
 
     <Tip>
@@ -8031,7 +8557,7 @@ auth_provider = GoogleProvider(
     client_secret="GOCSPX-abc123...",                  # Your Google OAuth Client Secret
     base_url="http://localhost:8000",                  # Must match your OAuth configuration
     required_scopes=["openid", "email", "profile"],    # Request user information
-    # redirect_path="/oauth/callback"                  # Default value, customize if needed
+    # redirect_path="/auth/callback"                  # Default value, customize if needed
 )
 
 mcp = FastMCP(name="Google Secured App", auth=auth_provider)
@@ -8128,7 +8654,7 @@ For production deployments, use environment variables instead of hardcoding cred
     Public URL of your FastMCP server for OAuth callbacks
   </ParamField>
 
-  <ParamField path="FASTMCP_SERVER_AUTH_GOOGLE_REDIRECT_PATH" default="/oauth/callback">
+  <ParamField path="FASTMCP_SERVER_AUTH_GOOGLE_REDIRECT_PATH" default="/auth/callback">
     Redirect path configured in your Google OAuth Client
   </ParamField>
 
@@ -8615,7 +9141,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # OpenAI API 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/openai
 
-Call FastMCP servers from the OpenAI API
+Connect FastMCP servers to the OpenAI API
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -9683,10 +10209,10 @@ if __name__ == "__main__":
 [fastmcp-middleware]: /servers/middleware
 
 
-# Starlette / ASGI 🤝 FastMCP
-Source: https://gofastmcp.com/integrations/starlette
+# WorkOS 🤝 FastMCP
+Source: https://gofastmcp.com/integrations/workos-oauth
 
-Integrate FastMCP servers into ASGI applications
+Authenticate FastMCP servers with WorkOS Connect
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -9697,209 +10223,244 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<VersionBadge version="2.3.1" />
+<VersionBadge version="2.12.0" />
 
-FastMCP servers can be integrated into existing ASGI applications, allowing you to add MCP functionality to your web applications. This is useful for:
+Secure your FastMCP server with WorkOS Connect authentication. This integration uses the OAuth Proxy pattern to handle authentication through WorkOS Connect while maintaining compatibility with MCP clients.
 
-* Adding MCP functionality to an existing website or API
-* Mounting MCP servers under specific URL paths
-* Combining multiple services in a single application
-* Leveraging existing authentication and middleware
+<Note>
+  This guide covers WorkOS Connect applications. For Dynamic Client Registration (DCR) with AuthKit, see the [AuthKit integration](/integrations/authkit) instead.
+</Note>
 
-## Basic Usage
+## Configuration
 
-To integrate a FastMCP server into an ASGI application, use the `http_app()` method to obtain a Starlette application instance:
+### Prerequisites
 
-<Tip>
-  The `http_app()` method is new in FastMCP 2.3.2. In older versions, use `sse_app()` for SSE transport or `streamable_http_app()` for Streamable HTTP transport.
-</Tip>
+Before you begin, you will need:
 
-```python
+1. A **[WorkOS Account](https://workos.com/)** with access to create OAuth Apps
+2. Your FastMCP server's URL (can be localhost for development, e.g., `http://localhost:8000`)
+
+### Step 1: Create a WorkOS OAuth App
+
+Create an OAuth App in your WorkOS dashboard to get the credentials needed for authentication:
+
+<Steps>
+  <Step title="Create OAuth Application">
+    In your WorkOS dashboard:
+
+    1. Navigate to **Applications**
+    2. Click **Create Application**
+    3. Select **OAuth Application**
+    4. Name your application
+  </Step>
+
+  <Step title="Get Credentials">
+    In your OAuth application settings:
+
+    1. Copy your **Client ID** (starts with `client_`)
+    2. Click **Generate Client Secret** and save it securely
+    3. Copy your **AuthKit Domain** (e.g., `https://your-app.authkit.app`)
+  </Step>
+
+  <Step title="Configure Redirect URI">
+    In the **Redirect URIs** section:
+
+    * Add: `http://localhost:8000/auth/callback` (for development)
+    * For production, add your server's public URL + `/auth/callback`
+
+    <Warning>
+      The callback URL must match exactly. The default path is `/auth/callback`, but you can customize it using the `redirect_path` parameter.
+    </Warning>
+  </Step>
+</Steps>
+
+### Step 2: FastMCP Configuration
+
+Create your FastMCP server using the `WorkOSProvider`:
+
+```python server.py
 from fastmcp import FastMCP
+from fastmcp.server.auth.providers.workos import WorkOSProvider
 
-mcp = FastMCP("MyServer")
+# Configure WorkOS OAuth
+auth = WorkOSProvider(
+    client_id="client_YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    authkit_domain="https://your-app.authkit.app",
+    base_url="http://localhost:8000",
+    required_scopes=["openid", "profile", "email"]
+)
+
+mcp = FastMCP("WorkOS Protected Server", auth=auth)
 
 @mcp.tool
-def hello(name: str) -> str:
-    return f"Hello, {name}!"
-
-# Get a Starlette app instance for Streamable HTTP transport (recommended)
-http_app = mcp.http_app()
-
-# For legacy SSE transport (deprecated)
-sse_app = mcp.http_app(transport="sse")
-```
-
-The returned Starlette application can be integrated with other ASGI-compatible web frameworks. The MCP server's endpoint is mounted at `/mcp/` for Streamable HTTP transport and `/sse/` for SSE transport.
-
-### Configuration Options
-
-You can customize the endpoint path and access the FastMCP server instance:
-
-```python
-# Custom endpoint path
-http_app = mcp.http_app(path="/custom-mcp-path")
-
-# Access the FastMCP server from middleware/routes
-# The server is available at: request.app.state.fastmcp_server
-```
-
-### Adding Custom Routes
-
-You can add custom web routes directly to your FastMCP server using the `@custom_route` decorator:
-
-```python
-from fastmcp import FastMCP
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-
-mcp = FastMCP("MyServer")
-
-@mcp.custom_route("/api/status", methods=["GET"])
-async def get_status(request: Request):
-    return JSONResponse({"server": "running"})
-
-http_app = mcp.http_app()
-```
-
-#### Health Check Endpoints
-
-Health checks are commonly needed for monitoring and load balancing:
-
-```python
-from fastmcp import FastMCP
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-
-mcp = FastMCP("MyServer")
-
-@mcp.custom_route("/health", methods=["GET"])
-async def health_check(request: Request):
-    return JSONResponse({"status": "healthy"})
-
-http_app = mcp.http_app()
-```
-
-The health endpoint will be available at `/health` alongside your MCP endpoint at `/mcp/`.
-
-## Starlette Integration
-
-Mount your FastMCP server in another Starlette application:
-
-```python
-from fastmcp import FastMCP
-from starlette.applications import Starlette
-from starlette.routing import Mount
-
-# Create your FastMCP server
-mcp = FastMCP("MyServer")
-
-@mcp.tool
-def analyze(data: str) -> dict:
-    return {"result": f"Analyzed: {data}"}
-
-# Create the ASGI app
-mcp_app = mcp.http_app(path='/mcp')
-
-# Create a Starlette app and mount the MCP server
-app = Starlette(
-    routes=[
-        Mount("/mcp-server", app=mcp_app),
-        # Add other routes as needed
-    ],
-    lifespan=mcp_app.lifespan,
-)
-```
-
-The MCP endpoint will be available at `/mcp-server/mcp/` of the resulting Starlette app.
-
-<Warning>
-  For Streamable HTTP transport, you **must** pass the lifespan context from the FastMCP app to the resulting Starlette app, as nested lifespans are not recognized. Otherwise, the FastMCP server's session manager will not be properly initialized.
-</Warning>
-
-### Nested Mounts
-
-You can create complex routing structures by nesting mounts:
-
-```python
-from fastmcp import FastMCP
-from starlette.applications import Starlette
-from starlette.routing import Mount
-
-# Create your FastMCP server
-mcp = FastMCP("MyServer")
-
-# Create the ASGI app
-mcp_app = mcp.http_app(path='/mcp')
-
-# Create nested application structure
-inner_app = Starlette(routes=[Mount("/inner", app=mcp_app)])
-app = Starlette(
-    routes=[Mount("/outer", app=inner_app)],
-    lifespan=mcp_app.lifespan,
-)
-```
-
-In this setup, the MCP server is accessible at the `/outer/inner/mcp/` path.
-
-## Custom Middleware
-
-<VersionBadge version="2.3.2" />
-
-Add custom Starlette middleware to your FastMCP ASGI apps by passing a list of middleware instances:
-
-```python
-from fastmcp import FastMCP
-from starlette.middleware import Middleware
-from starlette.middleware.cors import CORSMiddleware
-
-# Create your FastMCP server
-mcp = FastMCP("MyServer")
-
-# Define custom middleware
-custom_middleware = [
-    Middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-]
-
-# Create ASGI app with middleware
-http_app = mcp.http_app(custom_middleware=custom_middleware)
-```
-
-## Running the Server
-
-To run your ASGI application, use an ASGI server like `uvicorn`:
-
-```python
-import uvicorn
+def protected_tool(message: str) -> str:
+    """This tool requires authentication."""
+    return f"Authenticated user says: {message}"
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    mcp.run(transport="http", port=8000)
 ```
 
-Or from the command line:
+## Testing
+
+### Running the Server
+
+Start your FastMCP server with HTTP transport to enable OAuth flows:
 
 ```bash
-uvicorn path.to.your.app:app --host 0.0.0.0 --port 8000
+fastmcp run server.py --transport http --port 8000
 ```
 
-## Framework-Specific Integration
+Your server is now running and protected by WorkOS OAuth authentication.
 
-### FastAPI
+### Testing with a Client
 
-For FastAPI-specific integration patterns including both mounting MCP servers into FastAPI apps and generating MCP servers from FastAPI apps, see the [FastAPI Integration guide](/integrations/fastapi).
+Create a test client that authenticates with your WorkOS-protected server:
 
-### Other ASGI Frameworks
+```python client.py
+from fastmcp import Client
+import asyncio
 
-The patterns shown here work with any ASGI-compatible framework. The key requirements are:
+async def main():    
+    # The client will automatically handle WorkOS OAuth
+    async with Client("http://localhost:8000/mcp", auth="oauth") as client:
+        # First-time connection will open WorkOS login in your browser
+        print("✓ Authenticated with WorkOS!")
+        
+        # Test the protected tool
+        result = await client.call_tool("protected_tool", {"message": "Hello!"})
+        print(result)
 
-1. Mount the FastMCP ASGI app at your desired path
-2. Pass the lifespan context to your root application
-3. Configure any necessary middleware or authentication
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+When you run the client for the first time:
+
+1. Your browser will open to WorkOS's authorization page
+2. After you authorize the app, you'll be redirected back
+3. The client receives the token and can make authenticated requests
+
+<Info>
+  The client caches tokens locally, so you won't need to re-authenticate for subsequent runs unless the token expires or you explicitly clear the cache.
+</Info>
+
+## Environment Variables
+
+For production deployments, use environment variables instead of hardcoding credentials. These variables provide default values when instantiating `WorkOSProvider()`.
+
+<Info>
+  Setting `FASTMCP_SERVER_AUTH=WORKOS` automatically provisions WorkOS as the default auth provider for all FastMCP servers. This is optional - you can still manually instantiate `WorkOSProvider()` without it. Learn more about [registered providers](/servers/auth/authentication#registered-providers).
+</Info>
+
+### Automatic Provider Selection (Optional)
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
+    Set to `WORKOS` to automatically provision WorkOS authentication for FastMCP servers without explicitly passing an auth parameter.
+  </ParamField>
+</Card>
+
+### WorkOS-Specific Configuration
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_CLIENT_ID" required>
+    Your WorkOS OAuth App Client ID (e.g., `client_01K33Y6GGS7T3AWMPJWKW42Y3Q`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_CLIENT_SECRET" required>
+    Your WorkOS OAuth App Client Secret
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_AUTHKIT_DOMAIN" required>
+    Your WorkOS AuthKit domain (e.g., `https://your-app.authkit.app`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_BASE_URL" default="http://localhost:8000">
+    Public URL of your FastMCP server for OAuth callbacks
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_REDIRECT_PATH" default="/auth/callback">
+    Redirect path configured in your WorkOS OAuth App
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_REQUIRED_SCOPES" default="[]">
+    List of required OAuth scopes (e.g., `["openid", "profile", "email"]`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_TIMEOUT_SECONDS" default="10">
+    HTTP request timeout for WorkOS API calls
+  </ParamField>
+</Card>
+
+Example `.env` file:
+
+```bash
+# WorkOS OAuth credentials (always used as defaults)
+FASTMCP_SERVER_AUTH_WORKOS_CLIENT_ID=client_01K33Y6GGS7T3AWMPJWKW42Y3Q
+FASTMCP_SERVER_AUTH_WORKOS_CLIENT_SECRET=your_client_secret
+FASTMCP_SERVER_AUTH_WORKOS_AUTHKIT_DOMAIN=https://your-app.authkit.app
+FASTMCP_SERVER_AUTH_WORKOS_BASE_URL=https://your-server.com
+FASTMCP_SERVER_AUTH_WORKOS_REQUIRED_SCOPES=["openid","profile","email"]
+
+# Optional: Automatically provision WorkOS auth for all servers
+FASTMCP_SERVER_AUTH=WORKOS
+```
+
+With environment variables set, you can either:
+
+**Option 1: Manual instantiation (env vars provide defaults)**
+
+```python server.py
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.workos import WorkOSProvider
+
+# Env vars provide default values for WorkOSProvider()
+auth = WorkOSProvider()  # Uses env var defaults
+mcp = FastMCP(name="WorkOS Protected Server", auth=auth)
+```
+
+**Option 2: Automatic provisioning (requires FASTMCP\_SERVER\_AUTH=WORKOS)**
+
+```python server.py
+from fastmcp import FastMCP
+
+# Auth is automatically provisioned from FASTMCP_SERVER_AUTH
+mcp = FastMCP(name="WorkOS Protected Server")
+```
+
+## Configuration Options
+
+<Card>
+  <ParamField path="client_id" required>
+    WorkOS OAuth application client ID
+  </ParamField>
+
+  <ParamField path="client_secret" required>
+    WorkOS OAuth application client secret
+  </ParamField>
+
+  <ParamField path="authkit_domain" required>
+    Your WorkOS AuthKit domain URL (e.g., `https://your-app.authkit.app`)
+  </ParamField>
+
+  <ParamField path="base_url" required>
+    Your FastMCP server's public URL
+  </ParamField>
+
+  <ParamField path="required_scopes" default="[]">
+    OAuth scopes to request
+  </ParamField>
+
+  <ParamField path="redirect_path" default="/auth/callback">
+    OAuth callback path
+  </ParamField>
+
+  <ParamField path="timeout_seconds" default="10">
+    API request timeout
+  </ParamField>
+</Card>
 
 
 # FastMCP CLI
@@ -13405,7 +13966,7 @@ mount(self, server: MountedServer) -> None
 
 Adds a mounted server as a source for prompts.
 
-#### `has_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L89" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `has_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L91" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 has_prompt(self, key: str) -> bool
@@ -13413,7 +13974,7 @@ has_prompt(self, key: str) -> bool
 
 Check if a prompt exists.
 
-#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L94" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L96" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_prompt(self, key: str) -> Prompt
@@ -13421,7 +13982,7 @@ get_prompt(self, key: str) -> Prompt
 
 Get prompt by key.
 
-#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L101" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L103" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_prompts(self) -> dict[str, Prompt]
@@ -13429,7 +13990,7 @@ get_prompts(self) -> dict[str, Prompt]
 
 Gets the complete, unfiltered inventory of all prompts.
 
-#### `list_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L107" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L109" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_prompts(self) -> list[Prompt]
@@ -13437,7 +13998,7 @@ list_prompts(self) -> list[Prompt]
 
 Lists all prompts, applying protocol filtering.
 
-#### `add_prompt_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L114" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_prompt_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L116" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_prompt_from_fn(self, fn: Callable[..., PromptResult | Awaitable[PromptResult]], name: str | None = None, description: str | None = None, tags: set[str] | None = None) -> FunctionPrompt
@@ -13445,7 +14006,7 @@ add_prompt_from_fn(self, fn: Callable[..., PromptResult | Awaitable[PromptResult
 
 Create a prompt from a function.
 
-#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L134" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L136" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_prompt(self, prompt: Prompt) -> Prompt
@@ -13453,7 +14014,7 @@ add_prompt(self, prompt: Prompt) -> Prompt
 
 Add a prompt to the manager.
 
-#### `render_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L152" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `render_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/prompts/prompt_manager.py#L154" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 render_prompt(self, name: str, arguments: dict[str, Any] | None = None) -> GetPromptResult
@@ -13625,7 +14186,7 @@ get_resource_templates(self) -> dict[str, ResourceTemplate]
 
 Get all registered templates, keyed by URI template.
 
-#### `list_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L174" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L178" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_resources(self) -> list[Resource]
@@ -13633,7 +14194,7 @@ list_resources(self) -> list[Resource]
 
 Lists all resources, applying protocol filtering.
 
-#### `list_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L181" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L185" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_resource_templates(self) -> list[ResourceTemplate]
@@ -13641,7 +14202,7 @@ list_resource_templates(self) -> list[ResourceTemplate]
 
 Lists all templates, applying protocol filtering.
 
-#### `add_resource_or_template_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L188" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource_or_template_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L192" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_resource_or_template_from_fn(self, fn: Callable[..., Any], uri: str, name: str | None = None, description: str | None = None, mime_type: str | None = None, tags: set[str] | None = None) -> Resource | ResourceTemplate
@@ -13663,7 +14224,7 @@ Add a resource or template to the manager from a function.
 * The added resource or template. If a resource or template with the same URI already exists,
 * returns the existing resource or template.
 
-#### `add_resource_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L236" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L240" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_resource_from_fn(self, fn: Callable[..., Any], uri: str, name: str | None = None, description: str | None = None, mime_type: str | None = None, tags: set[str] | None = None) -> Resource
@@ -13685,7 +14246,7 @@ Add a resource to the manager from a function.
 * The added resource. If a resource with the same URI already exists,
 * returns the existing resource.
 
-#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L276" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L280" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_resource(self, resource: Resource) -> Resource
@@ -13699,7 +14260,7 @@ Add a resource to the manager.
   will be used as the storage key. To overwrite it, call
   Resource.model\_copy(key=new\_key) before calling this method.
 
-#### `add_template_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L298" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_template_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L302" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_template_from_fn(self, fn: Callable[..., Any], uri_template: str, name: str | None = None, description: str | None = None, mime_type: str | None = None, tags: set[str] | None = None) -> ResourceTemplate
@@ -13707,7 +14268,7 @@ add_template_from_fn(self, fn: Callable[..., Any], uri_template: str, name: str 
 
 Create a template from a function.
 
-#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L325" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L329" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_template(self, template: ResourceTemplate) -> ResourceTemplate
@@ -13726,7 +14287,7 @@ Add a template to the manager.
 * The added template. If a template with the same URI already exists,
 * returns the existing template.
 
-#### `has_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L351" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `has_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 has_resource(self, uri: AnyUrl | str) -> bool
@@ -13734,7 +14295,7 @@ has_resource(self, uri: AnyUrl | str) -> bool
 
 Check if a resource exists.
 
-#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L372" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_resource(self, uri: AnyUrl | str) -> Resource
@@ -13750,7 +14311,7 @@ Get resource by URI, checking concrete resources first, then templates.
 
 * `NotFoundError`: If no resource or template matching the URI is found.
 
-#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L413" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/resource_manager.py#L417" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 read_resource(self, uri: AnyUrl | str) -> str | bytes
@@ -14195,6 +14756,318 @@ This method creates the full set of OAuth routes including:
 * List of OAuth routes
 
 
+# oauth_proxy
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-oauth_proxy
+
+
+
+# `fastmcp.server.auth.oauth_proxy`
+
+OAuth Proxy Provider for FastMCP.
+
+This provider acts as a transparent proxy to an upstream OAuth Authorization Server,
+handling Dynamic Client Registration locally while forwarding all other OAuth flows.
+This enables authentication with upstream providers that don't support DCR or have
+restricted client registration policies.
+
+Key features:
+
+* Proxies authorization and token endpoints to upstream server
+* Implements local Dynamic Client Registration with fixed upstream credentials
+* Validates tokens using upstream JWKS
+* Maintains minimal local state for bookkeeping
+* Enhanced logging with request correlation
+
+This implementation is based on the OAuth 2.1 specification and is designed for
+production use with enterprise identity providers.
+
+## Classes
+
+### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L54" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Client for DCR proxy that accepts any localhost redirect URI.
+
+This special client class is critical for the OAuth proxy to work correctly
+with Dynamic Client Registration (DCR). Here's why it exists:
+
+## Problem:
+
+When MCP clients use OAuth, they dynamically register with random localhost
+ports (e.g., [http://localhost:55454/callback](http://localhost:55454/callback)). The OAuth proxy needs to:
+
+1. Accept these dynamic redirect URIs from clients
+2. Use its own fixed redirect URI with the upstream provider (Google, GitHub, etc.)
+3. Forward the authorization code back to the client's dynamic URI
+
+## Solution:
+
+This class overrides redirect\_uri validation to accept ANY localhost URI,
+while the proxy internally uses its own fixed redirect URI with the upstream
+provider. This allows the flow to work even when clients reconnect with
+different ports or when tokens are cached.
+
+Without this class, clients would get "Redirect URI not registered" errors
+when trying to authenticate with cached tokens, because the stored client
+would have fixed redirect URIs that don't match the new dynamic port.
+
+**Methods:**
+
+#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L80" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl
+```
+
+Accept any localhost redirect URI for DCR clients.
+
+Since we're acting as a proxy and clients register dynamically,
+we need to accept their localhost redirect URIs even though they're
+not pre-registered with us. This is essential for cached token
+scenarios where the client may reconnect with a different port.
+
+### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L107" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+OAuth provider that presents a DCR-compliant interface while proxying to non-DCR IDPs.
+
+## Purpose
+
+MCP clients expect OAuth providers to support Dynamic Client Registration (DCR),
+where clients can register themselves dynamically and receive unique credentials.
+Most enterprise IDPs (Google, GitHub, Azure AD, etc.) don't support DCR and require
+pre-registered OAuth applications with fixed credentials.
+
+This proxy bridges that gap by:
+
+* Presenting a full DCR-compliant OAuth interface to MCP clients
+* Translating DCR registration requests to use pre-configured upstream credentials
+* Proxying all OAuth flows to the upstream IDP with appropriate translations
+* Managing the state and security requirements of both protocols
+
+## Architecture Overview
+
+The proxy maintains a single OAuth app registration with the upstream provider
+while allowing unlimited MCP clients to register and authenticate dynamically.
+It implements the complete OAuth 2.1 + DCR specification for clients while
+translating to whatever OAuth variant the upstream provider requires.
+
+## Key Translation Challenges Solved
+
+1. Dynamic Client Registration:
+   * MCP clients expect to register dynamically and get unique credentials
+   * Upstream IDPs require pre-registered apps with fixed credentials
+   * Solution: Accept DCR requests, return shared upstream credentials
+
+2. Dynamic Redirect URIs:
+   * MCP clients use random localhost ports that change between sessions
+   * Upstream IDPs require fixed, pre-registered redirect URIs
+   * Solution: Use proxy's fixed callback URL with upstream, forward to client's dynamic URI
+
+3. Authorization Code Mapping:
+   * Upstream returns codes for the proxy's redirect URI
+   * Clients expect codes for their own redirect URIs
+   * Solution: Exchange upstream code server-side, issue new code to client
+
+4. State Parameter Collision:
+   * Both client and proxy need to maintain state through the flow
+   * Only one state parameter available in OAuth
+   * Solution: Use transaction ID as state with upstream, preserve client's state
+
+5. Token Management:
+   * Clients may expect different token formats/claims than upstream provides
+   * Need to track tokens for revocation and refresh
+   * Solution: Store token relationships, forward upstream tokens transparently
+
+## OAuth Flow Implementation
+
+1. Client Registration (DCR):
+   * Accept any client registration request
+   * Store ProxyDCRClient that accepts dynamic redirect URIs
+   * Return shared upstream credentials to all clients
+
+2. Authorization:
+   * Store transaction mapping client details to proxy flow
+   * Redirect to upstream with proxy's fixed redirect URI
+   * Use transaction ID as state parameter with upstream
+
+3. Upstream Callback:
+   * Exchange upstream authorization code for tokens (server-side)
+   * Generate new authorization code bound to client's PKCE challenge
+   * Redirect to client's original dynamic redirect URI
+
+4. Token Exchange:
+   * Validate client's code and PKCE verifier
+   * Return previously obtained upstream tokens
+   * Clean up one-time use authorization code
+
+5. Token Refresh:
+   * Forward refresh requests to upstream using authlib
+   * Handle token rotation if upstream issues new refresh token
+   * Update local token mappings
+
+## State Management
+
+The proxy maintains minimal but crucial state:
+
+* \_clients: DCR registrations (all use ProxyDCRClient for flexibility)
+* \_oauth\_transactions: Active authorization flows with client context
+* \_client\_codes: Authorization codes with PKCE challenges and upstream tokens
+* \_access\_tokens, \_refresh\_tokens: Token storage for revocation
+* Token relationship mappings for cleanup and rotation
+
+## Security Considerations
+
+* PKCE enforced end-to-end (client to proxy, proxy to upstream)
+* Authorization codes are single-use with short expiry
+* Transaction IDs are cryptographically random
+* All state is cleaned up after use to prevent replay
+* Token validation delegates to upstream provider
+
+## Provider Compatibility
+
+Works with any OAuth 2.0 provider that supports:
+
+* Authorization code flow
+* Fixed redirect URI (configured in provider's app settings)
+* Standard token endpoint
+
+Handles provider-specific requirements:
+
+* Google: Ensures minimum scope requirements
+* GitHub: Compatible with OAuth Apps and GitHub Apps
+* Azure AD: Handles tenant-specific endpoints
+* Generic: Works with any spec-compliant provider
+
+**Methods:**
+
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L333" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+get_client(self, client_id: str) -> OAuthClientInformationFull | None
+```
+
+Get client information by ID.
+
+For unregistered clients, returns a ProxyDCRClient that accepts
+any localhost redirect URI for DCR clients.
+
+Even registered clients use ProxyDCRClient to ensure they can
+authenticate with different dynamic ports on reconnection. This
+handles the case where a client with cached tokens reconnects
+on a different port.
+
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L364" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+register_client(self, client_info: OAuthClientInformationFull) -> None
+```
+
+Register a client locally using fixed upstream credentials.
+
+This implementation always uses the upstream client\_id and client\_secret
+regardless of what the client requests. It modifies the client\_info object
+in place since the MCP framework ignores return values.
+
+This ensures all clients use the same credentials that are registered
+with the upstream server.
+
+Implementation Detail:
+We store a ProxyDCRClient (not the original client\_info) to ensure
+the client can reconnect with different dynamic redirect URIs. This is
+essential for cached token scenarios where the client port changes.
+
+The flow:
+
+1. Client provides its desired redirect URIs (dynamic localhost ports)
+2. We create a ProxyDCRClient that will accept ANY localhost URI
+3. We store this flexible client for future authentications
+4. When client reconnects with a different port, ProxyDCRClient accepts it
+
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L421" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
+```
+
+Start OAuth transaction and redirect to upstream IdP.
+
+This implements the DCR-compliant proxy pattern:
+
+1. Store transaction with client details and PKCE challenge
+2. Use transaction ID as state for IdP
+3. Redirect to IdP with our fixed callback URL
+
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L478" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
+```
+
+Load authorization code for validation.
+
+Look up our client code and return authorization code object
+with PKCE challenge for validation.
+
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L520" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
+```
+
+Exchange authorization code for stored IdP tokens.
+
+For the DCR-compliant proxy flow, we return the IdP tokens that were obtained
+during the IdP callback exchange. PKCE validation is handled by the MCP framework.
+
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L587" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
+```
+
+Load refresh token from local storage.
+
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L595" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
+```
+
+Exchange refresh token for new access token using authlib.
+
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L670" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+load_access_token(self, token: str) -> AccessToken | None
+```
+
+Validate access token using upstream JWKS.
+
+Delegates to the JWT verifier which handles signature validation,
+expiration checking, and claims validation using the upstream JWKS.
+
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L687" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+revoke_token(self, token: AccessToken | RefreshToken) -> None
+```
+
+Revoke token locally and with upstream server if supported.
+
+Removes tokens from local storage and attempts to revoke them with
+the upstream server if a revocation endpoint is configured.
+
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L880" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+get_routes(self) -> list[Route]
+```
+
+Get OAuth routes with custom proxy token handler.
+
+This method creates standard OAuth routes and replaces the token endpoint
+with our proxy handler that forwards requests to the upstream OAuth server.
+
+
 # __init__
 Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-providers-__init__
 
@@ -14203,6 +15076,64 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-providers-__init__
 # `fastmcp.server.auth.providers`
 
 *This module is empty or contains only private/internal implementations.*
+
+
+# azure
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-providers-azure
+
+
+
+# `fastmcp.server.auth.providers.azure`
+
+Azure (Microsoft Entra) OAuth provider for FastMCP.
+
+This provider implements Azure/Microsoft Entra ID OAuth authentication
+using the OAuth Proxy pattern for non-DCR OAuth flows.
+
+## Classes
+
+### `AzureProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L22" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Settings for Azure OAuth provider.
+
+### `AzureTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L40" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Token verifier for Azure OAuth tokens.
+
+Azure tokens are JWTs, but we verify them by calling the Microsoft Graph API
+to get user information and validate the token.
+
+**Methods:**
+
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+verify_token(self, token: str) -> AccessToken | None
+```
+
+Verify Azure OAuth token by calling Microsoft Graph API.
+
+### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L112" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Azure (Microsoft Entra) OAuth provider for FastMCP.
+
+This provider implements Azure/Microsoft Entra ID authentication using the
+OAuth Proxy pattern. It supports both organizational accounts and personal
+Microsoft accounts depending on the tenant configuration.
+
+Features:
+
+* Transparent OAuth proxy to Azure/Microsoft identity platform
+* Automatic token validation via Microsoft Graph API
+* User information extraction
+* Support for different tenant configurations (common, organizations, consumers)
+
+Setup Requirements:
+
+1. Register an application in Azure Portal (portal.azure.com)
+2. Configure redirect URI as: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback)
+3. Note your Application (client) ID and create a client secret
+4. Optionally note your Directory (tenant) ID for single-tenant apps
 
 
 # bearer
@@ -14216,6 +15147,140 @@ Backwards compatibility shim for BearerAuthProvider.
 
 The BearerAuthProvider class has been moved to fastmcp.server.auth.providers.jwt.JWTVerifier
 for better organization. This module provides a backwards-compatible import.
+
+
+# github
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-providers-github
+
+
+
+# `fastmcp.server.auth.providers.github`
+
+GitHub OAuth provider for FastMCP.
+
+This module provides a complete GitHub OAuth integration that's ready to use
+with just a client ID and client secret. It handles all the complexity of
+GitHub's OAuth flow, token validation, and user management.
+
+Example:
+
+```python
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.github import GitHubProvider
+
+# Simple GitHub OAuth protection
+auth = GitHubProvider(
+    client_id="your-github-client-id",
+    client_secret="your-github-client-secret"
+)
+
+mcp = FastMCP("My Protected Server", auth=auth)
+```
+
+## Classes
+
+### `GitHubProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L38" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Settings for GitHub OAuth provider.
+
+### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L55" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Token verifier for GitHub OAuth tokens.
+
+GitHub OAuth tokens are opaque (not JWTs), so we verify them
+by calling GitHub's API to check if they're valid and get user info.
+
+**Methods:**
+
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L77" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+verify_token(self, token: str) -> AccessToken | None
+```
+
+Verify GitHub OAuth token by calling GitHub API.
+
+### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L161" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Complete GitHub OAuth provider for FastMCP.
+
+This provider makes it trivial to add GitHub OAuth protection to any
+FastMCP server. Just provide your GitHub OAuth app credentials and
+a base URL, and you're ready to go.
+
+Features:
+
+* Transparent OAuth proxy to GitHub
+* Automatic token validation via GitHub API
+* User information extraction
+* Minimal configuration required
+
+
+# google
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-providers-google
+
+
+
+# `fastmcp.server.auth.providers.google`
+
+Google OAuth provider for FastMCP.
+
+This module provides a complete Google OAuth integration that's ready to use
+with just a client ID and client secret. It handles all the complexity of
+Google's OAuth flow, token validation, and user management.
+
+Example:
+
+```python
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.google import GoogleProvider
+
+# Simple Google OAuth protection
+auth = GoogleProvider(
+    client_id="your-google-client-id.apps.googleusercontent.com",
+    client_secret="your-google-client-secret"
+)
+
+mcp = FastMCP("My Protected Server", auth=auth)
+```
+
+## Classes
+
+### `GoogleProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L40" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Settings for Google OAuth provider.
+
+### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L57" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Token verifier for Google OAuth tokens.
+
+Google OAuth tokens are opaque (not JWTs), so we verify them
+by calling Google's tokeninfo API to check if they're valid and get user info.
+
+**Methods:**
+
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L79" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+verify_token(self, token: str) -> AccessToken | None
+```
+
+Verify Google OAuth token by calling Google's tokeninfo API.
+
+### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L177" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Complete Google OAuth provider for FastMCP.
+
+This provider makes it trivial to add Google OAuth protection to any
+FastMCP server. Just provide your Google OAuth app credentials and
+a base URL, and you're ready to go.
+
+Features:
+
+* Transparent OAuth proxy to Google
+* Automatic token validation via Google's tokeninfo API
+* User information extraction from Google APIs
+* Minimal configuration required
 
 
 # in_memory
@@ -14461,11 +15526,62 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-providers-workos
 
 # `fastmcp.server.auth.providers.workos`
 
+WorkOS authentication providers for FastMCP.
+
+This module provides two WorkOS authentication strategies:
+
+1. WorkOSProvider - OAuth proxy for WorkOS Connect applications (non-DCR)
+2. AuthKitProvider - DCR-compliant provider for WorkOS AuthKit
+
+Choose based on your WorkOS setup and authentication requirements.
+
 ## Classes
 
-### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L18" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L29" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L31" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+Settings for WorkOS OAuth provider.
+
+### `WorkOSTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L47" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Token verifier for WorkOS OAuth tokens.
+
+WorkOS AuthKit tokens are opaque, so we verify them by calling
+the /oauth2/userinfo endpoint to check validity and get user info.
+
+**Methods:**
+
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L72" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+verify_token(self, token: str) -> AccessToken | None
+```
+
+Verify WorkOS OAuth token by calling userinfo endpoint.
+
+### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L120" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Complete WorkOS OAuth provider for FastMCP.
+
+This provider implements WorkOS AuthKit OAuth using the OAuth Proxy pattern.
+It provides OAuth2 authentication for users through WorkOS Connect applications.
+
+Features:
+
+* Transparent OAuth proxy to WorkOS AuthKit
+* Automatic token validation via userinfo endpoint
+* User information extraction from ID tokens
+* Support for standard OAuth scopes (openid, profile, email)
+
+Setup Requirements:
+
+1. Create a WorkOS Connect application in your dashboard
+2. Note your AuthKit domain (e.g., "[https://your-app.authkit.app](https://your-app.authkit.app)")
+3. Configure redirect URI as: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback)
+4. Note your Client ID and Client Secret
+
+### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L247" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L260" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 AuthKit metadata provider for DCR (Dynamic Client Registration).
 
@@ -14489,7 +15605,7 @@ For detailed setup instructions, see:
 
 **Methods:**
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L114" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L343" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_routes(self) -> list[Route]
@@ -16140,7 +17256,7 @@ Request and returns a Response.
 
 **Args:**
 
-* `path`: URL path for the route (e.g., "/oauth/callback")
+* `path`: URL path for the route (e.g., "/auth/callback")
 * `methods`: List of HTTP methods to support (e.g., \["GET", "POST"])
 * `name`: Optional name for the route (to reference this route with
   Starlette's reverse URL lookup feature)
@@ -16927,7 +18043,7 @@ mount(self, server: MountedServer) -> None
 
 Adds a mounted server as a source for tools.
 
-#### `has_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L101" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `has_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L103" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 has_tool(self, key: str) -> bool
@@ -16935,7 +18051,7 @@ has_tool(self, key: str) -> bool
 
 Check if a tool exists.
 
-#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L106" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L108" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tool(self, key: str) -> Tool
@@ -16943,7 +18059,7 @@ get_tool(self, key: str) -> Tool
 
 Get tool by key.
 
-#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L113" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L115" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tools(self) -> dict[str, Tool]
@@ -16951,7 +18067,7 @@ get_tools(self) -> dict[str, Tool]
 
 Gets the complete, unfiltered inventory of all tools.
 
-#### `list_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L119" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L121" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_tools(self) -> list[Tool]
@@ -16959,7 +18075,7 @@ list_tools(self) -> list[Tool]
 
 Lists all tools, applying protocol filtering.
 
-#### `add_tool_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L135" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L137" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_tool_from_fn(self, fn: Callable[..., Any], name: str | None = None, description: str | None = None, tags: set[str] | None = None, annotations: ToolAnnotations | None = None, serializer: Callable[[Any], str] | None = None, exclude_args: list[str] | None = None) -> Tool
@@ -16967,7 +18083,7 @@ add_tool_from_fn(self, fn: Callable[..., Any], name: str | None = None, descript
 
 Add a tool to the server.
 
-#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L164" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L166" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_tool(self, tool: Tool) -> Tool
@@ -16975,7 +18091,7 @@ add_tool(self, tool: Tool) -> Tool
 
 Register a tool with the server.
 
-#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L181" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L183" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfig) -> None
@@ -16983,7 +18099,7 @@ add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfi
 
 Add a tool transformation.
 
-#### `get_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L187" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L189" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tool_transformation(self, tool_name: str) -> ToolTransformConfig | None
@@ -16991,7 +18107,7 @@ get_tool_transformation(self, tool_name: str) -> ToolTransformConfig | None
 
 Get a tool transformation.
 
-#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L191" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L193" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 remove_tool_transformation(self, tool_name: str) -> None
@@ -16999,7 +18115,7 @@ remove_tool_transformation(self, tool_name: str) -> None
 
 Remove a tool transformation.
 
-#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L196" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L198" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 remove_tool(self, key: str) -> None
@@ -17015,7 +18131,7 @@ Remove a tool from the server.
 
 * `NotFoundError`: If the tool is not found
 
-#### `call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L210" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L212" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 call_tool(self, key: str, arguments: dict[str, Any]) -> ToolResult
@@ -18003,13 +19119,15 @@ returns the server URL. When the context manager is exited, the server process i
   not pickleable, so we need a function that creates and runs one.
 * `*args`: Arguments to pass to the server function.
 * `provide_host_and_port`: Whether to provide the host and port to the server function as kwargs.
+* `host`: Host to bind the server to (default: "127.0.0.1").
+* `port`: Port to bind the server to (default: find available port).
 * `**kwargs`: Keyword arguments to pass to the server function.
 
 **Returns:**
 
 * The server URL.
 
-### `caplog_for_fastmcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L136" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `caplog_for_fastmcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L141" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 caplog_for_fastmcp(caplog)
@@ -18019,7 +19137,7 @@ Context manager to capture logs from FastMCP loggers even when propagation is di
 
 ## Classes
 
-### `HeadlessOAuth` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L147" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `HeadlessOAuth` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L152" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth provider that bypasses browser interaction for testing.
 
@@ -18028,7 +19146,7 @@ instead of opening a browser and running a callback server. Useful for automated
 
 **Methods:**
 
-#### `redirect_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L160" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `redirect_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L165" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 redirect_handler(self, authorization_url: str) -> None
@@ -18036,7 +19154,7 @@ redirect_handler(self, authorization_url: str) -> None
 
 Make HTTP request to authorization URL and store response for callback handler.
 
-#### `callback_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L166" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `callback_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/tests.py#L171" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 callback_handler(self) -> tuple[str, str | None]
@@ -18758,10 +19876,10 @@ sequenceDiagram
     Note over Client, Proxy: Authorization with Callback Forwarding
     Client->>Proxy: 3. GET /authorize<br/>redirect_uri=localhost:54321/callback
     Note over Proxy: Store transaction with client callback
-    Proxy->>Provider: 4. Redirect to provider<br/>redirect_uri=server:8000/oauth/callback
+    Proxy->>Provider: 4. Redirect to provider<br/>redirect_uri=server:8000/auth/callback
     
     Note over Provider, Proxy: Provider Callback
-    Provider->>Proxy: 5. GET /oauth/callback<br/>with authorization code
+    Provider->>Proxy: 5. GET /auth/callback<br/>with authorization code
     Proxy->>Provider: 6. Exchange code for tokens
     Provider-->>Proxy: 7. Access & refresh tokens
     
@@ -18826,7 +19944,7 @@ The `OAuthProxy` class provides the complete proxy implementation:
     Public URL of your FastMCP server (e.g., `https://your-server.com`)
   </ParamField>
 
-  <ParamField body="redirect_path" type="str" default="/oauth/callback">
+  <ParamField body="redirect_path" type="str" default="/auth/callback">
     Path for OAuth callbacks. Must match the redirect URI configured in your OAuth application
   </ParamField>
 
@@ -18849,7 +19967,7 @@ The `OAuthProxy` class provides the complete proxy implementation:
 
 ```python
 from fastmcp import FastMCP
-from fastmcp.server.auth.proxy import OAuthProxy
+from fastmcp.server.auth import OAuthProxy
 from fastmcp.server.auth.providers.jwt import JWTVerifier
 
 # Configure token validation for your provider
@@ -18875,8 +19993,8 @@ auth = OAuthProxy(
     # Your FastMCP server URL (string automatically converted to AnyHttpUrl)
     base_url="https://your-server.com",
     
-    # Optional: customize callback path (defaults to "/oauth/callback")
-    redirect_path="/oauth/callback"
+    # Optional: customize callback path (defaults to "/auth/callback")
+    redirect_path="/auth/callback"
 )
 
 mcp = FastMCP(name="My Server", auth=auth)
@@ -18887,13 +20005,13 @@ mcp = FastMCP(name="My Server", auth=auth)
 When registering your application with your OAuth provider, configure the redirect/callback URL as:
 
 ```
-https://your-server.com/oauth/callback
+https://your-server.com/auth/callback
 ```
 
 For local development with providers that support it (like GitHub):
 
 ```
-http://localhost:8000/oauth/callback
+http://localhost:8000/auth/callback
 ```
 
 The proxy automatically:
