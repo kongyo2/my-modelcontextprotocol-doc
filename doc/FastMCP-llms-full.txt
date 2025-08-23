@@ -19963,6 +19963,16 @@ The `OAuthProxy` class provides the complete proxy implementation:
   <ParamField body="resource_server_url" type="AnyHttpUrl | str | None">
     Resource server URL (defaults to base\_url)
   </ParamField>
+
+  <ParamField body="allowed_client_redirect_uris" type="list[str] | None">
+    List of allowed redirect URI patterns for MCP clients. Patterns support wildcards (e.g., `"http://localhost:*"`, `"https://*.example.com/*"`).
+
+    * `None` (default): Only localhost redirect URIs allowed (`http://localhost:*`, `http://127.0.0.1:*`)
+    * Empty list `[]`: All redirect URIs allowed (not recommended for production)
+    * Custom list: Only matching patterns allowed
+
+    These patterns apply to MCP client loopback redirects, NOT the upstream OAuth app redirect URI.
+  </ParamField>
 </Card>
 
 ```python
@@ -20021,6 +20031,32 @@ The proxy automatically:
 * Exchanges authorization codes server-side for enhanced security
 * Validates tokens using your provider's public keys or API
 * Maintains PKCE security throughout the flow
+
+## Client Redirect URI Security
+
+<Warning>
+  By default, OAuth Proxy only accepts localhost redirect URIs from MCP clients for security. You can customize this with the `allowed_client_redirect_uris` parameter:
+
+  ```python
+  # Default: localhost only (secure)
+  auth = OAuthProxy(...) 
+
+  # Custom patterns with wildcards
+  auth = OAuthProxy(
+      ...,
+      allowed_client_redirect_uris=[
+          "http://localhost:*",
+          "https://app.example.com/auth/*"
+      ]
+  )
+
+  # Allow all (NOT recommended for production)
+  auth = OAuthProxy(
+      ...,
+      allowed_client_redirect_uris=[]
+  )
+  ```
+</Warning>
 
 ## Client Compatibility
 
@@ -20221,7 +20257,9 @@ token_verifier = JWTVerifier(
 auth = RemoteAuthProvider(
     token_verifier=token_verifier,
     authorization_servers=[AnyHttpUrl("https://auth.yourcompany.com")],
-    resource_server_url="https://api.yourcompany.com"
+    resource_server_url="https://api.yourcompany.com",
+    # Optional: customize allowed client redirect URIs (defaults to localhost only)
+    allowed_client_redirect_uris=["http://localhost:*", "http://127.0.0.1:*"]
 )
 
 mcp = FastMCP(name="Company API", auth=auth)
@@ -20301,6 +20339,18 @@ The `AuthKitProvider` automatically configures JWT validation against WorkOS's p
 WorkOS's support for Dynamic Client Registration makes it particularly well-suited for MCP applications. Clients can automatically register themselves with your WorkOS project and obtain the credentials needed for authentication without manual intervention.
 
 → **Complete WorkOS tutorial**: [AuthKit Integration Guide](/integrations/authkit)
+
+## Client Redirect URI Security
+
+<Note>
+  `RemoteAuthProvider` also supports the `allowed_client_redirect_uris` parameter for controlling which redirect URIs are accepted from MCP clients during DCR:
+
+  * `None` (default): Only localhost patterns allowed
+  * Custom list: Specify allowed patterns with wildcard support
+  * Empty list `[]`: Allow all (not recommended)
+
+  This provides defense-in-depth even though DCR providers typically validate redirect URIs themselves.
+</Note>
 
 ## Implementation Considerations
 
