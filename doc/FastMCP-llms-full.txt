@@ -4753,10 +4753,10 @@ This guide has shown you how to create an HTTP-accessible MCP server, but you'll
 The key requirements are Python 3.10+ support and the ability to expose an HTTP port. Most providers will require you to package your server (requirements.txt, Dockerfile, etc.) according to their deployment format. For managed, zero-configuration deployment, see [FastMCP Cloud](/deployment/fastmcp-cloud).
 
 
-# Server Configuration with fastmcp.json
+# Project Configuration
 Source: https://gofastmcp.com/deployment/server-configuration
 
-Use fastmcp.json for declarative server configuration
+Use fastmcp.json for portable, declarative project configuration
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -4767,9 +4767,11 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<VersionBadge version="2.11.4" />
+<VersionBadge version="2.12.0" />
 
 FastMCP supports declarative configuration through `fastmcp.json` files. This is the canonical and preferred way to configure FastMCP projects, providing a single source of truth for server settings, dependencies, and deployment options that replaces complex command-line arguments.
+
+The `fastmcp.json` file is designed to be a portable description of your server configuration that can be shared across environments and teams. When running from a `fastmcp.json` file, you can override any configuration values using CLI arguments.
 
 ## Overview
 
@@ -4787,93 +4789,114 @@ fastmcp run
 
 This configuration approach ensures reproducible deployments across different environments, from local development to production servers. It works seamlessly with Claude Desktop, VS Code extensions, and any MCP-compatible client.
 
-## JSON Schema Support
+## File Structure
+
+The `fastmcp.json` configuration answers three fundamental questions about your server:
+
+* **Source** = WHERE does your server code live?
+* **Environment** = WHAT environment setup does it require?
+* **Deployment** = HOW should the server run?
+
+This conceptual model helps you understand the purpose of each configuration section and organize your settings effectively. The configuration file maps directly to these three concerns:
+
+```json
+{
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    // WHERE: Location of your server code
+    "path": "server.py",
+    "entrypoint": "mcp"
+  },
+  "environment": {
+    // WHAT: Python environment and dependencies
+  },
+  "deployment": {
+    // HOW: Runtime configuration
+  }
+}
+```
+
+Only the `source` field is required. The `environment` and `deployment` sections are optional and provide additional configuration when needed.
+
+### JSON Schema Support
 
 FastMCP provides JSON schemas for IDE autocomplete and validation. Add the schema reference to your `fastmcp.json` for enhanced developer experience:
 
 ```json
 {
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "server.py",
+    "entrypoint": "mcp"
   }
 }
 ```
 
 Two schema URLs are available:
 
-* **Version-specific**: `https://gofastmcp.com/schemas/fastmcp_config/v1.json`
-* **Latest version**: `https://gofastmcp.com/schemas/fastmcp_config/latest.json`
+* **Version-specific**: `https://gofastmcp.com/public/schemas/fastmcp.json/v1.json`
+* **Latest version**: `https://gofastmcp.com/public/schemas/fastmcp.json/latest.json`
 
 Modern IDEs like VS Code will automatically provide autocomplete suggestions, validation, and inline documentation when the schema is specified.
 
-## File Structure
+### Source Configuration
 
-The `fastmcp.json` file has three main sections, each controlling a different aspect of your server:
+The source configuration determines **WHERE** your server code lives. It tells FastMCP how to find and load your server, whether it's a local Python file, a remote repository, or hosted in the cloud. This section is required and forms the foundation of your configuration.
 
-```json
-{
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
-  },
-  "environment": {
-    // Python environment and dependencies
-  },
-  "deployment": {
-    // Runtime configuration
-  }
-}
-```
+<Card icon="code" title="Source">
+  <ParamField body="source" type="object" required>
+    The server source configuration that determines where your server code lives.
 
-Only the `entrypoint` field is required. The `environment` and `deployment` sections are optional and provide additional configuration when needed.
+    <ParamField body="type" type="string" default="filesystem">
+      The source type identifier that determines which implementation to use. Currently supports `"filesystem"` for local files. Future releases will add support for `"git"` and `"cloud"` source types.
+    </ParamField>
 
-## Configuration Fields
+    <Expandable title="FileSystemSource">
+      When `type` is `"filesystem"` (or omitted), the source points to a local Python file containing your FastMCP server:
 
-### Entrypoint
+      <ParamField body="path" type="string" required>
+        Path to the Python file containing your FastMCP server.
+      </ParamField>
 
-The entrypoint specifies which Python file and object contains your FastMCP server. This field is required and supports multiple formats to accommodate different project structures.
+      <ParamField body="entrypoint" type="string">
+        Name of the server instance or factory function within the module:
 
-<Card icon="code" title="Entrypoint Configuration">
-  <ParamField body="entrypoint" type="object | string" required>
-    The server entry point. Can be specified in three formats:
+        * Can be a FastMCP server instance (e.g., `mcp = FastMCP("MyServer")`)
+        * Can be a function with no arguments that returns a FastMCP server
+        * If not specified, FastMCP searches for common names: `mcp`, `server`, or `app`
+      </ParamField>
 
-    **Object format** (recommended): Explicit file and object specification
+      **Example:**
 
-    ```json
-    "entrypoint": {
-      "file": "src/server.py",
-      "object": "mcp"
-    }
-    ```
+      ```json
+      "source": {
+        "type": "filesystem",
+        "path": "src/server.py",
+        "entrypoint": "mcp"
+      }
+      ```
 
-    **String with object**: File path with colon and object name
-
-    ```json
-    "entrypoint": "src/server.py:app"
-    ```
-
-    **String format**: Simple path to Python file (searches for common names: mcp, server, app)
-
-    ```json
-    "entrypoint": "server.py"
-    ```
-
-    <Expandable title="Path Resolution">
-      * File paths are resolved relative to the configuration file's location
-      * If your `fastmcp.json` is in a project root and references `src/server.py`, FastMCP will look for the server at `<project_root>/src/server.py`
-      * When no object is specified, FastMCP automatically searches for common server names: `mcp`, `server`, or `app`
+      Note: File paths are resolved relative to the configuration file's location.
     </Expandable>
   </ParamField>
 </Card>
 
-### Environment
+<Note>
+  **Future Source Types**
 
-The environment section configures Python dependencies and version requirements. When specified, FastMCP uses `uv` to create an isolated environment for your server, ensuring reproducible deployments across different systems.
+  Future releases will support additional source types:
 
-<Card icon="code" title="Environment Configuration">
+  * **Git repositories** (`type: "git"`) for loading server code directly from version control
+  * **FastMCP Cloud** (`type: "cloud"`) for hosted servers with automatic scaling and management
+</Note>
+
+### Environment Configuration
+
+The environment configuration determines **WHAT** environment setup your server requires. It controls the build-time setup of your Python environment using `uv`'s powerful dependency management. This section ensures your server runs with the exact Python version and dependencies it requires, creating isolated, reproducible environments across different systems.
+
+These settings leverage standard `uv` arguments for environment creation. When any environment field is specified, FastMCP automatically creates an isolated environment before running your server. This build-time configuration happens once when the server starts, not during runtime execution.
+
+<Card icon="code" title="Environment Fields">
   <ParamField body="environment" type="object">
     Optional Python environment configuration. When any field is specified, FastMCP automatically creates an isolated environment using `uv`.
 
@@ -4911,10 +4934,10 @@ The environment section configures Python dependencies and version requirements.
       </ParamField>
 
       <ParamField body="editable" type="string">
-        Path to a package to install in editable/development mode.
+        Path to a package to install in editable/development mode. Useful for local development when you want changes to be reflected immediately.
 
         ```json
-        "editable": "./my-package"
+        "editable": "."
         ```
       </ParamField>
     </Expandable>
@@ -4927,11 +4950,15 @@ When environment configuration is provided, FastMCP:
 2. Installs the specified dependencies
 3. Runs your server in this clean environment
 
-### Deployment
+This build-time setup ensures your server always has the dependencies it needs, without polluting your system Python or conflicting with other projects.
 
-The deployment section controls runtime configuration including transport protocol, networking, logging, and environment variables.
+### Deployment Configuration
 
-<Card icon="code" title="Deployment Configuration">
+The deployment configuration controls **HOW** your server runs. It defines the runtime behavior including network settings, environment variables, and execution context. These settings determine how your server operates when it executes, from transport protocols to logging levels.
+
+Environment variables are included in this section because they're runtime configuration that affects how your server behaves when it executes, not how its environment is built. The deployment configuration is applied every time your server starts, controlling its operational characteristics.
+
+<Card icon="code" title="Deployment Fields">
   <ParamField body="deployment" type="object">
     Optional runtime configuration for the server.
 
@@ -4995,251 +5022,7 @@ The deployment section controls runtime configuration including transport protoc
   </ParamField>
 </Card>
 
-## Usage with CLI Commands
-
-FastMCP automatically detects and uses `fastmcp.json` files, making server execution simple and consistent:
-
-```bash
-# Auto-detect fastmcp.json in current directory
-cd my-project
-fastmcp run  # No arguments needed!
-
-# Or specify a configuration file explicitly
-fastmcp run prod.fastmcp.json
-```
-
-The configuration file works with all FastMCP commands:
-
-* **`run`** - Start the server in production mode
-* **`dev`** - Launch with the Inspector UI for development
-* **`inspect`** - View server capabilities and configuration
-* **`install`** - Install to Claude Desktop, Cursor, or other MCP clients
-
-When no file argument is provided, FastMCP searches the current directory for `fastmcp.json`. This means you can simply navigate to your project directory and run `fastmcp run` to start your server with all its configured settings.
-
-### Custom Naming Patterns
-
-You can use different configuration files for different environments:
-
-* `fastmcp.json` - Default configuration
-* `dev.fastmcp.json` - Development settings
-* `prod.fastmcp.json` - Production settings
-* `test_fastmcp.json` - Test configuration
-
-Any file with "fastmcp.json" in the name is recognized as a configuration file.
-
-## Examples
-
-<Tabs>
-  <Tab title="Basic Configuration">
-    A minimal configuration for a simple server:
-
-    ```json
-    {
-      "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-      "entrypoint": {
-        "file": "server.py",
-        "object": "mcp"
-      }
-    }
-    ```
-
-    This configuration explicitly specifies the server object name (`app`), making it clear which object contains your FastMCP server. Uses all defaults: STDIO transport, no special dependencies, standard logging.
-  </Tab>
-
-  <Tab title="Development Configuration">
-    A configuration optimized for local development:
-
-    ```json
-    {
-      "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-      "entrypoint": "src/server.py:app",
-      "environment": {
-        "python": "3.12",
-        "dependencies": ["fastmcp[dev]"],
-        "editable": "."
-      },
-      "deployment": {
-        "transport": "http",
-        "host": "127.0.0.1",
-        "port": 8000,
-        "log_level": "DEBUG",
-        "env": {
-          "DEBUG": "true",
-          "ENV": "development"
-        }
-      }
-    }
-    ```
-  </Tab>
-
-  <Tab title="Production Configuration">
-    A production-ready configuration with full dependency management:
-
-    ```json
-    {
-      "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-      "entrypoint": {
-        "file": "app/main.py",
-        "object": "mcp_server"
-      },
-      "environment": {
-        "python": "3.11",
-        "requirements": "requirements/production.txt",
-        "project": "."
-      },
-      "deployment": {
-        "transport": "http",
-        "host": "0.0.0.0",
-        "port": 3000,
-        "path": "/api/mcp/",
-        "log_level": "INFO",
-        "env": {
-          "ENV": "production",
-          "API_BASE_URL": "https://api.example.com",
-          "DATABASE_URL": "postgresql://user:pass@db.example.com/prod"
-        },
-        "cwd": "/app",
-        "args": ["--workers", "4"]
-      }
-    }
-    ```
-  </Tab>
-
-  <Tab title="Data Science Server">
-    Configuration for a data analysis server with scientific packages:
-
-    ```json
-    {
-      "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-      "entrypoint": {
-        "file": "analysis_server.py",
-        "object": "mcp"
-      },
-      "environment": {
-        "python": "3.11",
-        "dependencies": [
-          "pandas>=2.0",
-          "numpy",
-          "scikit-learn",
-          "matplotlib",
-          "jupyterlab"
-        ]
-      },
-      "deployment": {
-        "transport": "stdio",
-        "env": {
-          "MATPLOTLIB_BACKEND": "Agg",
-          "DATA_PATH": "./datasets"
-        }
-      }
-    }
-    ```
-  </Tab>
-
-  <Tab title="Multi-Environment Setup">
-    You can maintain multiple configuration files for different environments:
-
-    **dev.fastmcp.json**:
-
-    ```json
-    {
-      "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-      "entrypoint": {
-        "file": "server.py",
-        "object": "mcp"
-      },
-      "deployment": {
-        "transport": "http",
-        "log_level": "DEBUG"
-      }
-    }
-    ```
-
-    **prod.fastmcp.json**:
-
-    ```json
-    {
-      "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-      "entrypoint": {
-        "file": "server.py",
-        "object": "mcp"
-      },
-      "environment": {
-        "requirements": "requirements/production.txt"
-      },
-      "deployment": {
-        "transport": "http",
-        "host": "0.0.0.0",
-        "log_level": "WARNING"
-      }
-    }
-    ```
-
-    Run different configurations:
-
-    ```bash
-    fastmcp run dev.fastmcp.json   # Development
-    fastmcp run prod.fastmcp.json  # Production
-    ```
-  </Tab>
-</Tabs>
-
-## CLI Override Behavior
-
-Command-line arguments take precedence over configuration file values, allowing ad-hoc adjustments without modifying the file:
-
-```bash
-# Config specifies port 3000, CLI overrides to 8080
-fastmcp run fastmcp.json --port 8080
-
-# Config specifies stdio, CLI overrides to HTTP
-fastmcp run fastmcp.json --transport http
-
-# Add extra dependencies not in config
-fastmcp run fastmcp.json --with requests --with httpx
-```
-
-This precedence order enables:
-
-* Quick testing of different settings
-* Environment-specific overrides in deployment scripts
-* Debugging with increased log levels
-* Temporary configuration changes
-
-## Best Practices
-
-When using `fastmcp.json` for your projects, consider these recommendations:
-
-**Version Control**: Always commit your `fastmcp.json` to version control. It's essential project documentation that ensures others can run your server correctly.
-
-**Environment Variables**: Use the `env` field for configuration values instead of hardcoding them in your Python code. For sensitive values, consider using environment variable references or separate secret management.
-
-**Dependency Management**: Specify exact versions for production dependencies to ensure reproducible builds:
-
-```json
-{
-  "dependencies": [
-    "pandas==2.1.0",
-    "requests==2.31.0"
-  ]
-}
-```
-
-**Path Resolution**: Remember that paths in the configuration are relative to the config file location. Use relative paths for portability:
-
-```json
-{
-  "entrypoint": "./src/server.py",
-  "environment": {
-    "requirements": "./requirements.txt"
-  }
-}
-```
-
-**Development Workflow**: Use separate configuration files for different environments rather than constantly modifying a single file. The CLI's override behavior makes it easy to switch between configurations.
-
-### Environment Variable Interpolation
+#### Environment Variable Interpolation
 
 The `env` field in deployment configuration supports runtime interpolation of environment variables using `${VAR_NAME}` syntax. This enables dynamic configuration based on your deployment environment:
 
@@ -5284,6 +5067,247 @@ This feature is particularly useful for:
 * Building dynamic URLs and connection strings
 * Creating environment-specific prefixes or suffixes
 
+## Usage with CLI Commands
+
+FastMCP automatically detects and uses a file specifically named `fastmcp.json` in the current directory, making server execution simple and consistent. Files with FastMCP configuration format but different names are not auto-detected and must be specified explicitly:
+
+```bash
+# Auto-detect fastmcp.json in current directory
+cd my-project
+fastmcp run  # No arguments needed!
+
+# Or specify a configuration file explicitly
+fastmcp run prod.fastmcp.json
+
+# Skip environment setup when already in a uv environment
+fastmcp run fastmcp.json --skip-env
+```
+
+### Environment Setup Control
+
+By default, FastMCP uses `uv` to create an isolated environment based on your configuration. The `--skip-env` flag allows you to skip this automatic environment setup:
+
+```bash
+fastmcp run fastmcp.json --skip-env
+```
+
+**When to use `--skip-env`:**
+
+* You're already in an activated virtual environment with all dependencies installed
+* You're inside a Docker container with pre-installed dependencies
+* You're in a uv-managed environment and want to prevent infinite recursion
+* You want to test the server without environment setup for debugging purposes
+
+This flag is particularly useful in CI/CD pipelines, Docker containers, or when you're managing the Python environment yourself.
+
+The configuration file works with all FastMCP commands:
+
+* **`run`** - Start the server in production mode
+* **`dev`** - Launch with the Inspector UI for development
+* **`inspect`** - View server capabilities and configuration
+* **`install`** - Install to Claude Desktop, Cursor, or other MCP clients
+
+When no file argument is provided, FastMCP searches the current directory for `fastmcp.json`. This means you can simply navigate to your project directory and run `fastmcp run` to start your server with all its configured settings.
+
+### CLI Override Behavior
+
+Command-line arguments take precedence over configuration file values, allowing ad-hoc adjustments without modifying the file:
+
+```bash
+# Config specifies port 3000, CLI overrides to 8080
+fastmcp run fastmcp.json --port 8080
+
+# Config specifies stdio, CLI overrides to HTTP
+fastmcp run fastmcp.json --transport http
+
+# Add extra dependencies not in config
+fastmcp run fastmcp.json --with requests --with httpx
+```
+
+This precedence order enables:
+
+* Quick testing of different settings
+* Environment-specific overrides in deployment scripts
+* Debugging with increased log levels
+* Temporary configuration changes
+
+### Custom Naming Patterns
+
+You can use different configuration files for different environments:
+
+* `fastmcp.json` - Default configuration
+* `dev.fastmcp.json` - Development settings
+* `prod.fastmcp.json` - Production settings
+* `test_fastmcp.json` - Test configuration
+
+Any file with "fastmcp.json" in the name is recognized as a configuration file.
+
+## Examples
+
+<Tabs>
+  <Tab title="Basic Configuration">
+    A minimal configuration for a simple server:
+
+    ```json
+    {
+      "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+      "source": {
+        "path": "server.py",
+        "entrypoint": "mcp"
+      }
+    }
+    ```
+
+    This configuration explicitly specifies the server entrypoint (`mcp`), making it clear which server instance or factory function to use. Uses all defaults: STDIO transport, no special dependencies, standard logging.
+  </Tab>
+
+  <Tab title="Development Configuration">
+    A configuration optimized for local development:
+
+    ```json
+    {
+      "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+      // WHERE does the server live?
+      "source": {
+        "path": "src/server.py",
+        "entrypoint": "app"
+      },
+      // WHAT dependencies does it need?
+      "environment": {
+        "python": "3.12",
+        "dependencies": ["fastmcp[dev]"],
+        "editable": "."
+      },
+      // HOW should it run?
+      "deployment": {
+        "transport": "http",
+        "host": "127.0.0.1",
+        "port": 8000,
+        "log_level": "DEBUG",
+        "env": {
+          "DEBUG": "true",
+          "ENV": "development"
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Production Configuration">
+    A production-ready configuration with full dependency management:
+
+    ```json
+    {
+      "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+      // WHERE does the server live?
+      "source": {
+        "path": "app/main.py",
+        "entrypoint": "mcp_server"
+      },
+      // WHAT dependencies does it need?
+      "environment": {
+        "python": "3.11",
+        "requirements": "requirements/production.txt",
+        "project": "."
+      },
+      // HOW should it run?
+      "deployment": {
+        "transport": "http",
+        "host": "0.0.0.0",
+        "port": 3000,
+        "path": "/api/mcp/",
+        "log_level": "INFO",
+        "env": {
+          "ENV": "production",
+          "API_BASE_URL": "https://api.example.com",
+          "DATABASE_URL": "postgresql://user:pass@db.example.com/prod"
+        },
+        "cwd": "/app",
+        "args": ["--workers", "4"]
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Data Science Server">
+    Configuration for a data analysis server with scientific packages:
+
+    ```json
+    {
+      "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+      "source": {
+        "path": "analysis_server.py",
+        "entrypoint": "mcp"
+      },
+      "environment": {
+        "python": "3.11",
+        "dependencies": [
+          "pandas>=2.0",
+          "numpy",
+          "scikit-learn",
+          "matplotlib",
+          "jupyterlab"
+        ]
+      },
+      "deployment": {
+        "transport": "stdio",
+        "env": {
+          "MATPLOTLIB_BACKEND": "Agg",
+          "DATA_PATH": "./datasets"
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Multi-Environment Setup">
+    You can maintain multiple configuration files for different environments:
+
+    **dev.fastmcp.json**:
+
+    ```json
+    {
+      "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+      "source": {
+        "path": "server.py",
+        "entrypoint": "mcp"
+      },
+      "deployment": {
+        "transport": "http",
+        "log_level": "DEBUG"
+      }
+    }
+    ```
+
+    **prod.fastmcp.json**:
+
+    ```json
+    {
+      "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+      "source": {
+        "path": "server.py",
+        "entrypoint": "mcp"
+      },
+      "environment": {
+        "requirements": "requirements/production.txt"
+      },
+      "deployment": {
+        "transport": "http",
+        "host": "0.0.0.0",
+        "log_level": "WARNING"
+      }
+    }
+    ```
+
+    Run different configurations:
+
+    ```bash
+    fastmcp run dev.fastmcp.json   # Development
+    fastmcp run prod.fastmcp.json  # Production
+    ```
+  </Tab>
+</Tabs>
+
 ## Migrating from CLI Arguments
 
 If you're currently using command-line arguments or shell scripts, migrating to `fastmcp.json` simplifies your workflow. Here's how common CLI patterns map to configuration:
@@ -5302,10 +5326,10 @@ uv run --with pandas --with requests \
 
 ```json
 {
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "server.py",
+    "entrypoint": "mcp"
   },
   "environment": {
     "dependencies": ["pandas", "requests"]
@@ -6289,7 +6313,7 @@ In your WorkOS Dashboard, enable AuthKit and configure the following settings:
   <Step title="Enable Dynamic Client Registration">
     Go to **Applications → Configuration** and enable **Dynamic Client Registration**. This allows MCP clients register with your application automatically.
 
-    ![Enable Dynamic Client Registration](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/authkit/enable_dcr.png)
+        <img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/authkit/enable_dcr.png" alt="Enable Dynamic Client Registration" />
   </Step>
 
   <Step title="Note Your AuthKit Domain">
@@ -6875,10 +6899,10 @@ Alternatively, you can use a `fastmcp.json` configuration file (recommended):
 
 ```json fastmcp.json
 {
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "server.py",
+    "entrypoint": "mcp"
   },
   "environment": {
     "dependencies": ["pandas", "requests"]
@@ -7080,10 +7104,10 @@ Alternatively, you can use a `fastmcp.json` configuration file (recommended):
 
 ```json fastmcp.json
 {
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "server.py",
+    "entrypoint": "mcp"
   },
   "environment": {
     "dependencies": ["pandas", "requests"]
@@ -7361,7 +7385,7 @@ fastmcp install cursor server.py:my_custom_server
 
 After running the command, Cursor will open automatically and prompt you to install the server. The command will be `uv`, which is expected as this is a Python STDIO server. Click "Install" to confirm:
 
-![Cursor install prompt](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/cursor-install-mcp.png)
+<img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/cursor-install-mcp.png" alt="Cursor install prompt" />
 
 #### Dependencies
 
@@ -7389,10 +7413,10 @@ Alternatively, you can use a `fastmcp.json` configuration file (recommended):
 
 ```json fastmcp.json
 {
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "server.py",
+    "entrypoint": "mcp"
   },
   "environment": {
     "dependencies": ["pandas", "requests"]
@@ -8883,10 +8907,10 @@ You can also use a `fastmcp.json` configuration file (recommended):
 
 ```json fastmcp.json
 {
-  "$schema": "https://gofastmcp.com/schemas/fastmcp_config/v1.json",
-  "entrypoint": {
-    "file": "server.py",
-    "object": "mcp"
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "server.py",
+    "entrypoint": "mcp"
   },
   "environment": {
     "dependencies": ["pandas", "matplotlib", "seaborn"]
@@ -9879,14 +9903,14 @@ The middleware automatically maps MCP methods to Permit.io resources and actions
   * **Resource**: `{server_name}` (e.g., `myserver`)
   * **Action**: The tool name (e.g., `greet`)
 
-![Permit.io Policy Mapping Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/policy_mapping.png)
+<img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/policy_mapping.png" alt="Permit.io Policy Mapping Example" />
 
 *Example: In Permit.io, the 'Admin' role is granted permissions on resources and actions as mapped by the middleware. For example, 'greet', 'greet-jwt', and 'login' are actions on the 'mcp\_server' resource, and 'list' is an action on the 'mcp\_server\_tools' resource.*
 
 > **Note:**
 > Don't forget to assign the relevant role (e.g., Admin, User) to the user authenticating to your MCP server (such as the user in the JWT) in the Permit.io Directory. Without the correct role assignment, users will not have access to the resources and actions you've configured in your policies.
 >
-> ![Permit.io Directory Role Assignment Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/role_assignement.png)
+> <img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/role_assignement.png" alt="Permit.io Directory Role Assignment Example" />
 >
 > *Example: In Permit.io Directory, both 'client' and 'admin' users are assigned the 'Admin' role, granting them the permissions defined in your policy mapping.*
 
@@ -10076,7 +10100,7 @@ mcp.add_middleware(PermitMcpMiddleware(
 
 The middleware supports Attribute-Based Access Control (ABAC) policies that can evaluate tool arguments as attributes. Tool arguments are automatically flattened as individual attributes (e.g., `arg_name`, `arg_number`) for granular policy conditions.
 
-![ABAC Condition Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/abac_condition_example.png)
+<img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/abac_condition_example.png" alt="ABAC Condition Example" />
 
 *Example: Create dynamic resources with conditions like `resource.arg_number greater-than 10` to allow the `conditional-greet` tool only when the number argument exceeds 10.*
 
@@ -10091,7 +10115,7 @@ def conditional_greet(name: str, number: int) -> str:
     return f"Hello, {name}! Your number is {number}"
 ```
 
-![ABAC Policy Example](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/abac_policy_example.png)
+<img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/integrations/images/permit/abac_policy_example.png" alt="ABAC Policy Example" />
 
 *Example: The Admin role is granted access to the "conditional-greet" action on the "Big-greets" dynamic resource, while other tools like "greet", "greet-jwt", and "login" are granted on the base "mcp\_server" resource.*
 
@@ -10515,6 +10539,7 @@ fastmcp run server.py
 | Path                | `--path`              | Path to bind to when using http transport (default: `/mcp/` or `/sse/` for SSE) |
 | Log Level           | `--log-level`, `-l`   | Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)                               |
 | No Banner           | `--no-banner`         | Disable the startup banner display                                              |
+| No Environment      | `--skip-env`          | Skip environment setup with uv (use when already in a uv environment)           |
 | Python Version      | `--python`            | Python version to use (e.g., 3.10, 3.11)                                        |
 | Additional Packages | `--with`              | Additional packages to install (can be used multiple times)                     |
 | Project Directory   | `--project`           | Run the command within the given project directory                              |
@@ -10526,8 +10551,8 @@ fastmcp run server.py
 
 The `fastmcp run` command supports the following entrypoints:
 
-1. **[Inferred server instance](#inferred-server-instance)**: `server.py` - imports the module and looks for a FastMCP object named `mcp`, `server`, or `app`. Errors if no such object is found.
-2. **[Explicit server object](#explicit-server-object)**: `server.py:custom_name` - imports and uses the specified server object
+1. **[Inferred server instance](#inferred-server-instance)**: `server.py` - imports the module and looks for a FastMCP server instance named `mcp`, `server`, or `app`. Errors if no such object is found.
+2. **[Explicit server entrypoint](#explicit-server-entrypoint)**: `server.py:custom_name` - imports and uses the specified server entrypoint
 3. **[Factory function](#factory-function)**: `server.py:create_server` - calls the specified function (sync or async) to create a server instance
 4. **[Remote server proxy](#remote-server-proxy)**: `https://example.com/mcp-server` - connects to a remote server and creates a **local proxy server**
 5. **[FastMCP configuration file](#fastmcp-configuration)**: `fastmcp.json` - runs servers using FastMCP's declarative configuration format (auto-detects files in current directory)
@@ -10538,7 +10563,7 @@ The `fastmcp run` command supports the following entrypoints:
 
   * Any setup code in `__main__` will NOT run
   * Server configuration in `__main__` is bypassed
-  * `fastmcp run` finds your server object/factory and runs it with its own transport settings
+  * `fastmcp run` finds your server entrypoint/factory and runs it with its own transport settings
 
   If you need setup code to run, use the **factory pattern** instead.
 </Warning>
@@ -10561,9 +10586,9 @@ You can run it with:
 fastmcp run server.py
 ```
 
-#### Explicit Server Object
+#### Explicit Server Entrypoint
 
-If your server is stored as a variable with a custom name, or you want to be explicit about which server to run, you can use the following syntax to load a specific server object:
+If your server is stored as a variable with a custom name, or you want to be explicit about which server to run, you can use the following syntax to load a specific server entrypoint:
 
 ```bash
 fastmcp run server.py:custom_name
@@ -10593,7 +10618,7 @@ fastmcp run server.py:custom_name
 
 Since `fastmcp run` ignores the `if __name__ == "__main__"` block, you can use a factory function to run setup code before your server starts. Factory functions are called without any arguments and must return a FastMCP server instance. Both sync and async factory functions are supported.
 
-The syntax for using a factory function is the same as for an explicit server object: `fastmcp run server.py:factory_fn`. FastMCP will automatically detect that you have identified a function rather than a server Instance
+The syntax for using a factory function is the same as for an explicit server entrypoint: `fastmcp run server.py:factory_fn`. FastMCP will automatically detect that you have identified a function rather than a server Instance
 
 For example, if you have a file called `server.py` with the following content:
 
@@ -10649,7 +10674,19 @@ The configuration file handles dependencies, environment variables, and transpor
 ```bash
 # Override port from config file
 fastmcp run fastmcp.json --port 8080
+
+# Skip environment setup when already in a uv environment
+fastmcp run fastmcp.json --skip-env
 ```
+
+<Note>
+  The `--skip-env` flag is useful when:
+
+  * You're already in an activated virtual environment
+  * You're inside a Docker container with pre-installed dependencies
+  * You're in a uv-managed environment (prevents infinite recursion)
+  * You want to test the server without environment setup
+</Note>
 
 See [Server Configuration](/deployment/server-configuration) for detailed documentation on fastmcp.json.
 
@@ -10719,8 +10756,8 @@ fastmcp dev server.py
 
 The `dev` command supports local FastMCP server files and configuration:
 
-1. **Inferred server instance**: `server.py` - imports the module and looks for a FastMCP object named `mcp`, `server`, or `app`. Errors if no such object is found.
-2. **Explicit server object**: `server.py:custom_name` - imports and uses the specified server object
+1. **Inferred server instance**: `server.py` - imports the module and looks for a FastMCP server instance named `mcp`, `server`, or `app`. Errors if no such object is found.
+2. **Explicit server entrypoint**: `server.py:custom_name` - imports and uses the specified server entrypoint
 3. **Factory function**: `server.py:create_server` - calls the specified function (sync or async) to create a server instance
 4. **FastMCP configuration**: `fastmcp.json` - uses FastMCP's declarative configuration (auto-detects in current directory)
 
@@ -10799,8 +10836,8 @@ Note that for security reasons, MCP clients usually run every server in a comple
 
 The `install` command supports local FastMCP server files and configuration:
 
-1. **Inferred server instance**: `server.py` - imports the module and looks for a FastMCP object named `mcp`, `server`, or `app`. Errors if no such object is found.
-2. **Explicit server object**: `server.py:custom_name` - imports and uses the specified server object
+1. **Inferred server instance**: `server.py` - imports the module and looks for a FastMCP server instance named `mcp`, `server`, or `app`. Errors if no such object is found.
+2. **Explicit server entrypoint**: `server.py:custom_name` - imports and uses the specified server entrypoint
 3. **Factory function**: `server.py:create_server` - calls the specified function (sync or async) to create a server instance
 4. **FastMCP configuration**: `fastmcp.json` - uses FastMCP's declarative configuration with dependencies and settings
 
@@ -10815,7 +10852,7 @@ The `install` command supports local FastMCP server files and configuration:
 **Examples**
 
 ```bash
-# Auto-detects server object (looks for 'mcp', 'server', or 'app')
+# Auto-detects server entrypoint (looks for 'mcp', 'server', or 'app')
 fastmcp install claude-desktop server.py
 
 # Install with fastmcp.json configuration (auto-detects)
@@ -10824,7 +10861,7 @@ fastmcp install claude-desktop
 # Install with explicit fastmcp.json file
 fastmcp install claude-desktop my-config.fastmcp.json
 
-# Uses specific server object
+# Uses specific server entrypoint
 fastmcp install claude-desktop server.py:my_server
 
 # With custom name and dependencies
@@ -10915,8 +10952,8 @@ fastmcp inspect server.py
 
 The `inspect` command supports local FastMCP server files and configuration:
 
-1. **Inferred server instance**: `server.py` - imports the module and looks for a FastMCP object named `mcp`, `server`, or `app`. Errors if no such object is found.
-2. **Explicit server object**: `server.py:custom_name` - imports and uses the specified server object
+1. **Inferred server instance**: `server.py` - imports the module and looks for a FastMCP server instance named `mcp`, `server`, or `app`. Errors if no such object is found.
+2. **Explicit server entrypoint**: `server.py:custom_name` - imports and uses the specified server entrypoint
 3. **Factory function**: `server.py:create_server` - calls the specified function (sync or async) to create a server instance
 4. **FastMCP configuration**: `fastmcp.json` - inspects servers defined with FastMCP's declarative configuration
 
@@ -10927,10 +10964,10 @@ The `inspect` command supports local FastMCP server files and configuration:
 **Examples**
 
 ```bash
-# Auto-detect server object
+# Auto-detect server entrypoint
 fastmcp inspect server.py
 
-# Specify server object
+# Specify server entrypoint
 fastmcp inspect server.py:my_server
 
 # Custom output location
@@ -26296,7 +26333,7 @@ python api_client.py
 
 You should see a list of generated tools (`get_users`, `get_user_by_id`) and the result of calling the `get_user_by_id` tool, which fetches data from the live JSONPlaceholder API.
 
-![](https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/assets/images/tutorial-rest-api-result.png)
+<img src="https://mintlify.s3.us-west-1.amazonaws.com/fastmcp/assets/images/tutorial-rest-api-result.png" alt="" />
 
 ## Step 4: Customizing Route Maps
 
