@@ -12067,7 +12067,7 @@ FastMCP CLI tools using Cyclopts.
 
 ## Functions
 
-### `with_argv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L70" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `with_argv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 with_argv(args: list[str] | None)
@@ -12082,7 +12082,7 @@ in the source loading logic.
 Args are provided without the script name, so we preserve sys.argv\[0]
 and replace the rest.
 
-### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L93" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L90" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 version()
@@ -12090,7 +12090,7 @@ version()
 
 Display version information and platform details.
 
-### `dev` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L131" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `dev` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L128" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 dev(server_spec: str | None = None) -> None
@@ -12102,7 +12102,7 @@ Run an MCP server with the MCP Inspector for development.
 
 * `server_spec`: Python file to run, optionally with :object suffix, or None to auto-detect fastmcp.json
 
-### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L349" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L309" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run(server_spec: str | None = None, *server_args: str) -> None
@@ -12126,7 +12126,7 @@ fastmcp run server.py -- --config config.json --debug
 
 * `server_spec`: Python file, object specification (file:obj), config file, URL, or None to auto-detect
 
-### `inspect` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L622" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `inspect` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L521" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 inspect(server_spec: str | None = None) -> None
@@ -12160,7 +12160,7 @@ fastmcp inspect  # auto-detect fastmcp.json
 
 * `server_spec`: Python file to inspect, optionally with :object suffix, or fastmcp.json
 
-### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L904" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L754" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 prepare(config_path: Annotated[str | None, cyclopts.Parameter(help='Path to fastmcp.json configuration file')] = None, output_dir: Annotated[str | None, cyclopts.Parameter(help='Directory to create the persistent environment in')] = None, skip_source: Annotated[bool, cyclopts.Parameter(help='Skip source preparation (e.g., git clone)')] = False) -> None
@@ -12248,7 +12248,7 @@ Install FastMCP server in Claude Code.
 
 * True if installation was successful, False otherwise
 
-### `claude_code_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/claude_code.py#L163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `claude_code_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/claude_code.py#L162" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 claude_code_command(server_spec: str) -> None
@@ -12304,7 +12304,7 @@ Install FastMCP server in Claude Desktop.
 
 * True if installation was successful, False otherwise
 
-### `claude_desktop_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/claude_desktop.py#L135" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `claude_desktop_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/claude_desktop.py#L133" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 claude_desktop_command(server_spec: str) -> None
@@ -12386,7 +12386,7 @@ Install FastMCP server to workspace-specific Cursor configuration.
 
 * True if installation was successful, False otherwise
 
-### `install_cursor` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/cursor.py#L159" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `install_cursor` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/cursor.py#L157" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 install_cursor(file: Path, server_object: str | None, name: str) -> bool
@@ -12411,7 +12411,7 @@ Install FastMCP server in Cursor.
 
 * True if installation was successful, False otherwise
 
-### `cursor_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/cursor.py#L254" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `cursor_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/cursor.py#L250" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 cursor_command(server_spec: str) -> None
@@ -12460,7 +12460,7 @@ Generate MCP configuration JSON for manual installation.
 
 * True if generation was successful, False otherwise
 
-### `mcp_json_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/mcp_json.py#L108" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `mcp_json_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/install/mcp_json.py#L106" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 mcp_json_command(server_spec: str) -> None
@@ -12514,7 +12514,7 @@ FastMCP run command implementation with enhanced type hints.
 
 ## Functions
 
-### `is_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L29" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `is_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L28" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 is_url(path: str) -> bool
@@ -12522,13 +12522,17 @@ is_url(path: str) -> bool
 
 Check if a string is a URL.
 
-### `run_with_uv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L35" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `run_with_uv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L34" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_with_uv(server_spec: str, python_version: str | None = None, with_packages: list[str] | None = None, with_requirements: Path | None = None, project: Path | None = None, transport: TransportType | None = None, host: str | None = None, port: int | None = None, path: str | None = None, log_level: LogLevelType | None = None, show_banner: bool = True, editable: str | list[str] | None = None) -> None
 ```
 
 Run a MCP server using uv run subprocess.
+
+This function is called when we need to set up a Python environment with specific
+dependencies before running the server. The config parsing and merging should already
+be done by the caller.
 
 **Args:**
 
@@ -12543,8 +12547,9 @@ Run a MCP server using uv run subprocess.
 * `path`: Path to bind to when using http transport
 * `log_level`: Log level
 * `show_banner`: Whether to show the server banner
+* `editable`: Editable package paths
 
-### `create_client_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L170" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_client_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L115" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_client_server(url: str) -> Any
@@ -12560,7 +12565,7 @@ Create a FastMCP server from a client URL.
 
 * A FastMCP server instance
 
-### `create_mcp_config_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L190" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_mcp_config_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L135" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_mcp_config_server(mcp_config_path: Path) -> FastMCP[None]
@@ -12568,10 +12573,10 @@ create_mcp_config_server(mcp_config_path: Path) -> FastMCP[None]
 
 Create a FastMCP server from a MCPConfig.
 
-### `load_fastmcp_config` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L201" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `load_mcp_server_config` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L146" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-load_fastmcp_config(config_path: Path) -> FastMCPConfig
+load_mcp_server_config(config_path: Path) -> MCPServerConfig
 ```
 
 Load a FastMCP configuration from a fastmcp.json file.
@@ -12582,9 +12587,9 @@ Load a FastMCP configuration from a fastmcp.json file.
 
 **Returns:**
 
-* FastMCPConfig object
+* MCPServerConfig object
 
-### `run_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L219" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `run_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_command(server_spec: str, transport: TransportType | None = None, host: str | None = None, port: int | None = None, path: str | None = None, log_level: LogLevelType | None = None, server_args: list[str] | None = None, show_banner: bool = True, use_direct_import: bool = False, skip_source: bool = False) -> None
@@ -12605,7 +12610,7 @@ Run a MCP server or connect to a remote one.
 * `use_direct_import`: Whether to use direct import instead of subprocess
 * `skip_source`: Whether to skip source preparation step
 
-### `run_v1_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L341" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `run_v1_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/run.py#L284" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_v1_server(server: FastMCP1x, host: str | None = None, port: int | None = None, transport: TransportType | None = None) -> None
@@ -12661,13 +12666,13 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-client-auth-oauth
 
 ## Functions
 
-### `default_cache_dir` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L36" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `default_cache_dir` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L48" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 default_cache_dir() -> Path
 ```
 
-### `check_if_auth_required` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L154" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `check_if_auth_required` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L192" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 check_if_auth_required(mcp_url: str, httpx_kwargs: dict[str, Any] | None = None) -> bool
@@ -12681,7 +12686,11 @@ Check if the MCP endpoint requires authentication by making a test request.
 
 ## Classes
 
-### `FileTokenStorage` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L40" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `StoredToken` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L37" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Token storage format with absolute expiry time.
+
+### `FileTokenStorage` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L52" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 File-based token storage implementation for OAuth credentials and tokens.
 Implements the mcp.client.auth.TokenStorage protocol.
@@ -12690,7 +12699,7 @@ Each instance is tied to a specific server URL for proper token isolation.
 
 **Methods:**
 
-#### `get_base_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L55" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_base_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_base_url(url: str) -> str
@@ -12698,7 +12707,7 @@ get_base_url(url: str) -> str
 
 Extract the base URL (scheme + host) from a URL.
 
-#### `get_cache_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L60" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_cache_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L72" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_cache_key(self) -> str
@@ -12706,7 +12715,7 @@ get_cache_key(self) -> str
 
 Generate a safe filesystem key from the server's base URL.
 
-#### `get_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L75" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L87" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tokens(self) -> OAuthToken | None
@@ -12714,7 +12723,7 @@ get_tokens(self) -> OAuthToken | None
 
 Load tokens from file storage.
 
-#### `set_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L92" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L119" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_tokens(self, tokens: OAuthToken) -> None
@@ -12722,7 +12731,7 @@ set_tokens(self, tokens: OAuthToken) -> None
 
 Save tokens to file storage.
 
-#### `get_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L136" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client_info(self) -> OAuthClientInformationFull | None
@@ -12730,7 +12739,7 @@ get_client_info(self) -> OAuthClientInformationFull | None
 
 Load client information from file storage.
 
-#### `set_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L126" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L164" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_client_info(self, client_info: OAuthClientInformationFull) -> None
@@ -12738,7 +12747,7 @@ set_client_info(self, client_info: OAuthClientInformationFull) -> None
 
 Save client information to file storage.
 
-#### `clear` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L132" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `clear` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L170" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 clear(self) -> None
@@ -12746,7 +12755,7 @@ clear(self) -> None
 
 Clear all cached data for this server.
 
-#### `clear_all` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L141" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `clear_all` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L179" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 clear_all(cls, cache_dir: Path | None = None) -> None
@@ -12754,7 +12763,7 @@ clear_all(cls, cache_dir: Path | None = None) -> None
 
 Clear all cached data for all servers.
 
-### `OAuth` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L184" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuth` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L222" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth client provider for MCP servers with browser-based authentication.
 
@@ -12763,7 +12772,7 @@ a browser for user authorization and running a local callback server.
 
 **Methods:**
 
-#### `redirect_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L255" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `redirect_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L302" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 redirect_handler(self, authorization_url: str) -> None
@@ -12771,7 +12780,7 @@ redirect_handler(self, authorization_url: str) -> None
 
 Open browser for authorization.
 
-#### `callback_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L260" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `callback_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L307" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 callback_handler(self) -> tuple[str, str | None]
@@ -12789,14 +12798,14 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-client-client
 
 ## Classes
 
-### `ClientSessionState` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L80" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ClientSessionState` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L81" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Holds all session-related state for a Client instance.
 
 This allows clean separation of configuration (which is copied) from
 session state (which should be fresh for each new client instance).
 
-### `Client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L96" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L97" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 MCP client that delegates connection management to a Transport instance.
 
@@ -12858,7 +12867,7 @@ async with client:
 
 **Methods:**
 
-#### `session` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L282" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `session` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L283" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 session(self) -> ClientSession
@@ -12866,7 +12875,7 @@ session(self) -> ClientSession
 
 Get the current active session. Raises RuntimeError if not connected.
 
-#### `initialize_result` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L292" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `initialize_result` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L293" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 initialize_result(self) -> mcp.types.InitializeResult
@@ -12874,7 +12883,7 @@ initialize_result(self) -> mcp.types.InitializeResult
 
 Get the result of the initialization request.
 
-#### `set_roots` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L300" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_roots` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L301" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_roots(self, roots: RootsList | RootsHandler) -> None
@@ -12882,7 +12891,7 @@ set_roots(self, roots: RootsList | RootsHandler) -> None
 
 Set the roots for the client. This does not automatically call `send_roots_list_changed`.
 
-#### `set_sampling_callback` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L304" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_sampling_callback` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L305" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_sampling_callback(self, sampling_callback: ClientSamplingHandler) -> None
@@ -12890,7 +12899,7 @@ set_sampling_callback(self, sampling_callback: ClientSamplingHandler) -> None
 
 Set the sampling callback for the client.
 
-#### `set_elicitation_callback` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L310" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_elicitation_callback` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L311" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_elicitation_callback(self, elicitation_callback: ElicitationHandler) -> None
@@ -12898,7 +12907,7 @@ set_elicitation_callback(self, elicitation_callback: ElicitationHandler) -> None
 
 Set the elicitation callback for the client.
 
-#### `is_connected` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L318" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `is_connected` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L319" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 is_connected(self) -> bool
@@ -12906,7 +12915,7 @@ is_connected(self) -> bool
 
 Check if the client is currently connected.
 
-#### `new` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L322" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `new` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L323" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 new(self) -> Client[ClientTransportT]
@@ -12922,13 +12931,13 @@ share state with the original client.
 
 * A new Client instance with the same configuration but disconnected state.
 
-#### `close` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L487" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `close` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L490" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 close(self)
 ```
 
-#### `ping` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L493" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `ping` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L496" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 ping(self) -> bool
@@ -12936,7 +12945,7 @@ ping(self) -> bool
 
 Send a ping request.
 
-#### `cancel` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L498" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `cancel` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L501" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 cancel(self, request_id: str | int, reason: str | None = None) -> None
@@ -12944,7 +12953,7 @@ cancel(self, request_id: str | int, reason: str | None = None) -> None
 
 Send a cancellation notification for an in-progress request.
 
-#### `progress` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L515" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `progress` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L518" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 progress(self, progress_token: str | int, progress: float, total: float | None = None, message: str | None = None) -> None
@@ -12952,7 +12961,7 @@ progress(self, progress_token: str | int, progress: float, total: float | None =
 
 Send a progress notification.
 
-#### `set_logging_level` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L527" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_logging_level` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L530" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_logging_level(self, level: mcp.types.LoggingLevel) -> None
@@ -12960,7 +12969,7 @@ set_logging_level(self, level: mcp.types.LoggingLevel) -> None
 
 Send a logging/setLevel request.
 
-#### `send_roots_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L531" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_roots_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L534" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 send_roots_list_changed(self) -> None
@@ -12968,7 +12977,7 @@ send_roots_list_changed(self) -> None
 
 Send a roots/list\_changed notification.
 
-#### `list_resources_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L537" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resources_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L540" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_resources_mcp(self) -> mcp.types.ListResourcesResult
@@ -12985,7 +12994,7 @@ Send a resources/list request and return the complete MCP protocol result.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L552" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L555" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_resources(self) -> list[mcp.types.Resource]
@@ -13001,7 +13010,7 @@ Retrieve a list of resources available on the server.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_resource_templates_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L564" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resource_templates_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L567" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_resource_templates_mcp(self) -> mcp.types.ListResourceTemplatesResult
@@ -13018,7 +13027,7 @@ Send a resources/listResourceTemplates request and return the complete MCP proto
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L581" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L584" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_resource_templates(self) -> list[mcp.types.ResourceTemplate]
@@ -13034,7 +13043,7 @@ Retrieve a list of resource templates available on the server.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `read_resource_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L595" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read_resource_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L598" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 read_resource_mcp(self, uri: AnyUrl | str) -> mcp.types.ReadResourceResult
@@ -13055,7 +13064,7 @@ Send a resources/read request and return the complete MCP protocol result.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L617" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L620" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 read_resource(self, uri: AnyUrl | str) -> list[mcp.types.TextResourceContents | mcp.types.BlobResourceContents]
@@ -13076,7 +13085,7 @@ Read the contents of a resource or resolved template.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_prompts_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L656" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_prompts_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L659" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_prompts_mcp(self) -> mcp.types.ListPromptsResult
@@ -13093,7 +13102,7 @@ Send a prompts/list request and return the complete MCP protocol result.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L671" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L674" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_prompts(self) -> list[mcp.types.Prompt]
@@ -13109,7 +13118,7 @@ Retrieve a list of prompts available on the server.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `get_prompt_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L684" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompt_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L687" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_prompt_mcp(self, name: str, arguments: dict[str, Any] | None = None) -> mcp.types.GetPromptResult
@@ -13131,7 +13140,7 @@ Send a prompts/get request and return the complete MCP protocol result.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L720" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L723" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_prompt(self, name: str, arguments: dict[str, Any] | None = None) -> mcp.types.GetPromptResult
@@ -13153,7 +13162,7 @@ Retrieve a rendered prompt message list from the server.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `complete_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L741" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `complete_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L744" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 complete_mcp(self, ref: mcp.types.ResourceReference | mcp.types.PromptReference, argument: dict[str, str]) -> mcp.types.CompleteResult
@@ -13175,7 +13184,7 @@ Send a completion request and return the complete MCP protocol result.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `complete` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L764" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `complete` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L767" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 complete(self, ref: mcp.types.ResourceReference | mcp.types.PromptReference, argument: dict[str, str]) -> mcp.types.Completion
@@ -13196,7 +13205,7 @@ Send a completion request to the server.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_tools_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L786" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_tools_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L789" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_tools_mcp(self) -> mcp.types.ListToolsResult
@@ -13213,7 +13222,7 @@ Send a tools/list request and return the complete MCP protocol result.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `list_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L801" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L804" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_tools(self) -> list[mcp.types.Tool]
@@ -13229,7 +13238,7 @@ Retrieve a list of tools available on the server.
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `call_tool_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L815" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `call_tool_mcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L818" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 call_tool_mcp(self, name: str, arguments: dict[str, Any], progress_handler: ProgressHandler | None = None, timeout: datetime.timedelta | float | int | None = None) -> mcp.types.CallToolResult
@@ -13256,7 +13265,7 @@ and other metadata. It does not raise an exception if the tool call results in a
 
 * `RuntimeError`: If called while the client is not connected.
 
-#### `call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L852" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L855" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 call_tool(self, name: str, arguments: dict[str, Any] | None = None, timeout: datetime.timedelta | float | int | None = None, progress_handler: ProgressHandler | None = None, raise_on_error: bool = True) -> CallToolResult
@@ -13287,13 +13296,13 @@ raw result object.
 * `ToolError`: If the tool call results in an error.
 * `RuntimeError`: If called while the client is not connected.
 
-#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L923" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L926" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 generate_name(cls, name: str | None = None) -> str
 ```
 
-### `CallToolResult` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L932" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `CallToolResult` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/client.py#L935" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 
 # elicitation
@@ -15167,7 +15176,7 @@ Handles provider-specific requirements:
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L354" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
@@ -15183,7 +15192,7 @@ authenticate with different dynamic ports on reconnection. This
 handles the case where a client with cached tokens reconnects
 on a different port.
 
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L386" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L388" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 register_client(self, client_info: OAuthClientInformationFull) -> None
@@ -15210,7 +15219,7 @@ The flow:
 3. We store this flexible client for future authentications
 4. When client reconnects with a different port, ProxyDCRClient accepts it
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L435" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L447" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -15224,7 +15233,7 @@ This implements the DCR-compliant proxy pattern:
 2. Use transaction ID as state for IdP
 3. Redirect to IdP with our fixed callback URL
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L491" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L503" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
@@ -15235,7 +15244,7 @@ Load authorization code for validation.
 Look up our client code and return authorization code object
 with PKCE challenge for validation.
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L533" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L545" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
@@ -15246,7 +15255,7 @@ Exchange authorization code for stored IdP tokens.
 For the DCR-compliant proxy flow, we return the IdP tokens that were obtained
 during the IdP callback exchange. PKCE validation is handled by the MCP framework.
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L600" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L612" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
@@ -15254,7 +15263,7 @@ load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str)
 
 Load refresh token from local storage.
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L608" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L620" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
@@ -15262,7 +15271,7 @@ exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: 
 
 Exchange refresh token for new access token using authlib.
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L683" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L695" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_access_token(self, token: str) -> AccessToken | None
@@ -15273,7 +15282,7 @@ Validate access token using upstream JWKS.
 Delegates to the JWT verifier which handles signature validation,
 expiration checking, and claims validation using the upstream JWKS.
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L700" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L712" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -15284,7 +15293,7 @@ Revoke token locally and with upstream server if supported.
 Removes tokens from local storage and attempts to revoke them with
 the upstream server if a revocation endpoint is configured.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L893" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L905" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_routes(self) -> list[Route]
@@ -15811,9 +15820,9 @@ Setup Requirements:
 3. Configure redirect URI as: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback)
 4. Note your Client ID and Client Secret
 
-### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L253" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L257" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L271" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L275" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 AuthKit metadata provider for DCR (Dynamic Client Registration).
 
@@ -15837,7 +15846,7 @@ For detailed setup instructions, see:
 
 **Methods:**
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L354" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L358" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_routes(self) -> list[Route]
@@ -15895,8 +15904,9 @@ Validate a redirect URI against allowed patterns.
 **Args:**
 
 * `redirect_uri`: The redirect URI to validate
-* `allowed_patterns`: List of allowed patterns. If None, defaults to localhost.
-  If empty list, all URIs are allowed.
+* `allowed_patterns`: List of allowed patterns. If None, all URIs are allowed (for DCR compatibility).
+  If empty list, no URIs are allowed.
+  To restrict to localhost only, explicitly pass DEFAULT\_LOCALHOST\_PATTERNS.
 
 **Returns:**
 
@@ -16593,9 +16603,19 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-middleware-logging
 
 Comprehensive logging middleware for FastMCP servers.
 
+## Functions
+
+### `default_serializer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L14" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+default_serializer(data: Any) -> str
+```
+
+The default serializer for Payloads in the logging middleware.
+
 ## Classes
 
-### `LoggingMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L10" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `LoggingMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L19" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Middleware that provides comprehensive request and response logging.
 
@@ -16604,15 +16624,15 @@ monitoring, and understanding server usage patterns.
 
 **Methods:**
 
-#### `on_message` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L71" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `on_message` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L91" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-on_message(self, context: MiddlewareContext, call_next: CallNext) -> Any
+on_message(self, context: MiddlewareContext[Any], call_next: CallNext[Any, Any]) -> Any
 ```
 
 Log all messages.
 
-### `StructuredLoggingMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L92" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `StructuredLoggingMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L114" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Middleware that provides structured JSON logging for better log analysis.
 
@@ -16621,10 +16641,10 @@ aggregation tools like ELK stack, Splunk, or cloud logging services.
 
 **Methods:**
 
-#### `on_message` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L149" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `on_message` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/logging.py#L185" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-on_message(self, context: MiddlewareContext, call_next: CallNext) -> Any
+on_message(self, context: MiddlewareContext[Any], call_next: CallNext[Any, Any]) -> Any
 ```
 
 Log structured message information.
@@ -18803,7 +18823,35 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-cli
 
 ## Functions
 
-### `log_server_banner` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cli.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `is_already_in_uv_subprocess` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cli.py#L28" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+is_already_in_uv_subprocess() -> bool
+```
+
+Check if we're already running in a FastMCP uv subprocess.
+
+### `load_and_merge_config` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cli.py#L33" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+load_and_merge_config(server_spec: str | None, **cli_overrides) -> tuple[MCPServerConfig, str]
+```
+
+Load config from server\_spec and apply CLI overrides.
+
+This consolidates the config parsing logic that was duplicated across
+run, inspect, and dev commands.
+
+**Args:**
+
+* `server_spec`: Python file, config file, URL, or None to auto-detect
+* `cli_overrides`: CLI arguments that override config values
+
+**Returns:**
+
+* Tuple of (MCPServerConfig, resolved\_server\_spec)
+
+### `log_server_banner` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cli.py#L151" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 log_server_banner(server: FastMCP[Any], transport: Literal['stdio', 'http', 'sse', 'streamable-http']) -> None
@@ -18951,114 +18999,6 @@ iter_exc(group: BaseExceptionGroup)
 ```python
 get_catch_handlers() -> Mapping[type[BaseException] | Iterable[type[BaseException]], Callable[[BaseExceptionGroup[Any]], Any]]
 ```
-
-
-# __init__
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-fastmcp_config-__init__
-
-
-
-# `fastmcp.utilities.fastmcp_config`
-
-FastMCP Configuration module.
-
-This module provides versioned configuration support for FastMCP servers.
-The current version is v1, which is re-exported here for convenience.
-
-
-# __init__
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-fastmcp_config-v1-__init__
-
-
-
-# `fastmcp.utilities.fastmcp_config.v1`
-
-*This module is empty or contains only private/internal implementations.*
-
-
-# __init__
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-fastmcp_config-v1-sources-__init__
-
-
-
-# `fastmcp.utilities.fastmcp_config.v1.sources`
-
-*This module is empty or contains only private/internal implementations.*
-
-
-# base
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-fastmcp_config-v1-sources-base
-
-
-
-# `fastmcp.utilities.fastmcp_config.v1.sources.base`
-
-## Classes
-
-### `BaseSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/fastmcp_config/v1/sources/base.py#L7" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Abstract base class for all source types.
-
-**Methods:**
-
-#### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/fastmcp_config/v1/sources/base.py#L12" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-prepare(self) -> None
-```
-
-Prepare the source (download, clone, install, etc).
-
-For sources that need preparation (e.g., git clone, download),
-this method performs that preparation. For sources that don't
-need preparation (e.g., local files), this is a no-op.
-
-#### `load_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/fastmcp_config/v1/sources/base.py#L23" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-load_server(self) -> Any
-```
-
-Load and return the FastMCP server instance.
-
-Must be called after prepare() if the source requires preparation.
-All information needed to load the server should be available
-as attributes on the source instance.
-
-
-# filesystem
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-fastmcp_config-v1-sources-filesystem
-
-
-
-# `fastmcp.utilities.fastmcp_config.v1.sources.filesystem`
-
-## Classes
-
-### `FileSystemSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/fastmcp_config/v1/sources/filesystem.py#L15" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Source for local Python files.
-
-**Methods:**
-
-#### `parse_path_with_object` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/fastmcp_config/v1/sources/filesystem.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-parse_path_with_object(cls, v: str) -> str
-```
-
-Parse path:object syntax and extract the object name.
-
-This validator runs before the model is created, allowing us to
-handle the "file.py:object" syntax at the model boundary.
-
-#### `load_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/fastmcp_config/v1/sources/filesystem.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-load_server(self) -> Any
-```
-
-Load server from filesystem.
 
 
 # http
@@ -19414,6 +19354,114 @@ mcp_server_type_to_servers_and_transports(name: str, mcp_server: MCPServerTypes)
 ```
 
 A utility function to convert each entry of an MCP Config into a transport and server.
+
+
+# __init__
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-__init__
+
+
+
+# `fastmcp.utilities.mcp_server_config`
+
+FastMCP Configuration module.
+
+This module provides versioned configuration support for FastMCP servers.
+The current version is v1, which is re-exported here for convenience.
+
+
+# __init__
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-__init__
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1`
+
+*This module is empty or contains only private/internal implementations.*
+
+
+# __init__
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-sources-__init__
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.sources`
+
+*This module is empty or contains only private/internal implementations.*
+
+
+# base
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-sources-base
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.sources.base`
+
+## Classes
+
+### `BaseSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/base.py#L7" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Abstract base class for all source types.
+
+**Methods:**
+
+#### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/base.py#L12" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+prepare(self) -> None
+```
+
+Prepare the source (download, clone, install, etc).
+
+For sources that need preparation (e.g., git clone, download),
+this method performs that preparation. For sources that don't
+need preparation (e.g., local files), this is a no-op.
+
+#### `load_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/base.py#L23" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+load_server(self) -> Any
+```
+
+Load and return the FastMCP server instance.
+
+Must be called after prepare() if the source requires preparation.
+All information needed to load the server should be available
+as attributes on the source instance.
+
+
+# filesystem
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-sources-filesystem
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.sources.filesystem`
+
+## Classes
+
+### `FileSystemSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L15" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Source for local Python files.
+
+**Methods:**
+
+#### `parse_path_with_object` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+parse_path_with_object(cls, v: str) -> str
+```
+
+Parse path:object syntax and extract the object name.
+
+This validator runs before the model is created, allowing us to
+handle the "file.py:object" syntax at the model boundary.
+
+#### `load_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+load_server(self) -> Any
+```
+
+Load server from filesystem.
 
 
 # openapi
