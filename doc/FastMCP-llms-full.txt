@@ -4804,14 +4804,20 @@ This conceptual model helps you understand the purpose of each configuration sec
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "source": {
     // WHERE: Location of your server code
+    "type": "filesystem",  // Optional, defaults to "filesystem"
     "path": "server.py",
     "entrypoint": "mcp"
   },
   "environment": {
-    // WHAT: Python environment and dependencies
+    // WHAT: Environment setup and dependencies
+    "type": "uv",  // Optional, defaults to "uv"
+    "python": ">=3.10",
+    "dependencies": ["pandas", "numpy"]
   },
   "deployment": {
     // HOW: Runtime configuration
+    "transport": "stdio",
+    "log_level": "INFO"
   }
 }
 ```
@@ -4892,15 +4898,21 @@ The source configuration determines **WHERE** your server code lives. It tells F
 
 ### Environment Configuration
 
-The environment configuration determines **WHAT** environment setup your server requires. It controls the build-time setup of your Python environment using `uv`'s powerful dependency management. This section ensures your server runs with the exact Python version and dependencies it requires, creating isolated, reproducible environments across different systems.
+The environment configuration determines **WHAT** environment setup your server requires. It controls the build-time setup of your Python environment, ensuring your server runs with the exact Python version and dependencies it requires. This section creates isolated, reproducible environments across different systems.
 
-These settings leverage standard `uv` arguments for environment creation. When any environment field is specified, FastMCP automatically creates an isolated environment before running your server. This build-time configuration happens once when the server starts, not during runtime execution.
+FastMCP uses an extensible environment system with a base `Environment` class that can be implemented by different environment providers. Currently, FastMCP supports the `UVEnvironment` for Python environment management using `uv`'s powerful dependency resolver.
 
-<Card icon="code" title="Environment Fields">
+<Card icon="code" title="Environment">
   <ParamField body="environment" type="object">
-    Optional Python environment configuration. When any field is specified, FastMCP automatically creates an isolated environment using `uv`.
+    Optional environment configuration. When specified, FastMCP uses the appropriate environment implementation to set up your server's runtime.
 
-    <Expandable title="Environment Fields">
+    <ParamField body="type" type="string" default="uv">
+      The environment type identifier that determines which implementation to use. Currently supports `"uv"` for Python environments managed by uv. If omitted, defaults to `"uv"`.
+    </ParamField>
+
+    <Expandable title="UVEnvironment">
+      When `type` is `"uv"` (or omitted), the environment uses uv to manage Python dependencies:
+
       <ParamField body="python" type="string">
         Python version constraint. Examples:
 
@@ -4946,17 +4958,37 @@ These settings leverage standard `uv` arguments for environment creation. When a
         "editable": [".", "../shared-lib", "/path/to/another-package"]
         ```
       </ParamField>
+
+      **Example:**
+
+      ```json
+      "environment": {
+        "type": "uv",
+        "python": ">=3.10",
+        "dependencies": ["pandas", "numpy"],
+        "editable": ["."]
+      }
+      ```
+
+      Note: When any UVEnvironment field is specified, FastMCP automatically creates an isolated environment using `uv` before running your server.
     </Expandable>
   </ParamField>
 </Card>
 
 When environment configuration is provided, FastMCP:
 
-1. Creates an isolated Python environment using `uv`
-2. Installs the specified dependencies
-3. Runs your server in this clean environment
+1. Detects the environment type (defaults to `"uv"` if not specified)
+2. Creates an isolated environment using the appropriate provider
+3. Installs the specified dependencies
+4. Runs your server in this clean environment
 
 This build-time setup ensures your server always has the dependencies it needs, without polluting your system Python or conflicting with other projects.
+
+<Note>
+  **Future Environment Types**
+
+  Similar to source types, future releases may support additional environment types for different runtime requirements, such as Docker containers or language-specific environments beyond Python.
+</Note>
 
 ### Deployment Configuration
 
@@ -5220,6 +5252,7 @@ Any file with "fastmcp.json" in the name is recognized as a configuration file.
       },
       // WHAT dependencies does it need?
       "environment": {
+        "type": "uv",
         "python": "3.12",
         "dependencies": ["fastmcp[dev]"],
         "editable": "."
@@ -12067,7 +12100,7 @@ FastMCP CLI tools using Cyclopts.
 
 ## Functions
 
-### `with_argv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `with_argv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 with_argv(args: list[str] | None)
@@ -12082,7 +12115,7 @@ in the source loading logic.
 Args are provided without the script name, so we preserve sys.argv\[0]
 and replace the rest.
 
-### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L90" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L91" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 version()
@@ -12090,7 +12123,7 @@ version()
 
 Display version information and platform details.
 
-### `dev` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L128" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `dev` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 dev(server_spec: str | None = None) -> None
@@ -12102,7 +12135,7 @@ Run an MCP server with the MCP Inspector for development.
 
 * `server_spec`: Python file to run, optionally with :object suffix, or None to auto-detect fastmcp.json
 
-### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L309" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L310" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run(server_spec: str | None = None, *server_args: str) -> None
@@ -12126,7 +12159,7 @@ fastmcp run server.py -- --config config.json --debug
 
 * `server_spec`: Python file, object specification (file:obj), config file, URL, or None to auto-detect
 
-### `inspect` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L521" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `inspect` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L524" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 inspect(server_spec: str | None = None) -> None
@@ -12160,7 +12193,7 @@ fastmcp inspect  # auto-detect fastmcp.json
 
 * `server_spec`: Python file to inspect, optionally with :object suffix, or fastmcp.json
 
-### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L754" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L765" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 prepare(config_path: Annotated[str | None, cyclopts.Parameter(help='Path to fastmcp.json configuration file')] = None, output_dir: Annotated[str | None, cyclopts.Parameter(help='Directory to create the persistent environment in')] = None, skip_source: Annotated[bool, cyclopts.Parameter(help='Skip source preparation (e.g., git clone)')] = False) -> None
@@ -15176,7 +15209,7 @@ Handles provider-specific requirements:
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L330" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
@@ -15192,7 +15225,7 @@ authenticate with different dynamic ports on reconnection. This
 handles the case where a client with cached tokens reconnects
 on a different port.
 
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L388" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L363" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 register_client(self, client_info: OAuthClientInformationFull) -> None
@@ -15219,7 +15252,7 @@ The flow:
 3. We store this flexible client for future authentications
 4. When client reconnects with a different port, ProxyDCRClient accepts it
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L447" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L422" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -15233,7 +15266,7 @@ This implements the DCR-compliant proxy pattern:
 2. Use transaction ID as state for IdP
 3. Redirect to IdP with our fixed callback URL
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L503" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L478" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
@@ -15244,7 +15277,7 @@ Load authorization code for validation.
 Look up our client code and return authorization code object
 with PKCE challenge for validation.
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L545" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L520" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
@@ -15255,7 +15288,7 @@ Exchange authorization code for stored IdP tokens.
 For the DCR-compliant proxy flow, we return the IdP tokens that were obtained
 during the IdP callback exchange. PKCE validation is handled by the MCP framework.
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L612" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L587" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
@@ -15263,7 +15296,7 @@ load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str)
 
 Load refresh token from local storage.
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L620" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L595" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
@@ -15271,7 +15304,7 @@ exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: 
 
 Exchange refresh token for new access token using authlib.
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L695" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L670" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_access_token(self, token: str) -> AccessToken | None
@@ -15282,7 +15315,7 @@ Validate access token using upstream JWKS.
 Delegates to the JWT verifier which handles signature validation,
 expiration checking, and claims validation using the upstream JWKS.
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L712" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L687" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -15293,7 +15326,7 @@ Revoke token locally and with upstream server if supported.
 Removes tokens from local storage and attempts to revoke them with
 the upstream server if a revocation endpoint is configured.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L905" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L880" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_routes(self) -> list[Route]
@@ -15333,7 +15366,7 @@ using the OAuth Proxy pattern for non-DCR OAuth flows.
 
 Settings for Azure OAuth provider.
 
-### `AzureTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L46" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AzureTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L48" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for Azure OAuth tokens.
 
@@ -15342,7 +15375,7 @@ to get user information and validate the token.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L70" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15350,7 +15383,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify Azure OAuth token by calling Microsoft Graph API.
 
-### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L118" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L120" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Azure (Microsoft Entra) OAuth provider for FastMCP.
 
@@ -15420,7 +15453,7 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 Settings for GitHub OAuth provider.
 
-### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L61" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for GitHub OAuth tokens.
 
@@ -15429,7 +15462,7 @@ by calling GitHub's API to check if they're valid and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L83" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L85" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15437,7 +15470,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify GitHub OAuth token by calling GitHub API.
 
-### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L167" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L169" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete GitHub OAuth provider for FastMCP.
 
@@ -15487,7 +15520,7 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 Settings for Google OAuth provider.
 
-### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L65" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for Google OAuth tokens.
 
@@ -15496,7 +15529,7 @@ by calling Google's tokeninfo API to check if they're valid and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L85" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L87" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15504,7 +15537,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify Google OAuth token by calling Google's tokeninfo API.
 
-### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L183" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L185" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete Google OAuth provider for FastMCP.
 
@@ -15782,7 +15815,7 @@ Choose based on your WorkOS setup and authentication requirements.
 
 Settings for WorkOS OAuth provider.
 
-### `WorkOSTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L53" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L55" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for WorkOS OAuth tokens.
 
@@ -15791,7 +15824,7 @@ the /oauth2/userinfo endpoint to check validity and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L78" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L80" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15799,7 +15832,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify WorkOS OAuth token by calling userinfo endpoint.
 
-### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L126" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L128" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete WorkOS OAuth provider for FastMCP.
 
@@ -15820,9 +15853,9 @@ Setup Requirements:
 3. Configure redirect URI as: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback)
 4. Note your Client ID and Client Secret
 
-### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L257" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L267" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L275" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L285" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 AuthKit metadata provider for DCR (Dynamic Client Registration).
 
@@ -15846,7 +15879,7 @@ For detailed setup instructions, see:
 
 **Methods:**
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L358" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_routes(self) -> list[Route]
@@ -19380,6 +19413,134 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-
 
 
 # __init__
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-environments-__init__
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.environments`
+
+Environment configuration for MCP servers.
+
+
+# base
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-environments-base
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.environments.base`
+
+## Classes
+
+### `Environment` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/base.py#L7" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Base class for environment configuration.
+
+**Methods:**
+
+#### `build_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/base.py#L13" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+build_command(self, command: list[str]) -> list[str]
+```
+
+Build the full command with environment setup.
+
+**Args:**
+
+* `command`: Base command to wrap with environment setup
+
+**Returns:**
+
+* Full command ready for subprocess execution
+
+#### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/base.py#L24" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+prepare(self, output_dir: Path | None = None) -> None
+```
+
+Prepare the environment (optional, can be no-op).
+
+**Args:**
+
+* `output_dir`: Directory for persistent environment setup
+
+
+# uv
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-environments-uv
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.environments.uv`
+
+## Classes
+
+### `UVEnvironment` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/uv.py#L16" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Configuration for Python environment setup.
+
+**Methods:**
+
+#### `build_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/uv.py#L51" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+build_command(self, command: list[str]) -> list[str]
+```
+
+Build complete uv run command with environment args and command to execute.
+
+**Args:**
+
+* `command`: Command to execute (e.g., \["fastmcp", "run", "server.py"])
+
+**Returns:**
+
+* Complete command ready for subprocess.run, including "uv" prefix if needed.
+* If no environment configuration is set, returns the command unchanged.
+
+#### `run_with_uv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/uv.py#L95" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+run_with_uv(self, command: list[str]) -> None
+```
+
+Execute a command using uv run with this environment configuration.
+
+**Args:**
+
+* `command`: Command and arguments to execute (e.g., \["fastmcp", "run", "server.py"])
+
+#### `needs_uv` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/uv.py#L136" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+needs_uv(self) -> bool
+```
+
+Deprecated: Use \_needs\_setup() internally or check if build\_command modifies the command.
+
+#### `build_uv_run_command` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/uv.py#L140" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+build_uv_run_command(self, command: list[str]) -> list[str]
+```
+
+Deprecated: Use build\_command() instead.
+
+#### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/environments/uv.py#L144" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+prepare(self, output_dir: Path | None = None) -> None
+```
+
+Prepare the Python environment using uv.
+
+**Args:**
+
+* `output_dir`: Directory where the persistent uv project will be created.
+  If None, creates a temporary directory for ephemeral use.
+
+
+# __init__
 Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-sources-__init__
 
 
@@ -19398,7 +19559,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-
 
 ## Classes
 
-### `BaseSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/base.py#L7" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Source` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/base.py#L7" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Abstract base class for all source types.
 
@@ -19444,7 +19605,7 @@ Source for local Python files.
 
 **Methods:**
 
-#### `parse_path_with_object` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `parse_path_with_object` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L28" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 parse_path_with_object(cls, v: str) -> str
@@ -19455,7 +19616,7 @@ Parse path:object syntax and extract the object name.
 This validator runs before the model is created, allowing us to
 handle the "file.py:object" syntax at the model boundary.
 
-#### `load_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/sources/filesystem.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_server(self) -> Any
@@ -20507,7 +20668,7 @@ The `OAuthProxy` class provides the complete proxy implementation:
   </ParamField>
 
   <ParamField body="resource_server_url" type="AnyHttpUrl | str | None">
-    Resource server URL (defaults to base\_url)
+    Path of the FastMCP server (defaults to base\_url). **Important**: This should point to your MCP endpoint path. For example, if your MCP server is accessible at `{base_url}/mcp`, specify `https://your-server.com/mcp` here for proper RFC 8707 compliance.
   </ParamField>
 
   <ParamField body="allowed_client_redirect_uris" type="list[str] | None">
@@ -20577,7 +20738,10 @@ auth = OAuthProxy(
     base_url="https://your-server.com",
     
     # Optional: customize callback path (defaults to "/auth/callback")
-    redirect_path="/auth/callback"
+    redirect_path="/auth/callback",
+    
+    # Optional: specify MCP endpoint path if different from base_url
+    # resource_server_url="https://your-server.com/mcp"
 )
 
 mcp = FastMCP(name="My Server", auth=auth)
@@ -20846,7 +21010,7 @@ token_verifier = JWTVerifier(
 auth = RemoteAuthProvider(
     token_verifier=token_verifier,
     authorization_servers=[AnyHttpUrl("https://auth.yourcompany.com")],
-    resource_server_url="https://api.yourcompany.com",
+    resource_server_url="https://api.yourcompany.com/mcp",  # Point to your MCP endpoint
     # Optional: customize allowed client redirect URIs (defaults to localhost only)
     allowed_client_redirect_uris=["http://localhost:*", "http://127.0.0.1:*"]
 )
@@ -20856,7 +21020,7 @@ mcp = FastMCP(name="Company API", auth=auth)
 
 This configuration creates a server that accepts tokens issued by `auth.yourcompany.com` and provides the OAuth discovery metadata that MCP clients need. The `JWTVerifier` handles token validation using your identity provider's public keys, while the `RemoteAuthProvider` generates the required OAuth endpoints.
 
-The `authorization_servers` list tells MCP clients which identity providers you trust. The `resource_server_url` identifies your server in OAuth metadata, enabling proper token audience validation.
+The `authorization_servers` list tells MCP clients which identity providers you trust. The `resource_server_url` identifies your server in OAuth metadata, enabling proper token audience validation. **Important**: The `resource_server_url` should point to your actual MCP endpoint - for example, if your MCP server is accessible at `https://api.yourcompany.com/mcp`, use that full path rather than just the base URL.
 
 ### Custom Endpoints
 
@@ -20878,7 +21042,7 @@ class CompanyAuthProvider(RemoteAuthProvider):
         super().__init__(
             token_verifier=token_verifier,
             authorization_servers=[AnyHttpUrl("https://auth.yourcompany.com")],
-            resource_server_url="https://api.yourcompany.com"
+            resource_server_url="https://api.yourcompany.com/mcp"  # Your MCP endpoint path
         )
     
     def get_routes(self) -> list[Route]:
