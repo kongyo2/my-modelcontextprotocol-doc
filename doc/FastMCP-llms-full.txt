@@ -3,6 +3,63 @@ Source: https://gofastmcp.com/changelog
 
 
 
+<Update label="v2.12.0" description="2025-08-31">
+  **[v2.12.0: Auth to the Races](https://github.com/jlowin/fastmcp/releases/tag/v2.12.0)**
+
+  This release introduces major authentication and configuration enhancements that make FastMCP more accessible and powerful for developers working with various identity providers and deployment scenarios.
+
+  ## OAuth Proxy: Broader Provider Support
+
+  The OAuth Proxy bridges the gap for authentication providers that don't support Dynamic Client Registration (DCR), a requirement for standard MCP OAuth flows. This feature enables seamless integration with major platforms that previously required complex workarounds.
+
+  **Native integrations now available:**
+
+  * GitHub
+  * Google
+  * WorkOS
+  * Azure
+
+  With the OAuth Proxy, you can authenticate users through these providers with minimal configuration, expanding the ecosystem of supported identity platforms and making FastMCP servers more accessible to enterprise environments.
+
+  ## Declarative JSON Configuration
+
+  The new `fastmcp.json` configuration system establishes a single source of truth for server settings, replacing scattered configuration across multiple files and environment variables.
+
+  **Configure everything in one place:**
+
+  * Dependencies and requirements
+  * Transport settings
+  * Server entrypoints
+  * Metadata and descriptions
+  * Environment variables
+
+  This standardization not only simplifies deployment but also enables portable server descriptions that can be shared and reused across projects. The typed source system provides validation and autocompletion, reducing configuration errors.
+
+  ## Sampling API Fallback
+
+  Not all MCP clients support advanced features like the Sampling API for LLM completions. The new fallback mechanism solves this adoption challenge by allowing servers to generate sampling completions server-side when clients lack support.
+
+  This approach:
+
+  * Maintains compatibility with all clients
+  * Encourages feature adoption without breaking existing integrations
+  * Provides a smooth upgrade path as client capabilities evolve
+
+  ## Breaking Changes
+
+  * The `inspect` command now provides structured output with format options for better integration with tooling
+
+  ## Additional Enhancements
+
+  * Improved CLI configuration parsing with better error messages
+  * Support for multiple `--with-editable` flags for development workflows
+  * Comma-separated OAuth scope support for fine-grained permissions
+  * Configurable logging middleware for better debugging
+  * Support for importing custom route endpoints
+
+  **Full Changelog**: [v2.11.3...v2.12.0](https://github.com/jlowin/fastmcp/compare/v2.11.3...v2.12.0)
+</Update>
+
 <Update label="v2.11.3" description="2025-08-11">
   **[v2.11.3: API-tite for Change](https://github.com/jlowin/fastmcp/releases/tag/v2.11.3)**
 
@@ -5563,11 +5620,15 @@ async def test_deployed_server():
 The FastMCP Client handles authentication transparently, making it easy to test secured servers:
 
 ```python
+from fastmcp.client.transports import StreamableHttpTransport
+
 async def test_authenticated_server():
     # Bearer token authentication
     async with Client(
-        "https://api.example.com/mcp",
-        headers={"Authorization": "Bearer test-token"}
+        StreamableHttpTransport(
+            "https://api.example.com/mcp",
+            headers={"Authorization": "Bearer test-token"}
+        )
     ) as client:
         await client.ping()
         tools = await client.list_tools()
@@ -8659,7 +8720,10 @@ auth_provider = GoogleProvider(
     client_id="123456789.apps.googleusercontent.com",  # Your Google OAuth Client ID
     client_secret="GOCSPX-abc123...",                  # Your Google OAuth Client Secret
     base_url="http://localhost:8000",                  # Must match your OAuth configuration
-    required_scopes=["openid", "email", "profile"],    # Request user information
+    required_scopes=[                                  # Request user information
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.email",
+    ],
     # redirect_path="/auth/callback"                  # Default value, customize if needed
 )
 
@@ -8762,7 +8826,7 @@ For production deployments, use environment variables instead of hardcoding cred
   </ParamField>
 
   <ParamField path="FASTMCP_SERVER_AUTH_GOOGLE_REQUIRED_SCOPES" default="[]">
-    Comma-, space-, or JSON-separated list of required Google scopes (e.g., `openid,profile` or `["openid","profile"]`)
+    Comma-, space-, or JSON-separated list of required Google scopes (e.g., `"openid,https://www.googleapis.com/auth/userinfo.email"` or `["openid", "https://www.googleapis.com/auth/userinfo.email"]`)
   </ParamField>
 
   <ParamField path="FASTMCP_SERVER_AUTH_GOOGLE_TIMEOUT_SECONDS" default="10">
@@ -8780,7 +8844,7 @@ FASTMCP_SERVER_AUTH=GOOGLE
 FASTMCP_SERVER_AUTH_GOOGLE_CLIENT_ID=123456789.apps.googleusercontent.com
 FASTMCP_SERVER_AUTH_GOOGLE_CLIENT_SECRET=GOCSPX-abc123...
 FASTMCP_SERVER_AUTH_GOOGLE_BASE_URL=https://your-server.com
-FASTMCP_SERVER_AUTH_GOOGLE_REQUIRED_SCOPES=openid,email,profile
+FASTMCP_SERVER_AUTH_GOOGLE_REQUIRED_SCOPES=openid,https://www.googleapis.com/auth/userinfo.email
 ```
 
 With environment variables set, your server code simplifies to:
@@ -21403,13 +21467,14 @@ As your MCP applications grow, you might want to organize your tools, resources,
 
 The choice of importing or mounting depends on your use case and requirements.
 
-| Feature              | Importing                                    | Mounting                                   |
-| -------------------- | -------------------------------------------- | ------------------------------------------ |
-| **Method**           | `FastMCP.import_server(server, prefix=None)` | `FastMCP.mount(server, prefix=None)`       |
-| **Composition Type** | One-time copy (static)                       | Live link (dynamic)                        |
-| **Updates**          | Changes to subserver NOT reflected           | Changes to subserver immediately reflected |
-| **Prefix**           | Optional - omit for original names           | Optional - omit for original names         |
-| **Best For**         | Bundling finalized components                | Modular runtime composition                |
+| Feature              | Importing                                                  | Mounting                                    |
+| -------------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| **Method**           | `FastMCP.import_server(server, prefix=None)`               | `FastMCP.mount(server, prefix=None)`        |
+| **Composition Type** | One-time copy (static)                                     | Live link (dynamic)                         |
+| **Updates**          | Changes to subserver NOT reflected                         | Changes to subserver immediately reflected  |
+| **Performance**      | Fast - no runtime delegation                               | Slower - affected by slowest mounted server |
+| **Prefix**           | Optional - omit for original names                         | Optional - omit for original names          |
+| **Best For**         | Bundling finalized components, performance-critical setups | Modular runtime composition                 |
 
 ### Proxy Servers
 
@@ -21579,6 +21644,10 @@ The same prefixing rules apply as with `import_server` for naming tools, resourc
 <Tip>
   The `prefix` parameter is optional. If omitted, components are mounted without modification.
 </Tip>
+
+#### Performance Considerations
+
+Due to the "live link", operations like `list_tools()` on the parent server will be impacted by the speed of the slowest mounted server. In particular, HTTP-based mounted servers can introduce significant latency (300-400ms vs 1-2ms for local tools), and this slowdown affects the whole server, not just interactions with the HTTP-proxied tools. If performance is important, importing tools via [`import_server()`](#importing-static-composition) may be a more appropriate solution as it copies components once at startup rather than delegating requests at runtime.
 
 #### Mounting Without Prefixes
 
@@ -23946,6 +24015,12 @@ sequenceDiagram
 * **Advanced MCP Features**: Automatic forwarding of sampling, elicitation, logging, and progress
 * **Security**: Acts as a controlled gateway to backend servers
 * **Simplicity**: Single endpoint even if backend location or transport changes
+
+### Performance Considerations
+
+When using proxy servers, especially those connecting to HTTP-based backend servers, be aware that latency can be significant. Operations like `list_tools()` may take hundreds of milliseconds compared to 1-2ms for local tools. When mounting proxy servers, this latency affects all operations on the parent server, not just interactions with the proxied tools.
+
+If low latency is a requirement for your use-case, consider using [`import_server()`](/servers/composition#importing-static-composition) to copy tools at startup rather than proxying them at runtime.
 
 ## Quick Start
 
