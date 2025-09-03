@@ -4195,59 +4195,6 @@ config = {
 ```
 
 
-# Community Showcase
-Source: https://gofastmcp.com/community/showcase
-
-High-quality projects and examples from the FastMCP community
-
-export const YouTubeEmbed = ({videoId, title}) => {
-  return <iframe className="w-full aspect-video rounded-md" src={`https://www.youtube.com/embed/${videoId}`} title={title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
-};
-
-## Featured Projects
-
-Discover exemplary MCP servers and implementations created by our community. These projects demonstrate best practices and innovative uses of FastMCP.
-
-### Learning Resources
-
-<Card title="MCP Dummy Server" icon="graduation-cap" href="https://github.com/WaiYanNyeinNaing/mcp-dummy-server">
-  A comprehensive educational example demonstrating FastMCP best practices with professional dual-transport server implementation, interactive test client, and detailed documentation.
-</Card>
-
-#### Video Tutorials
-
-**Build Remote MCP Servers w/ Python & FastMCP** - Claude Integrations Tutorial by Greg + Code
-
-<YouTubeEmbed videoId="bOYkbXP-GGo" title="Build Remote MCP Servers w/ Python & FastMCP" />
-
-**FastMCP — the best way to build an MCP server with Python** - Tutorial by ZazenCodes
-
-<YouTubeEmbed videoId="rnljvmHorQw" title="FastMCP — the best way to build an MCP server with Python" />
-
-**Speedrun a MCP server for Claude Desktop (fastmcp)** - Tutorial by Nate from Prefect
-
-<YouTubeEmbed videoId="67ZwpkUEtSI" title="Speedrun a MCP server for Claude Desktop (fastmcp)" />
-
-### Community Examples
-
-Have you built something interesting with FastMCP? We'd love to feature high-quality examples here! Start a [discussion on GitHub](https://github.com/jlowin/fastmcp/discussions) to share your project.
-
-## Contributing
-
-To get your project featured:
-
-1. Ensure your project demonstrates best practices
-2. Include comprehensive documentation
-3. Add clear usage examples
-4. Open a discussion in our [GitHub Discussions](https://github.com/jlowin/fastmcp/discussions)
-
-We review submissions regularly and feature projects that provide value to the FastMCP community.
-
-## Further Reading
-
-* [Contrib Modules](/patterns/contrib) - Community-contributed modules that are distributed with FastMCP itself
-
-
 # FastMCP Cloud
 Source: https://gofastmcp.com/deployment/fastmcp-cloud
 
@@ -4297,11 +4244,11 @@ There are just three steps to deploying a server to FastMCP Cloud:
 
 Visit [fastmcp.cloud](https://fastmcp.cloud) and sign in with your GitHub account. Then, create a project. Each project corresponds to a GitHub repo, and you can create one from either your own repo or using the FastMCP Cloud quickstart repo.
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=558b0fdedc40e1ef6befb4c2fbcc28d9" alt="FastMCP Cloud Quickstart Screen" width="2656" height="1808" data-path="assets/images/fastmcp_cloud/quickstart.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=280&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3bb8feb5f4d9ca48d8222a5c7a8f906b 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=560&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b01c75e01dba4db9add83c1a1fd61d47 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=840&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4c9250f955697d67616d115532a26fe7 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=1100&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=2d417bb24f7381061a9f20861c7c5a7d 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=1650&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a50de49b0bbade62d3d25895bace0332 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=2500&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c3ae29522e0abb4f4e773c0d54b8bc6c 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a98be26fc2265a8b74476d1747287e53" alt="FastMCP Cloud Quickstart Screen" width="2656" height="1808" data-path="assets/images/fastmcp_cloud/quickstart.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=6574699628440718a296eecb1c9c1d34 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=740b6cb6a21b2bd165f0348b7f70f1bb 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=183e219af3c0d9bcc87a7e192f9d861a 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=5b22225c6d1f2fd48e461f6e7c8a4137 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=9de436ae99e8e175268ab0415ae69373 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/quickstart.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b2320ef39fff5ff3a00d5c09787fefc8 2500w" data-optimize="true" data-opv="2" />
 
 Next, you'll be prompted to configure your project.
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=90c3ae46bc2e5379af5000df656c6847" alt="FastMCP Cloud Configuration Screen" width="2656" height="1808" data-path="assets/images/fastmcp_cloud/create_project.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=280&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b2e761e474ac6dd48f2ebb6ee4e5bb6d 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=560&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a411e85fae5ba3c82eef8b2b0b77d68c 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=840&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=55a5861adecac472a0da93b4778c48a7 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=1100&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ddf7c676e34e5b5cc94ac09c2dcbe176 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=1650&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=2598ab81f6ab4ced7e5b04262cced53f 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=2500&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8e82dbb8b0555d9b832e6b4694e57ee5 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4c221cd0734a6fd7b634970ac0aff73a" alt="FastMCP Cloud Configuration Screen" width="2656" height="1808" data-path="assets/images/fastmcp_cloud/create_project.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=168c690ac8a8e5098b05c8e23cf9173b 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=16cd0ee3977040439e9982e8aa438ffe 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4b0265a257b6a9510c85863da1b5e17a 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e898cfe81f01bf14312d98902be41b5c 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=d97a7ddad8e60c86e303faa8e37d784c 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/create_project.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=51b9fa2763dc5064c1eef4f8f90af77a 2500w" data-optimize="true" data-opv="2" />
 
 The configuration screen lets you specify:
 
@@ -4320,7 +4267,7 @@ Once you configure your project, FastMCP Cloud will:
 3. Deploy it to a unique URL
 4. Make it immediately available for connections
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=866328c5d29b6a5b1c14d13886c9fc2b" alt="FastMCP Cloud Deployment Screen" width="2656" height="1808" data-path="assets/images/fastmcp_cloud/deployment.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=280&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c7bceebee8eff2554d7176213e36ab41 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=560&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=2c9097007092b7918cc90f1281e999ad 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=840&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=6351df613fe6abc1d8aa4ac05df80b35 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=1100&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=80f1749a1161aefb6f73f11b42f52f28 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=1650&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=9d004bc1d9e0387506a548542bb9dc02 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=2500&maxW=2656&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ab28b33555b40a16cc2b7bc8422f9878 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=cdb7389c54a0d9d7853807b4bf996d63" alt="FastMCP Cloud Deployment Screen" width="2656" height="1808" data-path="assets/images/fastmcp_cloud/deployment.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a218792290c0798cd9e79f479904d245 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a06622288cdbf1c267175e36965c4fb1 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=69c5e285cb70f1192f96caafa79eb26e 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=831d6f9609c2a70d59ae087f4064b140 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3247286a4749d1cfbe408ac6c3e02fce 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/deployment.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=f6b3a204d808cad20b40f200e2e40d7a 2500w" data-optimize="true" data-opv="2" />
 
 FastMCP Cloud will monitor your repo and redeploy your server whenever you push a change to the `main` branch. In addition, FastMCP Cloud will build and deploy servers for every PR your open, hosting them on unique URLs, so you can test changes before updating your production server.
 
@@ -4334,7 +4281,7 @@ https://your-project-name.fastmcp.app/mcp
 
 You should be able to connect to it as soon as you see the deployment succeed! FastMCP Cloud provides instant connection options for popular LLM clients:
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ec757e16ba436fa944716d19661d787a" alt="FastMCP Cloud Connection Screen" width="2568" height="1720" data-path="assets/images/fastmcp_cloud/connect.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=280&maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=2845c74a8effa114c9d006fa7324feda 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=560&maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a3bd6e9ca366f54e6df4b99cb62bcffe 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=840&maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0415826f639c38f28f9f3fd51875640e 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=1100&maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=18cd390701d87177eb474d0683e9e797 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=1650&maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b3b0c3c3e78f307c888d27879c999e52 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=2500&maxW=2568&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b90eb7acd9e4ca2a5374de899efc850b 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ec716be49f8e43028eb872ff3ac95624" alt="FastMCP Cloud Connection Screen" width="2568" height="1720" data-path="assets/images/fastmcp_cloud/connect.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=10053e00e12a0d29376fa9e36f6db5e4 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=d8ea20e041da1d97f4cc681a36d7a09b 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8da73612790ad0cbd5e97958ba590ee5 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=6db33a68f39c1796ce24fff8781a9add 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=beb88faa10fd0c9dba4ef5ec2b8ce955 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/fastmcp_cloud/connect.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fb9b2640011b3757a9a0cdcb4b4449c4 2500w" data-optimize="true" data-opv="2" />
 
 
 # Running Your Server
@@ -5770,11 +5717,11 @@ Source: https://gofastmcp.com/getting-started/quickstart
 
 
 
-Welcome! This guide will help you quickly set up FastMCP and run your first MCP server.
+Welcome! This guide will help you quickly set up FastMCP, run your first MCP server, and deploy a server to FastMCP Cloud.
 
 If you haven't already installed FastMCP, follow the [installation instructions](/getting-started/installation).
 
-## Creating a FastMCP Server
+## Create a FastMCP Server
 
 A FastMCP server is a collection of tools, resources, and other MCP components. To create a server, start by instantiating the `FastMCP` class.
 
@@ -5788,7 +5735,7 @@ mcp = FastMCP("My MCP Server")
 
 That's it! You've created a FastMCP server, albeit a very boring one. Let's add a tool to make it more interesting.
 
-## Adding a Tool
+## Add a Tool
 
 To add a tool that returns a simple greeting, write a function and decorate it with `@mcp.tool` to register it with the server:
 
@@ -5802,93 +5749,103 @@ def greet(name: str) -> str:
     return f"Hello, {name}!"
 ```
 
-## Testing the Server
+## Run the Server
 
-To test the server, create a FastMCP client and point it at the server object.
+The simplest way to run your FastMCP server is to call its `run()` method. You can choose between different transports, like `stdio` for local servers, or `http` for remote access:
 
-```python my_server.py {1-2, 10-17}
-import asyncio
-from fastmcp import FastMCP, Client
+<CodeGroup>
+  ```python my_server.py (stdio) {9, 10}
+  from fastmcp import FastMCP
 
-mcp = FastMCP("My MCP Server")
+  mcp = FastMCP("My MCP Server")
 
-@mcp.tool
-def greet(name: str) -> str:
-    return f"Hello, {name}!"
+  @mcp.tool
+  def greet(name: str) -> str:
+      return f"Hello, {name}!"
 
-client = Client(mcp)
+  if __name__ == "__main__":
+      mcp.run()
+  ```
 
-async def call_tool(name: str):
-    async with client:
-        result = await client.call_tool("greet", {"name": name})
-        print(result)
+  ```python my_server.py (HTTP) {9, 10}
+  from fastmcp import FastMCP
 
-asyncio.run(call_tool("Ford"))
-```
+  mcp = FastMCP("My MCP Server")
 
-There are a few things to note here:
+  @mcp.tool
+  def greet(name: str) -> str:
+      return f"Hello, {name}!"
 
-* Clients are asynchronous, so we need to use `asyncio.run` to run the client.
-* We must enter a client context (`async with client:`) before using the client. You can make multiple client calls within the same context.
+  if __name__ == "__main__":
+      mcp.run(transport="http", port=8000)
+  ```
+</CodeGroup>
 
-## Running the server
-
-In order to run the server with Python, we need to add a `run` statement to the `__main__` block of the server file.
-
-```python my_server.py {9-10}
-from fastmcp import FastMCP
-
-mcp = FastMCP("My MCP Server")
-
-@mcp.tool
-def greet(name: str) -> str:
-    return f"Hello, {name}!"
-
-if __name__ == "__main__":
-    mcp.run()
-```
-
-This lets us run the server with `python my_server.py`, using the default `stdio` transport, which is the standard way to expose an MCP server to a client.
+This lets us run the server with `python my_server.py`. The stdio transport is the traditional way to connect MCP servers to clients, while the HTTP transport enables remote connections.
 
 <Tip>
   Why do we need the `if __name__ == "__main__":` block?
 
-  Within the FastMCP ecosystem, this line may be unnecessary. However, including it ensures that your FastMCP server runs for all users and clients in a consistent way and is therefore recommended as best practice.
+  The `__main__` block is recommended for consistency and compatibility, ensuring your server works with all MCP clients that execute your server file as a script. Users who will exclusively run their server with the FastMCP CLI can omit it, as the CLI imports the server object directly.
 </Tip>
-
-### Interacting with the Python server
-
-Now that the server can be executed with `python my_server.py`, we can interact with it like any other MCP server.
-
-In a new file, create a client and point it at the server file:
-
-```python my_client.py
-import asyncio
-from fastmcp import Client
-
-client = Client("my_server.py")
-
-async def call_tool(name: str):
-    async with client:
-        result = await client.call_tool("greet", {"name": name})
-        print(result)
-
-asyncio.run(call_tool("Ford"))
-```
 
 ### Using the FastMCP CLI
 
-To have FastMCP run the server for us, we can use the `fastmcp run` command. This will start the server and keep it running until it is stopped. By default, it will use the `stdio` transport, which is a simple text-based protocol for interacting with the server.
+You can also use the `fastmcp run` command to start your server. Note that the FastMCP CLI **does not** execute the `__main__` block of your server file. Instead, it imports your server object and runs it with whatever transport and options you provide.
+
+For example, to run this server with the default stdio transport (no matter how you called `mcp.run()`), you can use the following command:
 
 ```bash
 fastmcp run my_server.py:mcp
 ```
 
-Note that FastMCP *does not* require the `__main__` block in the server file, and will ignore it if it is present. Instead, it looks for the server object provided in the CLI command (here, `mcp`). If no server object is provided, `fastmcp run` will automatically search for servers called "mcp", "app", or "server" in the file.
+To run this server with the HTTP transport, you can use the following command:
 
-<Tip>
-  We pointed our client at the server file, which is recognized as a Python MCP server and executed with `python my_server.py` by default. This executes the `__main__` block of the server file. There are other ways to run the server, which are described in the [server configuration](/servers/server#running-the-server) guide.
-</Tip>
+```bash
+fastmcp run my_server.py:mcp --transport http --port 8000
+```
+
+## Call Your Server
+
+Once your server is running with HTTP transport, you can connect to it with a FastMCP client or any LLM client that supports the MCP protocol:
+
+```python my_client.py
+import asyncio
+from fastmcp import Client
+
+client = Client("http://localhost:8000")
+
+async def call_tool(name: str):
+    async with client:
+        result = await client.call_tool("greet", {"name": name})
+        print(result)
+
+asyncio.run(call_tool("Ford"))
+```
+
+Note that:
+
+* FastMCP clients are asynchronous, so we need to use `asyncio.run` to run the client
+* We must enter a client context (`async with client:`) before using the client
+* You can make multiple client calls within the same context
+
+## Deploy to FastMCP Cloud
+
+[FastMCP Cloud](https://fastmcp.cloud) is a hosting service run by the FastMCP team at [Prefect](https://www.prefect.io/fastmcp). It is optimized to deploy authenticated FastMCP servers as quickly as possible, giving you a secure URL that you can plug into any LLM client.
+
+<Info>
+  Please note that FastMCP Cloud is a commercial service, though it is completely free for most personal servers.
+</Info>
+
+To deploy your server, you'll need a [GitHub account](https://github.com). Once you have one, you can deploy your server in three steps:
+
+1. Push your `my_server.py` file to a GitHub repository
+2. Sign in to [FastMCP Cloud](https://fastmcp.cloud) with your GitHub account
+3. Create a new project from your repository and enter `my_server.py:mcp` as the server entrypoint
+
+That's it! FastMCP Cloud will build and deploy your server, making it available at a URL like `https://your-project.fastmcp.app/mcp`. You can chat with it to test its functionality, or connect to it from any LLM client that supports the MCP protocol.
+
+For more details, see the [FastMCP Cloud guide](/deployment/fastmcp-cloud).
 
 
 # Welcome to FastMCP 2.0!
@@ -6453,7 +6410,7 @@ In your WorkOS Dashboard, enable AuthKit and configure the following settings:
   <Step title="Enable Dynamic Client Registration">
     Go to **Applications → Configuration** and enable **Dynamic Client Registration**. This allows MCP clients register with your application automatically.
 
-        <img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3477a7a23f8cd5ddac86bb6b4563b2c3" alt="Enable Dynamic Client Registration" width="2644" height="1588" data-path="integrations/images/authkit/enable_dcr.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=280&maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=af31ca5acd45982f8599576882eb1f71 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=560&maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=98388f18e55bb36c8e2c43e0a7a0f9aa 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=840&maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c0708ac1e2443ee5d13511d5143a907d 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=1100&maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b641aed020c36aea50e1dd690fe363b9 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=1650&maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=1f5907d32972e07edccb59107cea9f11 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=2500&maxW=2644&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a6fef81fb251fbae8b82976a47d3a833 2500w" data-optimize="true" data-opv="2" />
+        <img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=5849352618ef89da08cf452c5dcf38a8" alt="Enable Dynamic Client Registration" width="2644" height="1588" data-path="integrations/images/authkit/enable_dcr.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=afe3af1599ffac48411edaa7eb8ee35e 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fa6e286fd2e98a984dbed9dd30375e07 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=26ba396eef845948a2bbe7405716a419 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=5270b0b09891741087494f2819be6f19 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=604955d22d5556d3464f5b4919664c41 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/authkit/enable_dcr.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a4e1627dd14ee7c1c2ad6b6628dc8520 2500w" data-optimize="true" data-opv="2" />
   </Step>
 
   <Step title="Note Your AuthKit Domain">
@@ -6503,26 +6460,57 @@ if __name__ == "__main__":
 
 ## Environment Variables
 
-You can use environment variables to configure an AuthKit provider without instantiating the provider in your code.
+<VersionBadge version="2.12.1" />
 
-To do so, set the following environment variables:
+For production deployments, use environment variables instead of hardcoding credentials.
+
+### Provider Selection
+
+Setting this environment variable allows the AuthKit provider to be used automatically without explicitly instantiating it in code.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
+    Set to `fastmcp.server.auth.providers.workos.AuthKitProvider` to use AuthKit authentication.
+  </ParamField>
+</Card>
+
+### AuthKit-Specific Configuration
+
+These environment variables provide default values for the AuthKit provider, whether it's instantiated manually or configured via `FASTMCP_SERVER_AUTH`.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_AUTHKIT_DOMAIN" required>
+    Your AuthKit domain (e.g., `https://your-project-12345.authkit.app`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_BASE_URL" required>
+    Public URL of your FastMCP server (e.g., `https://your-server.com` or `http://localhost:8000` for development)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_REQUIRED_SCOPES" default="[]">
+    Comma-, space-, or JSON-separated list of required OAuth scopes (e.g., `openid profile email` or `["openid", "profile", "email"]`)
+  </ParamField>
+</Card>
+
+Example `.env` file:
 
 ```bash
-# instruct FastMCP to use the AuthKit provider
-FASTMCP_SERVER_AUTH=AUTHKIT
+# Use the AuthKit provider
+FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.workos.AuthKitProvider
 
-# configure the AuthKit provider
-FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_AUTHKIT_DOMAIN="https://your-project-12345.authkit.app"
-FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_BASE_URL="http://localhost:8000"
+# AuthKit configuration
+FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_AUTHKIT_DOMAIN=https://your-project-12345.authkit.app
+FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_BASE_URL=https://your-server.com
+FASTMCP_SERVER_AUTH_AUTHKITPROVIDER_REQUIRED_SCOPES=openid,profile,email
 ```
 
-For clarity, you do **not** need to instantiate an auth provider when using environment variables:
+With environment variables set, your server code simplifies to:
 
 ```python server.py
 from fastmcp import FastMCP
 
-# FastMCP automatically creates the AuthKitProvider from environment variables
-mcp = FastMCP(name="WorkOS Secured App")
+# Authentication is automatically configured from environment
+mcp = FastMCP(name="AuthKit Secured App")
 ```
 
 
@@ -6706,19 +6694,23 @@ When you run the client for the first time:
 
 ## Environment Variables
 
-For production deployments, use environment variables instead of hardcoding credentials.
+<VersionBadge version="2.12.1" />
 
-<Info>
-  To use the registered Azure provider, you must set `FASTMCP_SERVER_AUTH=AZURE`. Learn more about [registered providers](/servers/auth/authentication#registered-providers).
-</Info>
+For production deployments, use environment variables instead of hardcoding credentials.
 
 ### Provider Selection
 
-<ParamField path="FASTMCP_SERVER_AUTH" default="Not set" required>
-  Set to `AZURE` to use the registered AzureProvider with default configuration.
-</ParamField>
+Setting this environment variable allows the Azure provider to be used automatically without explicitly instantiating it in code.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
+    Set to `fastmcp.server.auth.providers.azure.AzureProvider` to use Azure authentication.
+  </ParamField>
+</Card>
 
 ### Azure-Specific Configuration
+
+These environment variables provide default values for the Azure provider, whether it's instantiated manually or configured via `FASTMCP_SERVER_AUTH`.
 
 <Card>
   <ParamField path="FASTMCP_SERVER_AUTH_AZURE_CLIENT_ID" required>
@@ -6757,8 +6749,8 @@ For production deployments, use environment variables instead of hardcoding cred
 Example `.env` file:
 
 ```bash
-# Use the registered Azure provider
-FASTMCP_SERVER_AUTH=AZURE
+# Use the Azure provider
+FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.azure.AzureProvider
 
 # Azure OAuth credentials
 FASTMCP_SERVER_AUTH_AZURE_CLIENT_ID=835f09b6-0f0f-40cc-85cb-f32c5829a149
@@ -7525,7 +7517,7 @@ fastmcp install cursor server.py:my_custom_server
 
 After running the command, Cursor will open automatically and prompt you to install the server. The command will be `uv`, which is expected as this is a Python STDIO server. Click "Install" to confirm:
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8197a500c8f76d9a64a399541671daf3" alt="Cursor install prompt" width="1398" height="524" data-path="integrations/cursor-install-mcp.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=280&maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=d3bbcc9b31bae39e1848ed8c645060f6 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=560&maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0dbed5f70d558bb270b18fe85456dac2 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=840&maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=f40b945854c3e47a7c3b25af961aaff4 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=1100&maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=1f2fe5f3887afe514122f063adf2180d 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=1650&maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=68ff041fd9885a7fcbadbb03feaed4e0 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=2500&maxW=1398&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e92501799076de818a7ab675986ab4fc 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=524b16a4ed31599989789b8063fa86a8" alt="Cursor install prompt" width="1398" height="524" data-path="integrations/cursor-install-mcp.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=32e45ab0cb22dc2ff073a2369ea65ed7 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=423ccbfaefd0fc241fa5ac57b39dc9f1 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=668b24b85af77d5a7a3f9b2ef0bf37a3 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fdb22f3c83905ad7a7e9315fd5077bf4 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a628fac233d4c07a136460ac5c66cc72 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/cursor-install-mcp.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e6276625a98fb60726f83c09dd212243 2500w" data-optimize="true" data-opv="2" />
 
 #### Dependencies
 
@@ -8567,19 +8559,23 @@ When you run the client for the first time:
 
 ## Environment Variables
 
-For production deployments, use environment variables instead of hardcoding credentials.
+<VersionBadge version="2.12.1" />
 
-<Info>
-  To use the registered GitHub provider, you must set `FASTMCP_SERVER_AUTH=GITHUB`. Learn more about [registered providers](/servers/auth/authentication#registered-providers).
-</Info>
+For production deployments, use environment variables instead of hardcoding credentials.
 
 ### Provider Selection
 
-<ParamField path="FASTMCP_SERVER_AUTH" default="Not set" required>
-  Set to `GITHUB` to use the registered GitHubProvider with default configuration.
-</ParamField>
+Setting this environment variable allows the GitHub provider to be used automatically without explicitly instantiating it in code.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
+    Set to `fastmcp.server.auth.providers.github.GitHubProvider` to use GitHub authentication.
+  </ParamField>
+</Card>
 
 ### GitHub-Specific Configuration
+
+These environment variables provide default values for the GitHub provider, whether it's instantiated manually or configured via `FASTMCP_SERVER_AUTH`.
 
 <Card>
   <ParamField path="FASTMCP_SERVER_AUTH_GITHUB_CLIENT_ID" required>
@@ -8610,8 +8606,8 @@ For production deployments, use environment variables instead of hardcoding cred
 Example `.env` file:
 
 ```bash
-# Use the registered GitHub provider
-FASTMCP_SERVER_AUTH=GITHUB
+# Use the GitHub provider
+FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.github.GitHubProvider
 
 # GitHub OAuth credentials
 FASTMCP_SERVER_AUTH_GITHUB_CLIENT_ID=Ov23liAbcDefGhiJkLmN
@@ -8794,19 +8790,23 @@ When you run the client for the first time:
 
 ## Environment Variables
 
-For production deployments, use environment variables instead of hardcoding credentials.
+<VersionBadge version="2.12.1" />
 
-<Info>
-  To use the registered Google provider, you must set `FASTMCP_SERVER_AUTH=GOOGLE`. Learn more about [registered providers](/servers/auth/authentication#registered-providers).
-</Info>
+For production deployments, use environment variables instead of hardcoding credentials.
 
 ### Provider Selection
 
-<ParamField path="FASTMCP_SERVER_AUTH" default="Not set" required>
-  Set to `GOOGLE` to use the registered GoogleProvider with default configuration.
-</ParamField>
+Setting this environment variable allows the Google provider to be used automatically without explicitly instantiating it in code.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
+    Set to `fastmcp.server.auth.providers.google.GoogleProvider` to use Google authentication.
+  </ParamField>
+</Card>
 
 ### Google-Specific Configuration
+
+These environment variables provide default values for the Google provider, whether it's instantiated manually or configured via `FASTMCP_SERVER_AUTH`.
 
 <Card>
   <ParamField path="FASTMCP_SERVER_AUTH_GOOGLE_CLIENT_ID" required>
@@ -8837,8 +8837,8 @@ For production deployments, use environment variables instead of hardcoding cred
 Example `.env` file:
 
 ```bash
-# Use the registered Google provider
-FASTMCP_SERVER_AUTH=GOOGLE
+# Use the Google provider
+FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.google.GoogleProvider
 
 # Google OAuth credentials
 FASTMCP_SERVER_AUTH_GOOGLE_CLIENT_ID=123456789.apps.googleusercontent.com
@@ -10046,14 +10046,14 @@ The middleware automatically maps MCP methods to Permit.io resources and actions
   * **Resource**: `{server_name}` (e.g., `myserver`)
   * **Action**: The tool name (e.g., `greet`)
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=5ccabc55c368cd189cb551cdac7fa035" alt="Permit.io Policy Mapping Example" width="373" height="323" data-path="integrations/images/permit/policy_mapping.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=280&maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e55433ddab5e35ced4855385f90cbc0e 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=560&maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=2dd405e00cb868709112678544de8291 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=840&maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=d38c52c4521339e5de1997b32c806b63 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=1100&maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=07f27bbf94827d259e45210b238014ad 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=1650&maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=defef9a97f52ca0649bf6d4a72350e49 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=2500&maxW=373&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ad38a7a7a8ba5acc69f6138e71cff8f3 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=29e09fd3ceacd3aa8b1881eedb0a9d90" alt="Permit.io Policy Mapping Example" width="373" height="323" data-path="integrations/images/permit/policy_mapping.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8ec7dff29770f7df4a9257327a6a4176 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fee4adecb3303a718225921120c5656a 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=163d699bc4374faed40ee47ab6f5e8dd 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=36370ff5f7a098112d37e8d941e110e2 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8a365f6dcc906dcaa98986799fb8d286 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/policy_mapping.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3d63db0c6eb48d7273886d6e60562dcf 2500w" data-optimize="true" data-opv="2" />
 
 *Example: In Permit.io, the 'Admin' role is granted permissions on resources and actions as mapped by the middleware. For example, 'greet', 'greet-jwt', and 'login' are actions on the 'mcp\_server' resource, and 'list' is an action on the 'mcp\_server\_tools' resource.*
 
 > **Note:**
 > Don't forget to assign the relevant role (e.g., Admin, User) to the user authenticating to your MCP server (such as the user in the JWT) in the Permit.io Directory. Without the correct role assignment, users will not have access to the resources and actions you've configured in your policies.
 >
-> <img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fdf46a6750c79c817ca6a3b76a9a9976" alt="Permit.io Directory Role Assignment Example" width="1219" height="591" data-path="integrations/images/permit/role_assignement.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=280&maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c25c2699b922ef785358709eb56de009 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=560&maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=06d8949c5b7032688c4e447691bc59d4 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=840&maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ae411a2d808da5db4182e44360a2beea 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=1100&maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b8bf9c9f07185a963a379115ded9e1a7 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=1650&maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3bde6e9d5da91c2e77984935693cbc4f 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=2500&maxW=1219&auto=format&n=hUosZw7ujHZFemrG&q=85&s=b4da68fff17b5bdf275215956cbf4b10 2500w" data-optimize="true" data-opv="2" />
+> <img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=62f385a65b62cad9769e2b81e14902c2" alt="Permit.io Directory Role Assignment Example" width="1219" height="591" data-path="integrations/images/permit/role_assignement.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=34a5807d1f518d6720a338c0f3529bfd 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e42d26f0f8b4e56c306f5f6734c6af57 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0dcf730386f3b2d607a7fd47417499b3 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c847113737c1450e21d8e0aaeebfde5b 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e3dcaf7e852836bfea8bfe4d12b7f4dc 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/role_assignement.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=5d777def3f457fa6a45310bfc738fa21 2500w" data-optimize="true" data-opv="2" />
 >
 > *Example: In Permit.io Directory, both 'client' and 'admin' users are assigned the 'Admin' role, granting them the permissions defined in your policy mapping.*
 
@@ -10243,7 +10243,7 @@ mcp.add_middleware(PermitMcpMiddleware(
 
 The middleware supports Attribute-Based Access Control (ABAC) policies that can evaluate tool arguments as attributes. Tool arguments are automatically flattened as individual attributes (e.g., `arg_name`, `arg_number`) for granular policy conditions.
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=42ae19faaa6d2f5bb274fb671c9734b3" alt="ABAC Condition Example" width="1139" height="879" data-path="integrations/images/permit/abac_condition_example.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=280&maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=7e31f63a6a95b6661d4f1fd90425ea9e 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=560&maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=31fd50805e0d1274dc17e81780c4978f 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=840&maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a226f9fea86e7d6252f4ce79a0651d12 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=1100&maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=7eb8373251c7a88fafb89ce07772a093 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=1650&maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=7d8788bfbba1530aea331db73c888466 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=2500&maxW=1139&auto=format&n=hUosZw7ujHZFemrG&q=85&s=9707cf05b5f23ca9bfd24b7073ca4806 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e93d0547b6d75a207d453bb205412f01" alt="ABAC Condition Example" width="1139" height="879" data-path="integrations/images/permit/abac_condition_example.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=f40eab738c0b4e5728548376430a7724 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=f61a698e928e44acdf4a33905f7c2b8f 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8c8be9114c76efb4f3fcf56d3f93e7e1 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c9a9034e76004e6eee5719680a848330 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=9ce3b4112313a213c4381924e3033388 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_condition_example.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=60cc0c603a799b08af8b685ba61d74c7 2500w" data-optimize="true" data-opv="2" />
 
 *Example: Create dynamic resources with conditions like `resource.arg_number greater-than 10` to allow the `conditional-greet` tool only when the number argument exceeds 10.*
 
@@ -10258,7 +10258,7 @@ def conditional_greet(name: str, number: int) -> str:
     return f"Hello, {name}! Your number is {number}"
 ```
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4388c9191053626e0aaa5f1c1e6d4e8c" alt="ABAC Policy Example" width="553" height="394" data-path="integrations/images/permit/abac_policy_example.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=280&maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fb7e4ce988ccc7dc2a7ce628b80b527c 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=560&maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=39557a5df32beeb84571250ec65a4b4a 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=840&maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=5e093131c2efb6888e1639d6d99867b1 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=1100&maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=78b06f864799285c720406a822f7deef 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=1650&maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=769a851591cc4bfa16dee68f7d70aa4e 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=2500&maxW=553&auto=format&n=hUosZw7ujHZFemrG&q=85&s=9e872eb08e450af7f1ed82598bbad4b2 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ee7f1f8bfba6ad2954d3c17143755a04" alt="ABAC Policy Example" width="553" height="394" data-path="integrations/images/permit/abac_policy_example.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=e3d743b71c5d1c9e00dbebfab707e31d 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0f874948094dd304bcddf4a7d248afa6 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=59b0396315b015d2adb53e9c0f7e928d 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fc314925801180838a21b0216c1df8b3 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0d4f26facfe6db899d9d4b954b5480a4 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/integrations/images/permit/abac_policy_example.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3bd2f827d71c48a49b1ffb40f42ebdfb 2500w" data-optimize="true" data-opv="2" />
 
 *Example: The Admin role is granted access to the "conditional-greet" action on the "Big-greets" dynamic resource, while other tools like "greet", "greet-jwt", and "login" are granted on the base "mcp\_server" resource.*
 
@@ -10515,21 +10515,23 @@ When you run the client for the first time:
 
 ## Environment Variables
 
-For production deployments, use environment variables instead of hardcoding credentials. These variables provide default values when instantiating `WorkOSProvider()`.
+<VersionBadge version="2.12.1" />
 
-<Info>
-  Setting `FASTMCP_SERVER_AUTH=WORKOS` automatically provisions WorkOS as the default auth provider for all FastMCP servers. This is optional - you can still manually instantiate `WorkOSProvider()` without it. Learn more about [registered providers](/servers/auth/authentication#registered-providers).
-</Info>
+For production deployments, use environment variables instead of hardcoding credentials.
 
-### Automatic Provider Selection (Optional)
+### Provider Selection
+
+Setting this environment variable allows the WorkOS provider to be used automatically without explicitly instantiating it in code.
 
 <Card>
   <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
-    Set to `WORKOS` to automatically provision WorkOS authentication for FastMCP servers without explicitly passing an auth parameter.
+    Set to `fastmcp.server.auth.providers.workos.WorkOSProvider` to use WorkOS authentication.
   </ParamField>
 </Card>
 
 ### WorkOS-Specific Configuration
+
+These environment variables provide default values for the WorkOS provider, whether it's instantiated manually or configured via `FASTMCP_SERVER_AUTH`.
 
 <Card>
   <ParamField path="FASTMCP_SERVER_AUTH_WORKOS_CLIENT_ID" required>
@@ -10572,7 +10574,7 @@ FASTMCP_SERVER_AUTH_WORKOS_BASE_URL=https://your-server.com
 FASTMCP_SERVER_AUTH_WORKOS_REQUIRED_SCOPES=["openid","profile","email"]
 
 # Optional: Automatically provision WorkOS auth for all servers
-FASTMCP_SERVER_AUTH=WORKOS
+FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.workos.WorkOSProvider
 ```
 
 With environment variables set, you can either:
@@ -10588,7 +10590,7 @@ auth = WorkOSProvider()  # Uses env var defaults
 mcp = FastMCP(name="WorkOS Protected Server", auth=auth)
 ```
 
-**Option 2: Automatic provisioning (requires FASTMCP\_SERVER\_AUTH=WORKOS)**
+**Option 2: Automatic provisioning (requires FASTMCP\_SERVER\_AUTH=fastmcp.server.auth.providers.workos.WorkOSProvider)**
 
 ```python server.py
 from fastmcp import FastMCP
@@ -13411,7 +13413,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-client-elicitation
 
 ## Functions
 
-### `create_elicitation_callback` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/elicitation.py#L36" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_elicitation_callback` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/elicitation.py#L37" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_elicitation_callback(elicitation_handler: ElicitationHandler) -> ElicitationFnT
@@ -13419,7 +13421,7 @@ create_elicitation_callback(elicitation_handler: ElicitationHandler) -> Elicitat
 
 ## Classes
 
-### `ElicitResult` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/elicitation.py#L21" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ElicitResult` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/elicitation.py#L22" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 
 # logging
@@ -14931,11 +14933,11 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-auth
 
 ## Classes
 
-### `AccessToken` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L28" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AccessToken` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L36" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 AccessToken that includes all JWT claims.
 
-### `AuthProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L34" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L42" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Base class for all FastMCP authentication providers.
 
@@ -14946,7 +14948,7 @@ custom authentication routes.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L56" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L69" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -14964,10 +14966,10 @@ All auth providers must implement token verification.
 
 * AccessToken object if valid, None if invalid or expired
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L69" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L82" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-get_routes(self) -> list[Route]
+get_routes(self, mcp_path: str | None = None, mcp_endpoint: Any | None = None) -> list[Route]
 ```
 
 Get the routes for this authentication provider.
@@ -14979,19 +14981,28 @@ Each provider is responsible for creating whatever routes it needs:
 * OAuthProvider: full OAuth authorization server routes
 * Custom providers: whatever routes they need
 
+**Args:**
+
+* `mcp_path`: The path where the MCP endpoint is mounted (e.g., "/mcp")
+* `mcp_endpoint`: The MCP endpoint handler to protect with auth
+
 **Returns:**
 
-* List of routes for this provider
+* List of routes for this provider, including protected MCP endpoints if provided
 
-#### `get_resource_metadata_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L83" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L122" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-get_resource_metadata_url(self) -> AnyHttpUrl | None
+get_middleware(self) -> list
 ```
 
-Get the resource metadata URL for RFC 9728 compliance.
+Get HTTP application-level middleware for this auth provider.
 
-### `TokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L96" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+**Returns:**
+
+* List of Starlette Middleware instances to apply to the HTTP app
+
+### `TokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L154" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Base class for token verifiers (Resource Servers).
 
@@ -15000,7 +15011,7 @@ Token verifiers typically don't provide authentication routes by default.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L120" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L175" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15008,7 +15019,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify a bearer token and return access info if valid.
 
-### `RemoteAuthProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L125" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `RemoteAuthProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L180" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Authentication provider for resource servers that verify tokens from known authorization servers.
 
@@ -15024,7 +15035,7 @@ the authorization servers that issue valid tokens.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L221" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15032,19 +15043,17 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify token using the configured token verifier.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L167" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L225" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-get_routes(self) -> list[Route]
+get_routes(self, mcp_path: str | None = None, mcp_endpoint: Any | None = None) -> list[Route]
 ```
 
 Get OAuth routes for this provider.
 
-By default, returns only the standardized OAuth 2.0 Protected Resource routes.
-Subclasses can override this method to add additional routes by calling
-super().get\_routes() and extending the returned list.
+Creates protected resource metadata routes and optionally wraps MCP endpoints with auth.
 
-### `OAuthProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L184" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuthProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L255" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth Authorization Server provider.
 
@@ -15053,7 +15062,7 @@ authorization flows, token issuance, and token verification.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L251" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L311" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15072,10 +15081,10 @@ to our existing load\_access\_token method.
 
 * AccessToken object if valid, None if invalid or expired
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L266" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/auth.py#L326" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-get_routes(self) -> list[Route]
+get_routes(self, mcp_path: str | None = None, mcp_endpoint: Any | None = None) -> list[Route]
 ```
 
 Get OAuth authorization server routes and optional protected resource routes.
@@ -15083,7 +15092,8 @@ Get OAuth authorization server routes and optional protected resource routes.
 This method creates the full set of OAuth routes including:
 
 * Standard OAuth authorization server routes (/.well-known/oauth-authorization-server, /authorize, /token, etc.)
-* Optional protected resource routes if resource\_server\_url is configured
+* Optional protected resource routes
+* Protected MCP endpoints if provided
 
 **Returns:**
 
@@ -15273,7 +15283,7 @@ Handles provider-specific requirements:
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L330" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L325" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
@@ -15289,7 +15299,7 @@ authenticate with different dynamic ports on reconnection. This
 handles the case where a client with cached tokens reconnects
 on a different port.
 
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L363" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L358" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 register_client(self, client_info: OAuthClientInformationFull) -> None
@@ -15316,7 +15326,7 @@ The flow:
 3. We store this flexible client for future authentications
 4. When client reconnects with a different port, ProxyDCRClient accepts it
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L422" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L417" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -15330,7 +15340,7 @@ This implements the DCR-compliant proxy pattern:
 2. Use transaction ID as state for IdP
 3. Redirect to IdP with our fixed callback URL
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L478" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L480" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
@@ -15341,7 +15351,7 @@ Load authorization code for validation.
 Look up our client code and return authorization code object
 with PKCE challenge for validation.
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L520" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L522" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
@@ -15352,7 +15362,7 @@ Exchange authorization code for stored IdP tokens.
 For the DCR-compliant proxy flow, we return the IdP tokens that were obtained
 during the IdP callback exchange. PKCE validation is handled by the MCP framework.
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L587" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L589" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
@@ -15360,7 +15370,7 @@ load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str)
 
 Load refresh token from local storage.
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L595" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L597" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
@@ -15368,7 +15378,7 @@ exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: 
 
 Exchange refresh token for new access token using authlib.
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L670" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L672" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_access_token(self, token: str) -> AccessToken | None
@@ -15379,7 +15389,7 @@ Validate access token using upstream JWKS.
 Delegates to the JWT verifier which handles signature validation,
 expiration checking, and claims validation using the upstream JWKS.
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L687" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L689" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -15390,16 +15400,21 @@ Revoke token locally and with upstream server if supported.
 Removes tokens from local storage and attempts to revoke them with
 the upstream server if a revocation endpoint is configured.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L880" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L733" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-get_routes(self) -> list[Route]
+get_routes(self, mcp_path: str | None = None, mcp_endpoint: Any | None = None) -> list[Route]
 ```
 
 Get OAuth routes with custom proxy token handler.
 
 This method creates standard OAuth routes and replaces the token endpoint
 with our proxy handler that forwards requests to the upstream OAuth server.
+
+**Args:**
+
+* `mcp_path`: The path where the MCP endpoint is mounted (e.g., "/mcp")
+* `mcp_endpoint`: The MCP endpoint handler to protect with auth
 
 
 # __init__
@@ -15426,11 +15441,11 @@ using the OAuth Proxy pattern for non-DCR OAuth flows.
 
 ## Classes
 
-### `AzureProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L23" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AzureProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L22" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Settings for Azure OAuth provider.
 
-### `AzureTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L48" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AzureTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L46" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for Azure OAuth tokens.
 
@@ -15439,7 +15454,7 @@ to get user information and validate the token.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L70" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15447,7 +15462,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify Azure OAuth token by calling Microsoft Graph API.
 
-### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L120" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L117" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Azure (Microsoft Entra) OAuth provider for FastMCP.
 
@@ -15513,11 +15528,11 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 ## Classes
 
-### `GitHubProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L39" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L38" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Settings for GitHub OAuth provider.
 
-### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L61" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for GitHub OAuth tokens.
 
@@ -15526,7 +15541,7 @@ by calling GitHub's API to check if they're valid and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L85" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L83" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15534,7 +15549,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify GitHub OAuth token by calling GitHub API.
 
-### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L169" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L166" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete GitHub OAuth provider for FastMCP.
 
@@ -15580,11 +15595,11 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 ## Classes
 
-### `GoogleProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L41" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L40" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Settings for Google OAuth provider.
 
-### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L65" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for Google OAuth tokens.
 
@@ -15593,7 +15608,7 @@ by calling Google's tokeninfo API to check if they're valid and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L87" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L85" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15601,7 +15616,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify Google OAuth token by calling Google's tokeninfo API.
 
-### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L185" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L182" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete Google OAuth provider for FastMCP.
 
@@ -15633,19 +15648,19 @@ It simulates the OAuth 2.1 flow locally without external calls.
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L65" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
 ```
 
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L70" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 register_client(self, client_info: OAuthClientInformationFull) -> None
 ```
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L78" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L76" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -15654,37 +15669,37 @@ authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams)
 Simulates user authorization and generates an authorization code.
 Returns a redirect URI with the code and state.
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L131" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
 ```
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L144" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L142" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
 ```
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L195" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L193" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
 ```
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L210" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L208" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
 ```
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L265" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L263" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_access_token(self, token: str) -> AccessToken | None
 ```
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L276" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L274" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15703,7 +15718,7 @@ to our existing load\_access\_token method.
 
 * AccessToken object if valid, None if invalid or expired
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L333" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/in_memory.py#L331" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -15723,21 +15738,21 @@ TokenVerifier implementations for FastMCP.
 
 ## Classes
 
-### `JWKData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JWKData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L26" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 JSON Web Key data structure.
 
-### `JWKSData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L40" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JWKSData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L39" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 JSON Web Key Set data structure.
 
-### `RSAKeyPair` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L47" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `RSAKeyPair` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L46" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 RSA key pair for JWT testing.
 
 **Methods:**
 
-#### `generate` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L54" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `generate` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L53" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 generate(cls) -> RSAKeyPair
@@ -15749,7 +15764,7 @@ Generate an RSA key pair for testing.
 
 * Generated key pair
 
-#### `create_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L89" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `create_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L88" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_token(self, subject: str = 'fastmcp-user', issuer: str = 'https://fastmcp.example.com', audience: str | list[str] | None = None, scopes: list[str] | None = None, expires_in_seconds: int = 3600, additional_claims: dict[str, Any] | None = None, kid: str | None = None) -> str
@@ -15767,11 +15782,11 @@ Generate a test JWT token for testing purposes.
 * `additional_claims`: Any additional claims to include
 * `kid`: Key ID to include in header
 
-### `JWTVerifierSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L142" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JWTVerifierSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L141" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Settings for JWT token verification.
 
-### `JWTVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L166" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JWTVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L164" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 JWT token verifier supporting both asymmetric (RSA/ECDSA) and symmetric (HMAC) algorithms.
 
@@ -15793,7 +15808,7 @@ Use this when:
 
 **Methods:**
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L366" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_access_token(self, token: str) -> AccessToken | None
@@ -15809,7 +15824,7 @@ Validates the provided JWT bearer token.
 
 * AccessToken object if valid, None if invalid or expired
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L470" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L468" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15828,7 +15843,7 @@ to our existing load\_access\_token method.
 
 * AccessToken object if valid, None if invalid or expired
 
-### `StaticTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L486" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `StaticTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L484" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Simple static token verifier for testing and development.
 
@@ -15848,7 +15863,7 @@ WARNING: Never use this in production - tokens are stored in plain text!
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L520" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/jwt.py#L518" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 verify_token(self, token: str) -> AccessToken | None
@@ -15875,7 +15890,7 @@ Choose based on your WorkOS setup and authentication requirements.
 
 ## Classes
 
-### `WorkOSProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L30" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L31" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Settings for WorkOS OAuth provider.
 
@@ -15896,7 +15911,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify WorkOS OAuth token by calling userinfo endpoint.
 
-### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L128" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L127" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete WorkOS OAuth provider for FastMCP.
 
@@ -15917,9 +15932,9 @@ Setup Requirements:
 3. Configure redirect URI as: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback)
 4. Note your Client ID and Client Secret
 
-### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L267" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L260" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L285" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L277" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 AuthKit metadata provider for DCR (Dynamic Client Registration).
 
@@ -15943,16 +15958,21 @@ For detailed setup instructions, see:
 
 **Methods:**
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L360" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
-get_routes(self) -> list[Route]
+get_routes(self, mcp_path: str | None = None, mcp_endpoint: Any | None = None) -> list[Route]
 ```
 
 Get OAuth routes including AuthKit authorization server metadata forwarding.
 
 This returns the standard protected resource routes plus an authorization server
 metadata endpoint that forwards AuthKit's OAuth metadata to clients.
+
+**Args:**
+
+* `mcp_path`: The path where the MCP endpoint is mounted (e.g., "/mcp")
+* `mcp_endpoint`: The MCP endpoint handler to protect with auth
 
 
 # redirect_validation
@@ -16010,50 +16030,6 @@ Validate a redirect URI against allowed patterns.
 * True if the redirect URI is allowed
 
 
-# registry
-Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-registry
-
-
-
-# `fastmcp.server.auth.registry`
-
-Provider registry for FastMCP auth providers.
-
-## Functions
-
-### `register_provider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/registry.py#L19" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-register_provider(name: str) -> Callable[[type[T]], type[T]]
-```
-
-Decorator to register an auth provider with a given name.
-
-**Args:**
-
-* `name`: The name to register the provider under (e.g., 'AUTHKIT')
-
-**Returns:**
-
-* The decorated class
-
-### `get_registered_provider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/registry.py#L41" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python
-get_registered_provider(name: str) -> type[AuthProvider]
-```
-
-Get a registered provider by name.
-
-**Args:**
-
-* `name`: The provider name (case-insensitive)
-
-**Returns:**
-
-* The provider class if found, None otherwise
-
-
 # context
 Source: https://gofastmcp.com/python-sdk/fastmcp-server-context
 
@@ -16063,7 +16039,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-context
 
 ## Functions
 
-### `set_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `set_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L69" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_context(context: Context) -> Generator[Context, None, None]
@@ -16071,14 +16047,14 @@ set_context(context: Context) -> Generator[Context, None, None]
 
 ## Classes
 
-### `LogData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L56" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `LogData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L57" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Data object for passing log arguments to client-side handlers.
 
 This provides an interface to match the Python standard library logging,
 for compatibility with structured logging.
 
-### `Context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L77" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L78" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Context object providing access to MCP capabilities.
 
@@ -16124,7 +16100,7 @@ The context is optional - tools that don't need it can omit the parameter.
 
 **Methods:**
 
-#### `fastmcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `fastmcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L130" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 fastmcp(self) -> FastMCP
@@ -16132,7 +16108,7 @@ fastmcp(self) -> FastMCP
 
 Get the FastMCP instance.
 
-#### `request_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L158" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `request_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L159" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 request_context(self) -> RequestContext[ServerSession, Any, Request]
@@ -16142,7 +16118,7 @@ Access to the underlying request context.
 
 If called outside of a request context, this will raise a ValueError.
 
-#### `report_progress` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L168" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `report_progress` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L169" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 report_progress(self, progress: float, total: float | None = None, message: str | None = None) -> None
@@ -16155,7 +16131,7 @@ Report progress for the current operation.
 * `progress`: Current progress value e.g. 24
 * `total`: Optional total value e.g. 100
 
-#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L195" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L196" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 read_resource(self, uri: str | AnyUrl) -> list[ReadResourceContents]
@@ -16171,7 +16147,7 @@ Read a resource by URI.
 
 * The resource content as either text or bytes
 
-#### `log` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L208" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `log` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L209" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 log(self, message: str, level: LoggingLevel | None = None, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -16187,7 +16163,7 @@ Send a log message to the client.
 * `logger_name`: Optional logger name
 * `extra`: Optional mapping for additional arguments
 
-#### `client_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L235" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `client_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L236" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 client_id(self) -> str | None
@@ -16195,7 +16171,7 @@ client_id(self) -> str | None
 
 Get the client ID if available.
 
-#### `request_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L244" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `request_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L245" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 request_id(self) -> str
@@ -16203,7 +16179,7 @@ request_id(self) -> str
 
 Get the unique ID for this request.
 
-#### `session_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L249" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `session_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L250" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 session_id(self) -> str
@@ -16220,7 +16196,7 @@ the same client session.
 * The session ID for StreamableHTTP transports, or a generated ID
 * for other transports.
 
-#### `session` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L293" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `session` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L294" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 session(self) -> ServerSession
@@ -16228,7 +16204,7 @@ session(self) -> ServerSession
 
 Access to the underlying session for advanced usage.
 
-#### `debug` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L298" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `debug` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L299" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 debug(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -16236,7 +16212,7 @@ debug(self, message: str, logger_name: str | None = None, extra: Mapping[str, An
 
 Send a debug log message.
 
-#### `info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L309" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L310" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 info(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -16244,7 +16220,7 @@ info(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any
 
 Send an info log message.
 
-#### `warning` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L320" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `warning` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L321" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 warning(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -16252,7 +16228,7 @@ warning(self, message: str, logger_name: str | None = None, extra: Mapping[str, 
 
 Send a warning log message.
 
-#### `error` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L331" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `error` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L332" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 error(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -16260,7 +16236,7 @@ error(self, message: str, logger_name: str | None = None, extra: Mapping[str, An
 
 Send an error log message.
 
-#### `list_roots` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L342" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_roots` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L343" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 list_roots(self) -> list[Root]
@@ -16268,7 +16244,7 @@ list_roots(self) -> list[Root]
 
 List the roots available to the server, as indicated by the client.
 
-#### `send_tool_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L347" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_tool_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L348" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 send_tool_list_changed(self) -> None
@@ -16276,7 +16252,7 @@ send_tool_list_changed(self) -> None
 
 Send a tool list changed notification to the client.
 
-#### `send_resource_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L351" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_resource_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L352" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 send_resource_list_changed(self) -> None
@@ -16284,7 +16260,7 @@ send_resource_list_changed(self) -> None
 
 Send a resource list changed notification to the client.
 
-#### `send_prompt_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_prompt_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L356" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 send_prompt_list_changed(self) -> None
@@ -16292,7 +16268,7 @@ send_prompt_list_changed(self) -> None
 
 Send a prompt list changed notification to the client.
 
-#### `sample` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L359" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `sample` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L360" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 sample(self, messages: str | list[str | SamplingMessage], system_prompt: str | None = None, include_context: IncludeContext | None = None, temperature: float | None = None, max_tokens: int | None = None, model_preferences: ModelPreferences | str | list[str] | None = None) -> ContentBlock
@@ -16304,25 +16280,25 @@ Call this method at any time to have the server request an LLM
 completion from the client. The client must be appropriately configured,
 or the request will error.
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L443" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L444" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 elicit(self, message: str, response_type: None) -> AcceptedElicitation[dict[str, Any]] | DeclinedElicitation | CancelledElicitation
 ```
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L455" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L456" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 elicit(self, message: str, response_type: type[T]) -> AcceptedElicitation[T] | DeclinedElicitation | CancelledElicitation
 ```
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L465" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L466" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 elicit(self, message: str, response_type: list[str]) -> AcceptedElicitation[str] | DeclinedElicitation | CancelledElicitation
 ```
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L474" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L475" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 elicit(self, message: str, response_type: type[T] | list[str] | None = None) -> AcceptedElicitation[T] | AcceptedElicitation[dict[str, Any]] | AcceptedElicitation[str] | DeclinedElicitation | CancelledElicitation
@@ -16351,7 +16327,7 @@ Clients must send an empty object ("{}")in response.
   type or dataclass or BaseModel. If it is a primitive type, an
   object schema with a single "value" field will be generated.
 
-#### `get_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L567" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L568" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_http_request(self) -> Request
@@ -16359,7 +16335,7 @@ get_http_request(self) -> Request
 
 Get the active starlette request.
 
-#### `set_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L582" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L583" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_state(self, key: str, value: Any) -> None
@@ -16367,7 +16343,7 @@ set_state(self, key: str, value: Any) -> None
 
 Set a value in the context state.
 
-#### `get_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L586" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L587" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_state(self, key: str) -> Any
@@ -16385,19 +16361,19 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-dependencies
 
 ## Functions
 
-### `get_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L30" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `get_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_context() -> Context
 ```
 
-### `get_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L42" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `get_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L39" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_http_request() -> Request
 ```
 
-### `get_http_headers` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L56" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `get_http_headers` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L53" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_http_headers(include_all: bool = False) -> dict[str, str]
@@ -16411,7 +16387,7 @@ an empty dict is returned).
 By default, strips problematic headers like `content-length` that cause issues if forwarded to downstream clients.
 If `include_all` is True, all headers are returned.
 
-### `get_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L105" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `get_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/dependencies.py#L102" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_access_token() -> AccessToken | None
@@ -16433,7 +16409,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-elicitation
 
 ## Functions
 
-### `get_elicitation_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `get_elicitation_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L99" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_elicitation_schema(response_type: type[T]) -> dict[str, Any]
@@ -16445,7 +16421,7 @@ Get the schema for an elicitation response.
 
 * `response_type`: The type of the response
 
-### `validate_elicitation_json_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L117" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `validate_elicitation_json_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L118" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 validate_elicitation_json_schema(schema: dict[str, Any]) -> None
@@ -16471,7 +16447,7 @@ This ensures the schema is compatible with MCP elicitation requirements:
 
 ## Classes
 
-### `ElicitationJsonSchema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L31" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ElicitationJsonSchema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L32" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Custom JSON schema generator for MCP elicitation that always inlines enums.
 
@@ -16481,7 +16457,7 @@ Optionally adds enumNames for better UI display when available.
 
 **Methods:**
 
-#### `generate_inner` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L39" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `generate_inner` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L40" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 generate_inner(self, schema: core_schema.CoreSchema) -> JsonSchemaValue
@@ -16489,7 +16465,7 @@ generate_inner(self, schema: core_schema.CoreSchema) -> JsonSchemaValue
 
 Override to prevent ref generation for enums.
 
-#### `enum_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L49" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `enum_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L50" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 enum_schema(self, schema: core_schema.EnumSchema) -> JsonSchemaValue
@@ -16500,11 +16476,11 @@ Generate inline enum schema with optional enumNames for better UI.
 If enum members have a *display\_name* attribute or custom **str**,
 we'll include enumNames for better UI representation.
 
-### `AcceptedElicitation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L86" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AcceptedElicitation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L87" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Result when user accepts the elicitation.
 
-### `ScalarElicitationType` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L94" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ScalarElicitationType` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/elicitation.py#L95" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 
 # http
@@ -16516,13 +16492,13 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-http
 
 ## Functions
 
-### `set_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L80" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `set_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L74" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_http_request(request: Request) -> Generator[Request, None, None]
 ```
 
-### `create_base_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L104" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_base_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_base_app(routes: list[BaseRoute], middleware: list[Middleware], debug: bool = False, lifespan: Callable | None = None) -> StarletteWithLifespan
@@ -16541,7 +16517,7 @@ Create a base Starlette app with common middleware and routes.
 
 * A Starlette application
 
-### `create_sse_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L132" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_sse_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L126" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_sse_app(server: FastMCP[LifespanResultT], message_path: str, sse_path: str, auth: AuthProvider | None = None, debug: bool = False, routes: list[BaseRoute] | None = None, middleware: list[Middleware] | None = None) -> StarletteWithLifespan
@@ -16562,7 +16538,7 @@ Return an instance of the SSE server app.
 Returns:
 A Starlette application with RequestContextMiddleware
 
-### `create_streamable_http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L251" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_streamable_http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L231" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 create_streamable_http_app(server: FastMCP[LifespanResultT], streamable_http_path: str, event_store: EventStore | None = None, auth: AuthProvider | None = None, json_response: bool = False, stateless_http: bool = False, debug: bool = False, routes: list[BaseRoute] | None = None, middleware: list[Middleware] | None = None) -> StarletteWithLifespan
@@ -16588,21 +16564,21 @@ Return an instance of the StreamableHTTP server app.
 
 ## Classes
 
-### `StreamableHTTPASGIApp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L35" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `StreamableHTTPASGIApp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L29" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ASGI application wrapper for Streamable HTTP server transport.
 
-### `StarletteWithLifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L73" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `StarletteWithLifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L75" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L69" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 lifespan(self) -> Lifespan[Starlette]
 ```
 
-### `RequestContextMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L88" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `RequestContextMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/http.py#L82" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Middleware that stores each request in a ContextVar
 
@@ -17407,7 +17383,7 @@ FastMCP - A more ergonomic interface for MCP servers.
 
 ## Functions
 
-### `default_lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L99" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `default_lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 default_lifespan(server: FastMCP[LifespanResultT]) -> AsyncIterator[Any]
@@ -17423,7 +17399,7 @@ Default lifespan context manager that does nothing.
 
 * An empty context object
 
-### `add_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2223" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `add_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2222" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_resource_prefix(uri: str, prefix: str, prefix_format: Literal['protocol', 'path'] | None = None) -> str
@@ -17467,7 +17443,7 @@ add_resource_prefix("resource:///absolute/path", "prefix")
 
 * `ValueError`: If the URI doesn't match the expected protocol://path format
 
-### `remove_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2283" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `remove_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2282" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 remove_resource_prefix(uri: str, prefix: str, prefix_format: Literal['protocol', 'path'] | None = None) -> str
@@ -17511,7 +17487,7 @@ remove_resource_prefix("resource://prefix//absolute/path", "prefix")
 
 * `ValueError`: If the URI doesn't match the expected protocol://path format
 
-### `has_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2350" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `has_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2349" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 has_resource_prefix(uri: str, prefix: str, prefix_format: Literal['protocol', 'path'] | None = None) -> bool
@@ -17557,35 +17533,35 @@ False
 
 ## Classes
 
-### `FastMCP` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L130" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `FastMCP` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L315" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L314" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 settings(self) -> Settings
 ```
 
-#### `name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L326" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L325" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 name(self) -> str
 ```
 
-#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L330" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L329" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 instructions(self) -> str | None
 ```
 
-#### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L334" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L333" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 version(self) -> str | None
 ```
 
-#### `run_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L337" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L336" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_async(self, transport: Transport | None = None, show_banner: bool = True, **transport_kwargs: Any) -> None
@@ -17597,7 +17573,7 @@ Run the FastMCP server asynchronously.
 
 * `transport`: Transport protocol to use ("stdio", "sse", or "streamable-http")
 
-#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L367" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L366" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run(self, transport: Transport | None = None, show_banner: bool = True, **transport_kwargs: Any) -> None
@@ -17609,13 +17585,13 @@ Run the FastMCP server. Note this is a synchronous function.
 
 * `transport`: Transport protocol to use ("stdio", "sse", or "streamable-http")
 
-#### `add_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L409" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L408" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_middleware(self, middleware: Middleware) -> None
 ```
 
-#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L412" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L411" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tools(self) -> dict[str, Tool]
@@ -17623,13 +17599,13 @@ get_tools(self) -> dict[str, Tool]
 
 Get all registered tools, indexed by registered key.
 
-#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L416" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L415" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tool(self, key: str) -> Tool
 ```
 
-#### `get_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L422" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L421" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_resources(self) -> dict[str, Resource]
@@ -17637,13 +17613,13 @@ get_resources(self) -> dict[str, Resource]
 
 Get all registered resources, indexed by registered key.
 
-#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L426" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L425" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_resource(self, key: str) -> Resource
 ```
 
-#### `get_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L432" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L431" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_resource_templates(self) -> dict[str, ResourceTemplate]
@@ -17651,7 +17627,7 @@ get_resource_templates(self) -> dict[str, ResourceTemplate]
 
 Get all registered resource templates, indexed by registered key.
 
-#### `get_resource_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L436" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L435" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_resource_template(self, key: str) -> ResourceTemplate
@@ -17659,7 +17635,7 @@ get_resource_template(self, key: str) -> ResourceTemplate
 
 Get a registered resource template by key.
 
-#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L443" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L442" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_prompts(self) -> dict[str, Prompt]
@@ -17667,13 +17643,13 @@ get_prompts(self) -> dict[str, Prompt]
 
 List all available prompts.
 
-#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L449" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L448" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_prompt(self, key: str) -> Prompt
 ```
 
-#### `custom_route` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L455" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `custom_route` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L454" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 custom_route(self, path: str, methods: list[str], name: str | None = None, include_in_schema: bool = True) -> Callable[[Callable[[Request], Awaitable[Response]]], Callable[[Request], Awaitable[Response]]]
@@ -17694,7 +17670,7 @@ Request and returns a Response.
   Starlette's reverse URL lookup feature)
 * `include_in_schema`: Whether to include in OpenAPI schema, defaults to True
 
-#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L857" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L856" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_tool(self, tool: Tool) -> Tool
@@ -17713,7 +17689,7 @@ with the Context type annotation. See the @tool decorator for examples.
 
 * The tool instance that was added to the server.
 
-#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L882" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L881" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 remove_tool(self, name: str) -> None
@@ -17729,7 +17705,7 @@ Remove a tool from the server.
 
 * `NotFoundError`: If the tool is not found
 
-#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L902" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L901" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfig) -> None
@@ -17737,7 +17713,7 @@ add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfi
 
 Add a tool transformation.
 
-#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L908" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L907" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 remove_tool_transformation(self, tool_name: str) -> None
@@ -17745,19 +17721,19 @@ remove_tool_transformation(self, tool_name: str) -> None
 
 Remove a tool transformation.
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L913" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L912" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 tool(self, name_or_fn: AnyFunction) -> FunctionTool
 ```
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L929" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L928" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 tool(self, name_or_fn: str | None = None) -> Callable[[AnyFunction], FunctionTool]
 ```
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L944" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L943" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 tool(self, name_or_fn: str | AnyFunction | None = None) -> Callable[[AnyFunction], FunctionTool] | FunctionTool
@@ -17815,7 +17791,7 @@ def my_tool(x: int) -> str:
 server.tool(my_function, name="custom_name")
 ```
 
-#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1075" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1074" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_resource(self, resource: Resource) -> Resource
@@ -17831,7 +17807,7 @@ Add a resource to the server.
 
 * The resource instance that was added to the server.
 
-#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1097" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1096" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_template(self, template: ResourceTemplate) -> ResourceTemplate
@@ -17847,7 +17823,7 @@ Add a resource template to the server.
 
 * The template instance that was added to the server.
 
-#### `add_resource_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1119" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1118" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_resource_fn(self, fn: AnyFunction, uri: str, name: str | None = None, description: str | None = None, mime_type: str | None = None, tags: set[str] | None = None) -> None
@@ -17867,7 +17843,7 @@ has parameters, it will be registered as a template resource.
 * `mime_type`: Optional MIME type for the resource
 * `tags`: Optional set of tags for categorizing the resource
 
-#### `resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1157" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1156" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 resource(self, uri: str) -> Callable[[AnyFunction], Resource | ResourceTemplate]
@@ -17929,7 +17905,7 @@ async def get_weather(city: str) -> str:
     return f"Weather for {city}: {data}"
 ```
 
-#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1294" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1293" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 add_prompt(self, prompt: Prompt) -> Prompt
@@ -17945,19 +17921,19 @@ Add a prompt to the server.
 
 * The prompt instance that was added to the server.
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1317" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1316" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 prompt(self, name_or_fn: AnyFunction) -> FunctionPrompt
 ```
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1330" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1329" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 prompt(self, name_or_fn: str | None = None) -> Callable[[AnyFunction], FunctionPrompt]
 ```
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1342" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1341" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 prompt(self, name_or_fn: str | AnyFunction | None = None) -> Callable[[AnyFunction], FunctionPrompt] | FunctionPrompt
@@ -18035,7 +18011,7 @@ def another_prompt(data: str) -> list[Message]:
 server.prompt(my_function, name="custom_name")
 ```
 
-#### `run_stdio_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1483" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_stdio_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1482" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_stdio_async(self, show_banner: bool = True) -> None
@@ -18043,7 +18019,7 @@ run_stdio_async(self, show_banner: bool = True) -> None
 
 Run the server using stdio transport.
 
-#### `run_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1503" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1502" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_http_async(self, show_banner: bool = True, transport: Literal['http', 'streamable-http', 'sse'] = 'http', host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None, middleware: list[ASGIMiddleware] | None = None, stateless_http: bool | None = None) -> None
@@ -18062,7 +18038,7 @@ Run the server using HTTP transport.
 * `middleware`: A list of middleware to apply to the app
 * `stateless_http`: Whether to use stateless HTTP (defaults to settings.stateless\_http)
 
-#### `run_sse_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1577" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_sse_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1576" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_sse_async(self, host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None) -> None
@@ -18070,7 +18046,7 @@ run_sse_async(self, host: str | None = None, port: int | None = None, log_level:
 
 Run the server using SSE transport.
 
-#### `sse_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1605" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `sse_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1604" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 sse_app(self, path: str | None = None, message_path: str | None = None, middleware: list[ASGIMiddleware] | None = None) -> StarletteWithLifespan
@@ -18084,7 +18060,7 @@ Create a Starlette app for the SSE server.
 * `message_path`: The path to the message endpoint
 * `middleware`: A list of middleware to apply to the app
 
-#### `streamable_http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1636" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `streamable_http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1635" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 streamable_http_app(self, path: str | None = None, middleware: list[ASGIMiddleware] | None = None) -> StarletteWithLifespan
@@ -18097,7 +18073,7 @@ Create a Starlette app for the StreamableHTTP server.
 * `path`: The path to the StreamableHTTP endpoint
 * `middleware`: A list of middleware to apply to the app
 
-#### `http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1657" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1656" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 http_app(self, path: str | None = None, middleware: list[ASGIMiddleware] | None = None, json_response: bool | None = None, stateless_http: bool | None = None, transport: Literal['http', 'streamable-http', 'sse'] = 'http') -> StarletteWithLifespan
@@ -18115,13 +18091,13 @@ Create a Starlette app using the specified HTTP transport.
 
 * A Starlette application configured with the specified transport
 
-#### `run_streamable_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1706" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_streamable_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1705" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 run_streamable_http_async(self, host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None) -> None
 ```
 
-#### `mount` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1731" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `mount` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1730" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 mount(self, server: FastMCP[LifespanResultT], prefix: str | None = None, as_proxy: bool | None = None) -> None
@@ -18177,7 +18153,7 @@ There are two modes for mounting servers:
 * `resource_separator`: Deprecated. Separator character for resource URIs.
 * `prompt_separator`: Deprecated. Separator character for prompt names.
 
-#### `import_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1853" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `import_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1852" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 import_server(self, server: FastMCP[LifespanResultT], prefix: str | None = None, tool_separator: str | None = None, resource_separator: str | None = None, prompt_separator: str | None = None) -> None
@@ -18219,7 +18195,7 @@ templates, and prompts are imported with their original names.
   applied using the protocol://prefix/path format
 * `prompt_separator`: Deprecated. Separator for prompt names.
 
-#### `from_openapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1982" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_openapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1981" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 from_openapi(cls, openapi_spec: dict[str, Any], client: httpx.AsyncClient, route_maps: list[RouteMap] | list[RouteMapNew] | None = None, route_map_fn: OpenAPIRouteMapFn | OpenAPIRouteMapFnNew | None = None, mcp_component_fn: OpenAPIComponentFn | OpenAPIComponentFnNew | None = None, mcp_names: dict[str, str] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI | FastMCPOpenAPINew
@@ -18227,7 +18203,7 @@ from_openapi(cls, openapi_spec: dict[str, Any], client: httpx.AsyncClient, route
 
 Create a FastMCP server from an OpenAPI specification.
 
-#### `from_fastapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2031" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_fastapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2030" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 from_fastapi(cls, app: Any, name: str | None = None, route_maps: list[RouteMap] | list[RouteMapNew] | None = None, route_map_fn: OpenAPIRouteMapFn | OpenAPIRouteMapFnNew | None = None, mcp_component_fn: OpenAPIComponentFn | OpenAPIComponentFnNew | None = None, mcp_names: dict[str, str] | None = None, httpx_client_kwargs: dict[str, Any] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI | FastMCPOpenAPINew
@@ -18235,7 +18211,7 @@ from_fastapi(cls, app: Any, name: str | None = None, route_maps: list[RouteMap] 
 
 Create a FastMCP server from a FastAPI application.
 
-#### `as_proxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2094" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `as_proxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2093" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 as_proxy(cls, backend: Client[ClientTransportT] | ClientTransport | FastMCP[Any] | AnyUrl | Path | MCPConfig | dict[str, Any] | str, **settings: Any) -> FastMCPProxy
@@ -18248,7 +18224,7 @@ instance or any value accepted as the `transport` argument of
 `fastmcp.client.Client`. This mirrors the convenience of the
 `fastmcp.client.Client` constructor.
 
-#### `from_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2155" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2154" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 from_client(cls, client: Client[ClientTransportT], **settings: Any) -> FastMCPProxy
@@ -18256,13 +18232,13 @@ from_client(cls, client: Client[ClientTransportT], **settings: Any) -> FastMCPPr
 
 Create a FastMCP proxy server from a FastMCP client.
 
-#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2207" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2206" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 generate_name(cls, name: str | None = None) -> str
 ```
 
-### `MountedServer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2217" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `MountedServer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2216" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 
 # settings
@@ -20254,47 +20230,55 @@ Authentication providers are instantiated directly in your code with their requi
 
 ### Environment Configuration
 
+<VersionBadge version="2.12.1" />
+
 Environment-based configuration separates authentication settings from application code, enabling the same codebase to work across different deployment environments without modification.
 
 FastMCP automatically detects authentication configuration from environment variables when no explicit `auth` parameter is provided. The configuration system supports all authentication providers and their various options.
 
-#### Registered Providers
+#### Provider Configuration
 
-FastMCP includes pre-configured providers for popular OAuth services that can be activated with a single environment variable:
+Authentication providers are configured by specifying the full module path to the provider class:
 
 <ParamField path="FASTMCP_SERVER_AUTH" type="string">
-  The authentication provider to use. Supported values:
+  The full module path to the authentication provider class. Examples:
 
-  * `GITHUB` - GitHub OAuth (requires additional GitHub-specific env vars)
-  * `GOOGLE` - Google OAuth (requires additional Google-specific env vars)
-  * `JWT` - JWT token verification
-  * `WORKOS` - WorkOS AuthKit
-  * Custom provider class names
+  * `fastmcp.server.auth.providers.github.GitHubProvider` - GitHub OAuth
+  * `fastmcp.server.auth.providers.google.GoogleProvider` - Google OAuth
+  * `fastmcp.server.auth.providers.jwt.JWTVerifier` - JWT token verification
+  * `fastmcp.server.auth.providers.workos.WorkOSProvider` - WorkOS OAuth
+  * `fastmcp.server.auth.providers.workos.AuthKitProvider` - WorkOS AuthKit
+  * `mycompany.auth.CustomProvider` - Your custom provider class
 </ParamField>
 
-When using registered providers like GitHub or Google, you'll need to set provider-specific environment variables:
+When using providers like GitHub or Google, you'll need to set provider-specific environment variables:
 
 ```bash
 # GitHub OAuth
-export FASTMCP_SERVER_AUTH=GITHUB
+export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.github.GitHubProvider
 export FASTMCP_SERVER_AUTH_GITHUB_CLIENT_ID="Ov23li..."
 export FASTMCP_SERVER_AUTH_GITHUB_CLIENT_SECRET="github_pat_..."
 
 # Google OAuth
-export FASTMCP_SERVER_AUTH=GOOGLE
+export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.google.GoogleProvider
 export FASTMCP_SERVER_AUTH_GOOGLE_CLIENT_ID="123456.apps.googleusercontent.com"
 export FASTMCP_SERVER_AUTH_GOOGLE_CLIENT_SECRET="GOCSPX-..."
 ```
 
-#### Custom Provider Configuration
+#### Provider-Specific Configuration
 
-For providers that aren't pre-registered, specify the provider class and its configuration:
+Each provider has its own configuration options set through environment variables:
 
 ```bash
-export FASTMCP_SERVER_AUTH=JWT
+# JWT Token Verification
+export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.jwt.JWTVerifier
 export FASTMCP_SERVER_AUTH_JWT_JWKS_URI="https://auth.example.com/jwks"
 export FASTMCP_SERVER_AUTH_JWT_ISSUER="https://auth.example.com"
 export FASTMCP_SERVER_AUTH_JWT_AUDIENCE="mcp-server"
+
+# Custom Provider
+export FASTMCP_SERVER_AUTH=mycompany.auth.CustomProvider
+# Plus any environment variables your custom provider expects
 ```
 
 With these environment variables set, creating an authenticated FastMCP server requires no additional configuration:
@@ -20731,10 +20715,6 @@ The `OAuthProxy` class provides the complete proxy implementation:
     Optional URL to your service documentation
   </ParamField>
 
-  <ParamField body="resource_server_url" type="AnyHttpUrl | str | None">
-    Path of the FastMCP server (defaults to base\_url). **Important**: This should point to your MCP endpoint path. For example, if your MCP server is accessible at `{base_url}/mcp`, specify `https://your-server.com/mcp` here for proper RFC 8707 compliance.
-  </ParamField>
-
   <ParamField body="allowed_client_redirect_uris" type="list[str] | None">
     List of allowed redirect URI patterns for MCP clients. Patterns support wildcards (e.g., `"http://localhost:*"`, `"https://*.example.com/*"`).
 
@@ -20803,9 +20783,7 @@ auth = OAuthProxy(
     
     # Optional: customize callback path (defaults to "/auth/callback")
     redirect_path="/auth/callback",
-    
-    # Optional: specify MCP endpoint path if different from base_url
-    # resource_server_url="https://your-server.com/mcp"
+
 )
 
 mcp = FastMCP(name="My Server", auth=auth)
@@ -20922,29 +20900,25 @@ For providers without built-in support, implement a [`TokenVerifier`](/servers/a
 
 ## Environment Configuration
 
-OAuth Proxy supports environment-based configuration for production deployments:
+<VersionBadge version="2.12.1" />
+
+OAuth Proxy-based providers support environment-based configuration for production deployments. Use the specific provider implementations rather than the base OAuth Proxy class:
 
 ```bash
-# Provider selection
-export FASTMCP_SERVER_AUTH=OAUTH_PROXY
+# Use a specific provider implementation
+export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.github.GitHubProvider
+# or
+export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.google.GoogleProvider
+# or your custom OAuth Proxy implementation
+export FASTMCP_SERVER_AUTH=mycompany.auth.CustomOAuthProvider
 
-# OAuth endpoints
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_UPSTREAM_AUTHORIZATION_ENDPOINT="https://github.com/login/oauth/authorize"
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_UPSTREAM_TOKEN_ENDPOINT="https://github.com/login/oauth/access_token"
-
-# Credentials (use secrets management in production)
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_UPSTREAM_CLIENT_ID="Ov23li..."
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_UPSTREAM_CLIENT_SECRET="abc123..."
-
-# Token validation
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_TOKEN_VERIFIER="JWT"
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_JWKS_URI="https://provider.com/.well-known/jwks.json"
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_ISSUER="https://provider.com"
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_AUDIENCE="your-app-id"
-
-# Server URL
-export FASTMCP_SERVER_AUTH_OAUTH_PROXY_BASE_URL="https://your-server.com"
+# Provider-specific configuration (example for GitHub)
+export FASTMCP_SERVER_AUTH_GITHUB_CLIENT_ID="Ov23li..."
+export FASTMCP_SERVER_AUTH_GITHUB_CLIENT_SECRET="abc123..."
+export FASTMCP_SERVER_AUTH_GITHUB_BASE_URL="https://your-server.com"
 ```
+
+For custom OAuth Proxy implementations, configure the environment variables based on your provider's settings class.
 
 With environment variables configured, your code becomes:
 
@@ -21074,7 +21048,7 @@ token_verifier = JWTVerifier(
 auth = RemoteAuthProvider(
     token_verifier=token_verifier,
     authorization_servers=[AnyHttpUrl("https://auth.yourcompany.com")],
-    resource_server_url="https://api.yourcompany.com/mcp",  # Point to your MCP endpoint
+    base_url="https://api.yourcompany.com",  # Your server base URL
     # Optional: customize allowed client redirect URIs (defaults to localhost only)
     allowed_client_redirect_uris=["http://localhost:*", "http://127.0.0.1:*"]
 )
@@ -21084,7 +21058,7 @@ mcp = FastMCP(name="Company API", auth=auth)
 
 This configuration creates a server that accepts tokens issued by `auth.yourcompany.com` and provides the OAuth discovery metadata that MCP clients need. The `JWTVerifier` handles token validation using your identity provider's public keys, while the `RemoteAuthProvider` generates the required OAuth endpoints.
 
-The `authorization_servers` list tells MCP clients which identity providers you trust. The `resource_server_url` identifies your server in OAuth metadata, enabling proper token audience validation. **Important**: The `resource_server_url` should point to your actual MCP endpoint - for example, if your MCP server is accessible at `https://api.yourcompany.com/mcp`, use that full path rather than just the base URL.
+The `authorization_servers` list tells MCP clients which identity providers you trust. The `base_url` identifies your server in OAuth metadata, enabling proper token audience validation. **Important**: The `base_url` should point to your server base URL - for example, if your MCP server is accessible at `https://api.yourcompany.com/mcp`, use `https://api.yourcompany.com` as the base URL.
 
 ### Custom Endpoints
 
@@ -21106,7 +21080,7 @@ class CompanyAuthProvider(RemoteAuthProvider):
         super().__init__(
             token_verifier=token_verifier,
             authorization_servers=[AnyHttpUrl("https://auth.yourcompany.com")],
-            resource_server_url="https://api.yourcompany.com/mcp"  # Your MCP endpoint path
+            base_url="https://api.yourcompany.com"  # Your server base URL
         )
     
     def get_routes(self) -> list[Route]:
@@ -21402,13 +21376,15 @@ This pattern enables comprehensive testing of JWT validation logic without depen
 
 ## Environment Configuration
 
+<VersionBadge version="2.12.1" />
+
 FastMCP supports both programmatic and environment-based configuration for token verification, enabling flexible deployment across different environments.
 
 Environment-based configuration separates authentication settings from application code, following twelve-factor app principles and simplifying deployment pipelines.
 
 ```bash
 # Enable JWT verification
-export FASTMCP_SERVER_AUTH=JWT
+export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.jwt.JWTVerifier
 
 # For asymmetric verification with JWKS endpoint:
 export FASTMCP_SERVER_AUTH_JWT_JWKS_URI="https://auth.company.com/.well-known/jwks.json"
@@ -27124,7 +27100,7 @@ python api_client.py
 
 You should see a list of generated tools (`get_users`, `get_user_by_id`) and the result of calling the `get_user_by_id` tool, which fetches data from the live JSONPlaceholder API.
 
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4cd188ea1548daf5336fc3e620e1ed72" alt="" width="2448" height="2667" data-path="assets/images/tutorial-rest-api-result.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=280&maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=9a2b7b8ee23094f5544dca25d0732db8 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=560&maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=26d537b2b69b69affdafdbe17d543698 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=840&maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=720f0cf02af60df63d625cd584a31e68 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=1100&maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=74002572838c05db88d7ee8018684589 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=1650&maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=a289a9cb7336434b0679a981c8ccda8a 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=2500&maxW=2448&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4108f8d616f05b76d396db0b23ccb9a4 2500w" data-optimize="true" data-opv="2" />
+<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=26b18dbf2cc2591003bb8d56fa0ddd86" alt="" width="2448" height="2667" data-path="assets/images/tutorial-rest-api-result.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=13d5aa5d39f1173dc7ba197c91ca959a 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=06c52599492000a5a570d9263e3cb346 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8099f710074f3d9873a51593c4dd0413 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3db37fd0d17c449c38c47137b7aadfc0 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=1bfeebbe8edd59193f6f1fa4dae5519e 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c30c361f7bc87e6080731cde360ea28f 2500w" data-optimize="true" data-opv="2" />
 
 ## Step 4: Customizing Route Maps
 
@@ -27236,7 +27212,7 @@ Source: https://gofastmcp.com/updates
 </Update>
 
 <Update label="FastMCP 2.7" description="June 6, 2025" tags={["Releases"]}>
-  <Card title="FastMCP 2.7: Pare Programming" href="https://github.com/jlowin/fastmcp/releases/tag/v2.7.0" img="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=fc8e8fdef6419879e20b2a629c7245b0" cta="Read the release notes" width="1536" height="768" data-path="assets/updates/release-2-7.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=280&maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0209e4b232c4a8c72b18a31189bb0f56 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=560&maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=0de33647adbb323663c0611d74b3100e 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=840&maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=f4cc039f26fd99c3ae6e3ae38c1a103f 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=1100&maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=4c716529b5e2e195251b1814a2ce8cc5 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=1650&maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=d9f5551be13f2a72c8156277df37c101 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=2500&maxW=1536&auto=format&n=hUosZw7ujHZFemrG&q=85&s=6157d01991dafd5da354a149350431ec 2500w" data-optimize="true" data-opv="2">
+  <Card title="FastMCP 2.7: Pare Programming" href="https://github.com/jlowin/fastmcp/releases/tag/v2.7.0" img="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=20d59e8a64fc284178c5e5ecf581a816" cta="Read the release notes" width="1536" height="768" data-path="assets/updates/release-2-7.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=6d22dcaa872f3ce687ae9d8bd865e595 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=2393896ee5101c0e06a85305ef58a96f 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ce29487fff4f19b7d1df348be7d48cd5 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ba687b05dc5fae86850b1a97992eddd8 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=ea4653b2502dcb210d567b4786b9d3a8 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/updates/release-2-7.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c5a12ba96fb8eabe2efe085ce4586be6 2500w" data-optimize="true" data-opv="2">
     FastMCP 2.7 has been released!
 
     Most notably, it introduces the highly requested (and Pythonic) "naked" decorator usage:
