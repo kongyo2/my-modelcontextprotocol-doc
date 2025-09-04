@@ -3,59 +3,205 @@ Source: https://gofastmcp.com/changelog
 
 
 
-<Update label="v2.12.0" description="2025-08-31">
-  **[v2.12.0: Auth to the Races](https://github.com/jlowin/fastmcp/releases/tag/v2.12.0)**
+<Update label="v2.12.2" description="2025-09-03">
+  **[v2.12.2: Perchance to Stream](https://github.com/jlowin/fastmcp/releases/tag/v2.12.2)**
 
-  This release introduces major authentication and configuration enhancements that make FastMCP more accessible and powerful for developers working with various identity providers and deployment scenarios.
+  This is a hotfix for a bug where the `streamable-http` transport was not recognized as a valid option in `fastmcp.json` configuration files, despite being supported by the CLI. This resulted in a parsing error when the CLI arguments were merged against the configuration spec.
 
-  ## OAuth Proxy: Broader Provider Support
+  ## What's Changed
 
-  The OAuth Proxy bridges the gap for authentication providers that don't support Dynamic Client Registration (DCR), a requirement for standard MCP OAuth flows. This feature enables seamless integration with major platforms that previously required complex workarounds.
+  ### Fixes 🐞
 
-  **Native integrations now available:**
+  * Fix streamable-http transport validation in fastmcp.json config by [@jlowin](https://github.com/jlowin) in [#1739](https://github.com/jlowin/fastmcp/pull/1739)
 
-  * GitHub
-  * Google
-  * WorkOS
-  * Azure
+  **Full Changelog**: [v2.12.1...v2.12.2](https://github.com/jlowin/fastmcp/compare/v2.12.1...v2.12.2)
+</Update>
 
-  With the OAuth Proxy, you can authenticate users through these providers with minimal configuration, expanding the ecosystem of supported identity platforms and making FastMCP servers more accessible to enterprise environments.
+<Update label="v2.12.1" description="2025-09-03">
+  **[v2.12.1: OAuth to Joy](https://github.com/jlowin/fastmcp/releases/tag/v2.12.1)**
 
-  ## Declarative JSON Configuration
-
-  The new `fastmcp.json` configuration system establishes a single source of truth for server settings, replacing scattered configuration across multiple files and environment variables.
-
-  **Configure everything in one place:**
-
-  * Dependencies and requirements
-  * Transport settings
-  * Server entrypoints
-  * Metadata and descriptions
-  * Environment variables
-
-  This standardization not only simplifies deployment but also enables portable server descriptions that can be shared and reused across projects. The typed source system provides validation and autocompletion, reducing configuration errors.
-
-  ## Sampling API Fallback
-
-  Not all MCP clients support advanced features like the Sampling API for LLM completions. The new fallback mechanism solves this adoption challenge by allowing servers to generate sampling completions server-side when clients lack support.
-
-  This approach:
-
-  * Maintains compatibility with all clients
-  * Encourages feature adoption without breaking existing integrations
-  * Provides a smooth upgrade path as client capabilities evolve
+  FastMCP 2.12.1 strengthens the OAuth proxy implementation based on extensive community testing and feedback. This release improves client storage reliability, adds PKCE forwarding for enhanced security, introduces configurable token endpoint authentication methods, and expands scope handling—all addressing real-world integration challenges discovered since 2.12.0. The enhanced test suite with mock providers ensures these improvements are robust and maintainable.
 
   ## Breaking Changes
 
-  * The `inspect` command now provides structured output with format options for better integration with tooling
+  * **OAuth Proxy**: Users of built-in IDP integrations should note that `resource_server_url` has been renamed to `base_url` for clarity and consistency
 
-  ## Additional Enhancements
+  ## What's Changed
 
-  * Improved CLI configuration parsing with better error messages
-  * Support for multiple `--with-editable` flags for development workflows
-  * Comma-separated OAuth scope support for fine-grained permissions
-  * Configurable logging middleware for better debugging
-  * Support for importing custom route endpoints
+  ### Enhancements 🔧
+
+  * Make openai dependency optional by [@jlowin](https://github.com/jlowin) in [#1701](https://github.com/jlowin/fastmcp/pull/1701)
+  * Remove orphaned OAuth proxy code by [@jlowin](https://github.com/jlowin) in [#1722](https://github.com/jlowin/fastmcp/pull/1722)
+  * Expose valid scopes from OAuthProxy metadata by [@dmikusa](https://github.com/dmikusa) in [#1717](https://github.com/jlowin/fastmcp/pull/1717)
+  * OAuth proxy PKCE forwarding by [@jlowin](https://github.com/jlowin) in [#1733](https://github.com/jlowin/fastmcp/pull/1733)
+  * Add token\_endpoint\_auth\_method parameter to OAuthProxy by [@jlowin](https://github.com/jlowin) in [#1736](https://github.com/jlowin/fastmcp/pull/1736)
+  * Clean up and enhance OAuth proxy tests with mock provider by [@jlowin](https://github.com/jlowin) in [#1738](https://github.com/jlowin/fastmcp/pull/1738)
+
+  ### Fixes 🐞
+
+  * refactor: replace auth provider registry with ImportString by [@jlowin](https://github.com/jlowin) in [#1710](https://github.com/jlowin/fastmcp/pull/1710)
+  * Fix OAuth resource URL handling and WWW-Authenticate header by [@jlowin](https://github.com/jlowin) in [#1706](https://github.com/jlowin/fastmcp/pull/1706)
+  * Fix OAuth proxy client storage and add retry logic by [@jlowin](https://github.com/jlowin) in [#1732](https://github.com/jlowin/fastmcp/pull/1732)
+
+  ### Docs 📚
+
+  * Fix documentation: use StreamableHttpTransport for headers in testing by [@jlowin](https://github.com/jlowin) in [#1702](https://github.com/jlowin/fastmcp/pull/1702)
+  * docs: add performance warnings for mounted servers and proxies by [@strawgate](https://github.com/strawgate) in [#1669](https://github.com/jlowin/fastmcp/pull/1669)
+  * Update documentation around scopes for google by [@jlowin](https://github.com/jlowin) in [#1703](https://github.com/jlowin/fastmcp/pull/1703)
+  * Add deployment information to quickstart by [@seanpwlms](https://github.com/seanpwlms) in [#1433](https://github.com/jlowin/fastmcp/pull/1433)
+  * Update quickstart by [@jlowin](https://github.com/jlowin) in [#1728](https://github.com/jlowin/fastmcp/pull/1728)
+  * Add development docs for FastMCP by [@jlowin](https://github.com/jlowin) in [#1719](https://github.com/jlowin/fastmcp/pull/1719)
+
+  ### Other Changes 🦾
+
+  * Set generics without bounds to default=Any by [@strawgate](https://github.com/strawgate) in [#1648](https://github.com/jlowin/fastmcp/pull/1648)
+
+  ## New Contributors
+
+  * [@dmikusa](https://github.com/dmikusa) made their first contribution in [#1717](https://github.com/jlowin/fastmcp/pull/1717)
+  * [@seanpwlms](https://github.com/seanpwlms) made their first contribution in [#1433](https://github.com/jlowin/fastmcp/pull/1433)
+
+  **Full Changelog**: [v2.12.0...v2.12.1](https://github.com/jlowin/fastmcp/compare/v2.12.0...v2.12.1)
+</Update>
+
+<Update label="v2.12.0" description="2025-08-31">
+  **[v2.12.0: Auth to the Races](https://github.com/jlowin/fastmcp/releases/tag/v2.12.0)**
+
+  FastMCP 2.12 represents one of our most significant releases to date, both in scope and community involvement. After extensive testing and iteration with the community, we're shipping major improvements to authentication, configuration, and MCP feature adoption.
+
+  🔐 **OAuth Proxy for Broader Provider Support** addresses a fundamental challenge: while MCP requires Dynamic Client Registration (DCR), many popular OAuth providers don't support it. The new OAuth proxy bridges this gap, enabling FastMCP servers to authenticate with providers like GitHub, Google, WorkOS, and Azure through minimal configuration. These native integrations ship today, with more providers planned based on community needs.
+
+  📋 **Declarative JSON Configuration** introduces a standardized, portable way to describe and deploy MCP servers. The `fastmcp.json` configuration file becomes the single source of truth for dependencies, transport settings, entrypoints, and server metadata. This foundation sets the stage for future capabilities like transformations and remote sources, moving toward a world where MCP servers are as portable and shareable as container images.
+
+  🧠 **Sampling API Fallback** tackles the chicken-and-egg problem limiting adoption of advanced MCP features. Sampling—where servers request LLM completions from clients—is powerful but underutilized due to limited client support. FastMCP now lets server authors define fallback handlers that generate sampling completions server-side when clients don't support the feature, encouraging adoption while maintaining compatibility.
+
+  This release took longer than usual to ship, and for good reason: the community's aggressive testing and feedback on the authentication system helped us reach a level of stability we're confident in. There's certainly more work ahead, but these foundations position FastMCP to handle increasingly complex use cases while remaining approachable for developers.
+
+  Thank you to our new contributors and everyone who tested preview builds. Your feedback directly shaped these features.
+
+  ## What's Changed
+
+  ### New Features 🎉
+
+  * Add OAuth proxy that allows authentication with social IDPs without DCR support by [@jlowin](https://github.com/jlowin) in [#1434](https://github.com/jlowin/fastmcp/pull/1434)
+  * feat: introduce declarative JSON configuration system by [@jlowin](https://github.com/jlowin) in [#1517](https://github.com/jlowin/fastmcp/pull/1517)
+  * ✨ Fallback to a Completions API when Sampling is not available by [@strawgate](https://github.com/strawgate) in [#1145](https://github.com/jlowin/fastmcp/pull/1145)
+  * Implement typed source system for FastMCP declarative configuration by [@jlowin](https://github.com/jlowin) in [#1607](https://github.com/jlowin/fastmcp/pull/1607)
+
+  ### Enhancements 🔧
+
+  * Support importing custom\_route endpoints when mounting servers by [@jlowin](https://github.com/jlowin) in [#1470](https://github.com/jlowin/fastmcp/pull/1470)
+  * Remove unnecessary asserts by [@jlowin](https://github.com/jlowin) in [#1484](https://github.com/jlowin/fastmcp/pull/1484)
+  * Add Claude issue triage by [@jlowin](https://github.com/jlowin) in [#1510](https://github.com/jlowin/fastmcp/pull/1510)
+  * Inline dedupe prompt by [@jlowin](https://github.com/jlowin) in [#1512](https://github.com/jlowin/fastmcp/pull/1512)
+  * Improve stdio and mcp\_config clean-up by [@strawgate](https://github.com/strawgate) in [#1444](https://github.com/jlowin/fastmcp/pull/1444)
+  * involve kwargs to pass parameters on creating RichHandler for logging customization. by [@itaru2622](https://github.com/itaru2622) in [#1504](https://github.com/jlowin/fastmcp/pull/1504)
+  * Move SDK docs generation to post-merge workflow by [@jlowin](https://github.com/jlowin) in [#1513](https://github.com/jlowin/fastmcp/pull/1513)
+  * Improve label triage guidance by [@jlowin](https://github.com/jlowin) in [#1516](https://github.com/jlowin/fastmcp/pull/1516)
+  * Add code review guidelines for agents by [@jlowin](https://github.com/jlowin) in [#1520](https://github.com/jlowin/fastmcp/pull/1520)
+  * Remove trailing slash in unit tests by [@jlowin](https://github.com/jlowin) in [#1535](https://github.com/jlowin/fastmcp/pull/1535)
+  * Update OAuth callback UI branding by [@jlowin](https://github.com/jlowin) in [#1536](https://github.com/jlowin/fastmcp/pull/1536)
+  * Fix Marvin workflow to support development tools by [@jlowin](https://github.com/jlowin) in [#1537](https://github.com/jlowin/fastmcp/pull/1537)
+  * Add mounted\_components\_raise\_on\_load\_error setting for debugging by [@jlowin](https://github.com/jlowin) in [#1534](https://github.com/jlowin/fastmcp/pull/1534)
+  * feat: Add --workspace flag to fastmcp install cursor by [@jlowin](https://github.com/jlowin) in [#1522](https://github.com/jlowin/fastmcp/pull/1522)
+  * switch from `pyright` to `ty` by [@zzstoatzz](https://github.com/zzstoatzz) in [#1545](https://github.com/jlowin/fastmcp/pull/1545)
+  * feat: trigger Marvin workflow on PR body content by [@jlowin](https://github.com/jlowin) in [#1549](https://github.com/jlowin/fastmcp/pull/1549)
+  * Add WorkOS and Azure OAuth providers by [@jlowin](https://github.com/jlowin) in [#1550](https://github.com/jlowin/fastmcp/pull/1550)
+  * Adjust timeout for slow MCP Server shutdown test by [@strawgate](https://github.com/strawgate) in [#1561](https://github.com/jlowin/fastmcp/pull/1561)
+  * Update banner by [@jlowin](https://github.com/jlowin) in [#1567](https://github.com/jlowin/fastmcp/pull/1567)
+  * Added import of AuthProxy to auth **init** by [@KaliszS](https://github.com/KaliszS) in [#1568](https://github.com/jlowin/fastmcp/pull/1568)
+  * Add configurable redirect URI validation for OAuth providers by [@jlowin](https://github.com/jlowin) in [#1582](https://github.com/jlowin/fastmcp/pull/1582)
+  * Remove invalid-argument-type ignore and fix type errors by [@jlowin](https://github.com/jlowin) in [#1588](https://github.com/jlowin/fastmcp/pull/1588)
+  * Remove generate-schema from public CLI by [@jlowin](https://github.com/jlowin) in [#1591](https://github.com/jlowin/fastmcp/pull/1591)
+  * Skip flaky windows test / mulit-client garbage collection by [@jlowin](https://github.com/jlowin) in [#1592](https://github.com/jlowin/fastmcp/pull/1592)
+  * Add setting to disable logging configuration by [@isra17](https://github.com/isra17) in [#1575](https://github.com/jlowin/fastmcp/pull/1575)
+  * Improve debug logging for nested Servers / Clients by [@strawgate](https://github.com/strawgate) in [#1604](https://github.com/jlowin/fastmcp/pull/1604)
+  * Add GitHub pull request template by [@strawgate](https://github.com/strawgate) in [#1581](https://github.com/jlowin/fastmcp/pull/1581)
+  * chore: Automate docs and schema updates via PRs by [@jlowin](https://github.com/jlowin) in [#1611](https://github.com/jlowin/fastmcp/pull/1611)
+  * Experiment with haiku for limited workflows by [@jlowin](https://github.com/jlowin) in [#1613](https://github.com/jlowin/fastmcp/pull/1613)
+  * feat: Improve GitHub workflow automation for schema and SDK docs by [@jlowin](https://github.com/jlowin) in [#1615](https://github.com/jlowin/fastmcp/pull/1615)
+  * Consolidate server loading logic into FileSystemSource by [@jlowin](https://github.com/jlowin) in [#1614](https://github.com/jlowin/fastmcp/pull/1614)
+  * Prevent Haiku Marvin from commenting when there are no duplicates by [@jlowin](https://github.com/jlowin) in [#1622](https://github.com/jlowin/fastmcp/pull/1622)
+  * chore: Add clarifying note to automated PR bodies by [@jlowin](https://github.com/jlowin) in [#1623](https://github.com/jlowin/fastmcp/pull/1623)
+  * feat: introduce inline snapshots by [@strawgate](https://github.com/strawgate) in [#1605](https://github.com/jlowin/fastmcp/pull/1605)
+  * Improve fastmcp.json environment configuration and project-based deployments by [@jlowin](https://github.com/jlowin) in [#1631](https://github.com/jlowin/fastmcp/pull/1631)
+  * fix: allow passing query params in OAuthProxy upstream authorization url by [@danb27](https://github.com/danb27) in [#1630](https://github.com/jlowin/fastmcp/pull/1630)
+  * Support multiple --with-editable flags in CLI commands by [@jlowin](https://github.com/jlowin) in [#1634](https://github.com/jlowin/fastmcp/pull/1634)
+  * feat: support comma separated oauth scopes by [@jlowin](https://github.com/jlowin) in [#1642](https://github.com/jlowin/fastmcp/pull/1642)
+  * Add allowed\_client\_redirect\_uris to OAuth provider subclasses by [@jlowin](https://github.com/jlowin) in [#1662](https://github.com/jlowin/fastmcp/pull/1662)
+  * Consolidate CLI config parsing and prevent infinite loops by [@jlowin](https://github.com/jlowin) in [#1660](https://github.com/jlowin/fastmcp/pull/1660)
+  * Internal refactor: mcp server config by [@jlowin](https://github.com/jlowin) in [#1672](https://github.com/jlowin/fastmcp/pull/1672)
+  * Refactor Environment to support multiple runtime types by [@jlowin](https://github.com/jlowin) in [#1673](https://github.com/jlowin/fastmcp/pull/1673)
+  * Add type field to Environment base class by [@jlowin](https://github.com/jlowin) in [#1676](https://github.com/jlowin/fastmcp/pull/1676)
+
+  ### Fixes 🐞
+
+  * Fix breaking change: restore output\_schema=False compatibility by [@jlowin](https://github.com/jlowin) in [#1482](https://github.com/jlowin/fastmcp/pull/1482)
+  * Fix #1506: Update tool filtering documentation from \_meta to meta by [@maybenotconnor](https://github.com/maybenotconnor) in [#1511](https://github.com/jlowin/fastmcp/pull/1511)
+  * Fix pytest warnings by [@jlowin](https://github.com/jlowin) in [#1559](https://github.com/jlowin/fastmcp/pull/1559)
+  * nest schemas under assets by [@jlowin](https://github.com/jlowin) in [#1593](https://github.com/jlowin/fastmcp/pull/1593)
+  * Skip flaky windows test by [@jlowin](https://github.com/jlowin) in [#1596](https://github.com/jlowin/fastmcp/pull/1596)
+  * ACTUALLY move schemas to fastmcp.json by [@jlowin](https://github.com/jlowin) in [#1597](https://github.com/jlowin/fastmcp/pull/1597)
+  * Fix and centralize CLI path resolution by [@jlowin](https://github.com/jlowin) in [#1590](https://github.com/jlowin/fastmcp/pull/1590)
+  * Remove client info modifications by [@jlowin](https://github.com/jlowin) in [#1620](https://github.com/jlowin/fastmcp/pull/1620)
+  * Fix \$defs being discarded in input schema of transformed tool by [@pldesch-chift](https://github.com/pldesch-chift) in [#1578](https://github.com/jlowin/fastmcp/pull/1578)
+  * Fix enum elicitation to use inline schemas for MCP compatibility by [@jlowin](https://github.com/jlowin) in [#1632](https://github.com/jlowin/fastmcp/pull/1632)
+  * Reuse session for `StdioTransport` in `Client.new` by [@strawgate](https://github.com/strawgate) in [#1635](https://github.com/jlowin/fastmcp/pull/1635)
+  * Feat: Configurable LoggingMiddleware payload serialization by [@vl-kp](https://github.com/vl-kp) in [#1636](https://github.com/jlowin/fastmcp/pull/1636)
+  * Fix OAuth redirect URI validation for DCR compatibility by [@jlowin](https://github.com/jlowin) in [#1661](https://github.com/jlowin/fastmcp/pull/1661)
+  * Add default scope handling in OAuth proxy by [@romanusyk](https://github.com/romanusyk) in [#1667](https://github.com/jlowin/fastmcp/pull/1667)
+  * Fix OAuth token expiry handling by [@jlowin](https://github.com/jlowin) in [#1671](https://github.com/jlowin/fastmcp/pull/1671)
+  * Add resource\_server\_url parameter to OAuth proxy providers by [@jlowin](https://github.com/jlowin) in [#1682](https://github.com/jlowin/fastmcp/pull/1682)
+
+  ### Breaking Changes 🛫
+
+  * Enhance inspect command with structured output and format options by [@jlowin](https://github.com/jlowin) in [#1481](https://github.com/jlowin/fastmcp/pull/1481)
+
+  ### Docs 📚
+
+  * Update changelog by [@jlowin](https://github.com/jlowin) in [#1453](https://github.com/jlowin/fastmcp/pull/1453)
+  * Update banner by [@jlowin](https://github.com/jlowin) in [#1472](https://github.com/jlowin/fastmcp/pull/1472)
+  * Update logo files by [@jlowin](https://github.com/jlowin) in [#1473](https://github.com/jlowin/fastmcp/pull/1473)
+  * Update deployment docs by [@jlowin](https://github.com/jlowin) in [#1486](https://github.com/jlowin/fastmcp/pull/1486)
+  * Update FastMCP Cloud screenshot by [@jlowin](https://github.com/jlowin) in [#1487](https://github.com/jlowin/fastmcp/pull/1487)
+  * Update authentication note in docs by [@jlowin](https://github.com/jlowin) in [#1488](https://github.com/jlowin/fastmcp/pull/1488)
+  * chore: Update installation.mdx version snippet by [@thomas-te](https://github.com/thomas-te) in [#1496](https://github.com/jlowin/fastmcp/pull/1496)
+  * Update fastmcp cloud server requirements by [@jlowin](https://github.com/jlowin) in [#1497](https://github.com/jlowin/fastmcp/pull/1497)
+  * Fix oauth pyright type checking by [@strawgate](https://github.com/strawgate) in [#1498](https://github.com/jlowin/fastmcp/pull/1498)
+  * docs: Fix type annotation in return value documentation by [@MaikelVeen](https://github.com/MaikelVeen) in [#1499](https://github.com/jlowin/fastmcp/pull/1499)
+  * Fix PromptMessage usage in docs example by [@jlowin](https://github.com/jlowin) in [#1515](https://github.com/jlowin/fastmcp/pull/1515)
+  * Create CODE\_OF\_CONDUCT.md by [@jlowin](https://github.com/jlowin) in [#1523](https://github.com/jlowin/fastmcp/pull/1523)
+  * Fixed wrong import path in new docs page by [@KaliszS](https://github.com/KaliszS) in [#1538](https://github.com/jlowin/fastmcp/pull/1538)
+  * Document symmetric key JWT verification support by [@jlowin](https://github.com/jlowin) in [#1586](https://github.com/jlowin/fastmcp/pull/1586)
+  * Update fastmcp.json schema path by [@jlowin](https://github.com/jlowin) in [#1595](https://github.com/jlowin/fastmcp/pull/1595)
+
+  ### Dependencies 📦
+
+  * Bump actions/create-github-app-token from 1 to 2 by [@dependabot](https://github.com/dependabot)\[bot] in [#1436](https://github.com/jlowin/fastmcp/pull/1436)
+  * Bump astral-sh/setup-uv from 4 to 6 by [@dependabot](https://github.com/dependabot)\[bot] in [#1532](https://github.com/jlowin/fastmcp/pull/1532)
+  * Bump actions/checkout from 4 to 5 by [@dependabot](https://github.com/dependabot)\[bot] in [#1533](https://github.com/jlowin/fastmcp/pull/1533)
+
+  ### Other Changes 🦾
+
+  * Add dedupe workflow by [@jlowin](https://github.com/jlowin) in [#1454](https://github.com/jlowin/fastmcp/pull/1454)
+  * Update AGENTS.md by [@jlowin](https://github.com/jlowin) in [#1471](https://github.com/jlowin/fastmcp/pull/1471)
+  * Give Marvin the power of the Internet by [@strawgate](https://github.com/strawgate) in [#1475](https://github.com/jlowin/fastmcp/pull/1475)
+  * Update `just` error message for static checks by [@jlowin](https://github.com/jlowin) in [#1483](https://github.com/jlowin/fastmcp/pull/1483)
+  * Remove labeler by [@jlowin](https://github.com/jlowin) in [#1509](https://github.com/jlowin/fastmcp/pull/1509)
+  * update aproto server to handle rich links by [@zzstoatzz](https://github.com/zzstoatzz) in [#1556](https://github.com/jlowin/fastmcp/pull/1556)
+  * fix: enable triage bot for fork PRs using pull\_request\_target by [@jlowin](https://github.com/jlowin) in [#1557](https://github.com/jlowin/fastmcp/pull/1557)
+
+  ## New Contributors
+
+  * [@thomas-te](https://github.com/thomas-te) made their first contribution in [#1496](https://github.com/jlowin/fastmcp/pull/1496)
+  * [@maybenotconnor](https://github.com/maybenotconnor) made their first contribution in [#1511](https://github.com/jlowin/fastmcp/pull/1511)
+  * [@MaikelVeen](https://github.com/MaikelVeen) made their first contribution in [#1499](https://github.com/jlowin/fastmcp/pull/1499)
+  * [@KaliszS](https://github.com/KaliszS) made their first contribution in [#1538](https://github.com/jlowin/fastmcp/pull/1538)
+  * [@isra17](https://github.com/isra17) made their first contribution in [#1575](https://github.com/jlowin/fastmcp/pull/1575)
+  * [@marvin-context-protocol](https://github.com/marvin-context-protocol)\[bot] made their first contribution in [#1616](https://github.com/jlowin/fastmcp/pull/1616)
+  * [@pldesch-chift](https://github.com/pldesch-chift) made their first contribution in [#1578](https://github.com/jlowin/fastmcp/pull/1578)
+  * [@vl-kp](https://github.com/vl-kp) made their first contribution in [#1636](https://github.com/jlowin/fastmcp/pull/1636)
+  * [@romanusyk](https://github.com/romanusyk) made their first contribution in [#1667](https://github.com/jlowin/fastmcp/pull/1667)
 
   **Full Changelog**: [v2.11.3...v2.12.0](https://github.com/jlowin/fastmcp/compare/v2.11.3...v2.12.0)
 </Update>
@@ -4742,7 +4888,7 @@ MCP_AUTH_TOKEN=secret uvicorn app:app --host 0.0.0.0 --port 8000
 
 ## Testing Your Deployment
 
-Once your server is deployed, you'll need to verify it's accessible and functioning correctly. For comprehensive testing strategies including connectivity tests, client testing, and authentication testing, see the [Testing Your Server](/deployment/testing) guide.
+Once your server is deployed, you'll need to verify it's accessible and functioning correctly. For comprehensive testing strategies including connectivity tests, client testing, and authentication testing, see the [Testing Your Server](/development/tests) guide.
 
 ## Hosting Your Server
 
@@ -5434,53 +5580,452 @@ fastmcp run  # Automatically finds and uses fastmcp.json
 The configuration file approach provides better documentation, easier sharing, and consistent execution across different environments while maintaining the flexibility to override settings when needed.
 
 
-# Testing Your Server
-Source: https://gofastmcp.com/deployment/testing
+# Contributing
+Source: https://gofastmcp.com/development/contributing
 
-Unit test your MCP servers with the FastMCP Client's deterministic testing capabilities
+Development workflow for FastMCP contributors
 
-The [FastMCP Client](/clients/client) is a deterministic testing tool that gives you complete programmatic control over MCP server interactions. You call specific tools with exact arguments, verify responses, and test edge cases - making it ideal for unit testing your MCP servers.
+Contributing to FastMCP means joining a community that values clean, maintainable code and thoughtful API design. All contributions are valued - from fixing typos in documentation to implementing major features.
 
-## In-Memory Testing
+## Issues
 
-The FastMCP Client's standout feature is in-memory testing. Instead of deploying your server or managing network connections, you pass your server instance directly to the client. This creates a zero-overhead connection that runs entirely in memory.
+### Issue First, Code Second
 
-What makes this approach so powerful is that everything runs in the same Python process. You can set breakpoints anywhere - in your test code or inside your server handlers - and step through with your debugger. There's no server startup scripts, no port management, no cleanup between tests. Tests execute instantly without network overhead.
+**Every pull request requires a corresponding issue - no exceptions.** This requirement creates a collaborative space where approach, scope, and alignment are established before code is written. Issues serve as design documents where maintainers and contributors discuss implementation strategy, identify potential conflicts with existing patterns, and ensure proposed changes advance FastMCP's vision.
 
-```python
-from fastmcp import FastMCP, Client
+**FastMCP is an opinionated framework, not a kitchen sink.** The maintainers have strong beliefs about what FastMCP should and shouldn't do. Just because something takes N lines of code and you want it in fewer lines doesn't mean FastMCP should take on the maintenance burden or endorse that pattern. This is judged at the maintainers' discretion.
 
-# Create your server
-server = FastMCP("WeatherServer")
+Use issues to understand scope BEFORE opening PRs. The issue discussion determines whether a feature belongs in core, contrib, or not at all.
 
-@server.tool
-def get_temperature(city: str) -> dict:
-    """Get current temperature for a city"""
-    temps = {"NYC": 72, "LA": 85, "Chicago": 68}
-    return {"city": city, "temp": temps.get(city, 70)}
+### Writing Good Issues
 
-@server.resource("weather://forecast")
-def get_forecast() -> dict:
-    """Get 5-day forecast"""
-    return {"days": 5, "conditions": "sunny"}
+FastMCP is an extremely highly-trafficked repository maintained by a very small team. Issues that appear to transfer burden to maintainers without any effort to validate the problem will be closed. Please help the maintainers help you by always providing a minimal reproducible example and clearly describing the problem.
 
-async def test_weather_operations():
-    # Pass server directly - no deployment needed
-    async with Client(server) as client:
-        # Test tool execution
-        result = await client.call_tool("get_temperature", {"city": "NYC"})
-        assert result.data == {"city": "NYC", "temp": 72}
-        
-        # Test resource retrieval
-        forecast = await client.read_resource("weather://forecast")
-        assert forecast.contents[0].data == {"days": 5, "conditions": "sunny"}
+**LLM-generated issues will be closed immediately.** Issues that contain paragraphs of unnecessary explanation, verbose problem descriptions, or obvious LLM authorship patterns obfuscate the actual problem and transfer burden to maintainers.
+
+Write clear, concise issues that:
+
+* State the problem directly
+* Provide a minimal reproducible example
+* Skip unnecessary background or context
+* Take responsibility for clear communication
+
+Issues may be labeled "Invalid" simply due to confusion caused by verbosity or not adhering to the guidelines outlined here.
+
+## Pull Requests
+
+PRs that deviate from FastMCP's core principles will be rejected regardless of implementation quality. **PRs are NOT for iterating on ideas** - they should only be opened for ideas that already have a bias toward acceptance based on issue discussion.
+
+### Development Environment
+
+#### Installation
+
+To contribute to FastMCP, you'll need to set up a development environment with all necessary tools and dependencies.
+
+```bash
+# Clone the repository
+git clone https://github.com/jlowin/fastmcp.git
+cd fastmcp
+
+# Install all dependencies including dev tools
+uv sync
+
+# Install pre-commit hooks
+uv run pre-commit install
 ```
 
-The in-memory approach transforms MCP testing from a deployment challenge into standard unit testing. You focus on testing your server's behavior, not wrestling with infrastructure.
+In addition, some development commands require [just](https://github.com/casey/just) to be installed.
 
-## Testing with Frameworks
+Pre-commit hooks will run automatically on every commit to catch issues before they reach CI. If you see failures, fix them before committing - never commit broken code expecting to fix it later.
 
-The FastMCP Client works seamlessly with any Python testing framework. Whether you prefer pytest, unittest, or another framework, the pattern remains consistent: create a server, pass it to the client, and verify behavior.
+### Development Standards
+
+#### Scope
+
+Large pull requests create review bottlenecks and quality risks. Unless you're fixing a discrete bug or making an incredibly well-scoped change, keep PRs small and focused.
+
+A PR that changes 50 lines across 3 files can be thoroughly reviewed in minutes. A PR that changes 500 lines across 20 files requires hours of careful analysis and often hides subtle issues.
+
+Breaking large features into smaller PRs:
+
+* Creates better review experiences
+* Makes git history clear
+* Simplifies debugging with bisect
+* Reduces merge conflicts
+* Gets your code merged faster
+
+#### Code Quality
+
+FastMCP values clarity over cleverness. Every line you write will be maintained by someone else - possibly years from now, possibly without context about your decisions.
+
+**PRs can be rejected for two opposing reasons:**
+
+1. **Insufficient quality** - Code that doesn't meet our standards for clarity, maintainability, or idiomaticity
+2. **Overengineering** - Code that is overbearing, unnecessarily complex, or tries to be too clever
+
+The focus is on idiomatic, high-quality Python. FastMCP uses patterns like `NotSet` type as an alternative to `None` in certain situations - follow existing patterns.
+
+#### Required Practices
+
+**Full type annotations** on all functions and methods. They catch bugs before runtime and serve as inline documentation.
+
+**Async/await patterns** for all I/O operations. Even if your specific use case doesn't need concurrency, consistency means users can compose features without worrying about blocking operations.
+
+**Descriptive names** make code self-documenting. `auth_token` is clear; `tok` requires mental translation.
+
+**Specific exception types** make error handling predictable. Catching `ValueError` tells readers exactly what error you expect. Never use bare `except` clauses.
+
+#### Anti-Patterns to Avoid
+
+**Complex one-liners** are hard to debug and modify. Break operations into clear steps.
+
+**Mutable default arguments** cause subtle bugs. Use `None` as the default and create the mutable object inside the function.
+
+**Breaking established patterns** confuses readers. If you must deviate, discuss in the issue first.
+
+### Pre-Commit Checks
+
+```bash
+# Runs automatically on commit, or manually:
+uv run pre-commit run --all-files
+```
+
+This runs three critical tools:
+
+* **Ruff**: Linting and formatting
+* **ty**: Static type checking
+* **Pytest**: Core test suite
+
+CI will reject PRs that fail these checks. Always run them locally first.
+
+### Testing
+
+Tests are documentation that shows how features work. Good tests give reviewers confidence and help future maintainers understand intent.
+
+```bash
+# Run specific test directory
+uv run pytest tests/server/ -v
+
+# Run all tests before submitting PR
+uv run pytest
+```
+
+Every new feature needs tests. See the [Testing Guide](/development/tests) for patterns and requirements.
+
+### Documentation
+
+A feature doesn't exist unless it's documented. Note that FastMCP's hosted documentation always tracks the main branch - users who want historical documentation can clone the repo, checkout a specific tag, and host it themselves.
+
+```bash
+# Preview documentation locally
+just docs
+```
+
+Documentation requirements:
+
+* **Explain concepts in prose first** - Code without context is just syntax
+* **Complete, runnable examples** - Every code block should be copy-pasteable
+* **Register in docs.json** - Makes pages appear in navigation
+* **Version badges** - Mark when features were added using `<VersionBadge />`
+
+#### SDK Documentation
+
+FastMCP's SDK documentation is auto-generated from the source code docstrings and type annotations. It is automatically updated on every merge to main by a GitHub Actions workflow, so users are *not* responsible for keeping the documentation up to date. However, to generate it proactively, you can use the following command:
+
+```bash
+just api-ref-all
+```
+
+### Submitting Your PR
+
+#### Before Submitting
+
+1. **Run all checks**: `uv run pre-commit run --all-files && uv run pytest`
+2. **Keep scope small**: One feature or fix per PR
+3. **Write clear description**: Your PR description becomes permanent documentation
+4. **Update docs**: Include documentation for API changes
+
+#### PR Description
+
+Write PR descriptions that explain:
+
+* What problem you're solving
+* Why you chose this approach
+* Any trade-offs or alternatives considered
+* Migration path for breaking changes
+
+Focus on the "why" - the code shows the "what". Keep it concise but complete.
+
+#### What We Look For
+
+**Framework Philosophy**: FastMCP is NOT trying to do all things or provide all shortcuts. Features are rejected when they don't align with the framework's vision, even if perfectly implemented. The burden of proof is on the PR to demonstrate value.
+
+**Code Quality**: We verify code follows existing patterns. Consistency reduces cognitive load. When every module works similarly, developers understand new code quickly.
+
+**Test Coverage**: Not every line needs testing, but every behavior does. Tests document intent and protect against regressions.
+
+**Breaking Changes**: May be acceptable in minor versions but must be clearly documented. See the [versioning policy](/development/releases#versioning-policy).
+
+## Special Modules
+
+**`contrib`**: Community-maintained patterns and utilities. Original authors maintain their contributions. Not representative of the core framework.
+
+**`experimental`**: Maintainer-developed features that may preview future functionality. Can break or be deleted at any time without notice. Pin your FastMCP version when using these features.
+
+
+# Releases
+Source: https://gofastmcp.com/development/releases
+
+FastMCP versioning and release process
+
+FastMCP releases frequently to deliver features quickly in the rapidly evolving MCP ecosystem. We use semantic versioning pragmatically - the Model Context Protocol is young, patterns are still emerging, and waiting for perfect stability would mean missing opportunities to empower developers with better tools.
+
+## Versioning Policy
+
+### Semantic Versioning
+
+**Major (x.0.0)**: Complete API redesigns
+
+Major versions represent fundamental shifts. FastMCP 2.x is entirely different from 1.x in both implementation and design philosophy.
+
+**Minor (2.x.0)**: New features and evolution
+
+<Warning>
+  Unlike traditional semantic versioning, minor versions **may** include [breaking changes](#breaking-changes) when necessary for the ecosystem's evolution. This flexibility is essential in a young ecosystem where perfect backwards compatibility would prevent important improvements.
+</Warning>
+
+FastMCP always targets the most current MCP Protocol version. Breaking changes in the MCP spec or MCP SDK automatically flow through to FastMCP - we prioritize staying current with the latest features and conventions over maintaining compatibility with older protocol versions.
+
+**Patch (2.0.x)**: Bug fixes and refinements
+
+Patch versions contain only bug fixes without breaking changes. These are safe updates you can apply with confidence.
+
+### Breaking Changes
+
+We permit breaking changes in minor versions because the MCP ecosystem is rapidly evolving. Refusing to break problematic APIs would accumulate design debt that eventually makes the framework unusable. Each breaking change represents a deliberate decision to keep FastMCP aligned with the ecosystem's evolution.
+
+When breaking changes occur:
+
+* They only happen in minor versions (e.g., 2.3.x to 2.4.0)
+* Release notes explain what changed and how to migrate
+* We provide deprecation warnings at least 1 minor version in advance when possible
+* Changes must substantially benefit users to justify disruption
+
+The public API is what's covered by our compatibility guarantees - these are the parts of FastMCP you can rely on to remain stable within a minor version. The public API consists of:
+
+* `FastMCP` server class, `Client` class, and FastMCP `Context`
+* Core MCP components: `Tool`, `Prompt`, `Resource`, `ResourceTemplate`, and transports
+* Their public methods and documented behaviors
+
+Everything else (utilities, private methods, internal modules) may change without notice. This boundary lets us refactor internals and improve implementation details without breaking your code. For production stability, pin to specific versions.
+
+<Warning>
+  The `fastmcp.server.auth` module was introduced in 2.12.0 and is exempted from this policy temporarily, meaning it is *expected* to have breaking changes even on patch versions. This is because auth is a rapidly evolving part of the MCP spec and it would be dangerous to be beholden to old decisions. Please pin your FastMCP version if using authentication in production.
+
+  We expect this exemption to last through at least the 2.12.x and 2.13.x release series.
+</Warning>
+
+### Production Use
+
+Pin to exact versions:
+
+```
+fastmcp==2.11.0  # Good
+fastmcp>=2.11.0  # Bad - will install breaking changes
+```
+
+## Creating Releases
+
+Our release process is intentionally simple:
+
+1. Create GitHub release with tag `vMAJOR.MINOR.PATCH` (e.g., `v2.11.0`)
+2. Generate release notes automatically, and curate or add additional editorial information as needed
+3. GitHub releases automatically trigger PyPI deployments
+
+This automation lets maintainers focus on code quality rather than release mechanics.
+
+### Release Cadence
+
+We follow a feature-driven release cadence rather than a fixed schedule. Minor versions ship approximately every 3-4 weeks when significant functionality is ready.
+
+Patch releases ship promptly for:
+
+* Critical bug fixes
+* Security updates (immediate release)
+* Regression fixes
+
+This approach means you get improvements as soon as they're ready rather than waiting for arbitrary release dates.
+
+
+# Tests
+Source: https://gofastmcp.com/development/tests
+
+Testing patterns and requirements for FastMCP
+
+Good tests are the foundation of reliable software. In FastMCP, we treat tests as first-class documentation that demonstrates how features work while protecting against regressions. Every new capability needs comprehensive tests that demonstrate correctness.
+
+## FastMCP Tests
+
+### Running Tests
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run specific test file
+uv run pytest tests/server/test_auth.py
+
+# Run with coverage
+uv run pytest --cov=fastmcp
+
+# Skip integration tests for faster runs
+uv run pytest -m "not integration"
+
+# Skip tests that spawn processes
+uv run pytest -m "not integration and not client_process"
+```
+
+Tests should complete in under 1 second unless marked as integration tests. This speed encourages running them frequently, catching issues early.
+
+### Test Organization
+
+Our test organization mirrors the `src/` directory structure, creating a predictable mapping between code and tests. When you're working on `src/fastmcp/server/auth.py`, you'll find its tests in `tests/server/test_auth.py`. In rare cases tests are split further - for example, the OpenAPI tests are so comprehensive they're split across multiple files.
+
+### Test Markers
+
+We use pytest markers to categorize tests that require special resources or take longer to run:
+
+```python
+@pytest.mark.integration
+async def test_github_api_integration():
+    """Test GitHub API integration with real service."""
+    token = os.getenv("FASTMCP_GITHUB_TOKEN")
+    if not token:
+        pytest.skip("FASTMCP_GITHUB_TOKEN not available")
+    
+    # Test against real GitHub API
+    client = GitHubClient(token)
+    repos = await client.list_repos("jlowin")
+    assert "fastmcp" in [repo.name for repo in repos]
+
+@pytest.mark.client_process
+async def test_stdio_transport():
+    """Test STDIO transport with separate process."""
+    # This spawns a subprocess
+    async with Client("python examples/simple_echo.py") as client:
+        result = await client.call_tool("echo", {"message": "test"})
+        assert result.content[0].text == "test"
+```
+
+## Writing Tests
+
+### Test Requirements
+
+Following these practices creates maintainable, debuggable test suites that serve as both documentation and regression protection.
+
+#### Single Behavior Per Test
+
+Each test should verify exactly one behavior. When it fails, you need to know immediately what broke. A test that checks five things gives you five potential failure points to investigate. A test that checks one thing points directly to the problem.
+
+<CodeGroup>
+  ```python Good: Atomic Test
+  async def test_tool_registration():
+      """Test that tools are properly registered with the server."""
+      mcp = FastMCP("test-server")
+      
+      @mcp.tool
+      def add(a: int, b: int) -> int:
+          return a + b
+      
+      tools = mcp.list_tools()
+      assert len(tools) == 1
+      assert tools[0].name == "add"
+  ```
+
+  ```python Bad: Multi-Behavior Test
+  async def test_server_functionality():
+      """Test multiple server features at once."""
+      mcp = FastMCP("test-server")
+      
+      # Tool registration
+      @mcp.tool
+      def add(a: int, b: int) -> int:
+          return a + b
+      
+      # Resource creation
+      @mcp.resource("config://app")
+      def get_config():
+          return {"version": "1.0"}
+      
+      # Authentication setup
+      mcp.auth = BearerTokenProvider({"token": "user"})
+      
+      # What exactly are we testing? If this fails, what broke?
+      assert mcp.list_tools()
+      assert mcp.list_resources()
+      assert mcp.auth is not None
+  ```
+</CodeGroup>
+
+#### Self-Contained Setup
+
+Every test must create its own setup. Tests should be runnable in any order, in parallel, or in isolation. When a test fails, you should be able to run just that test to reproduce the issue.
+
+<CodeGroup>
+  ```python Good: Self-Contained
+  async def test_tool_execution_with_error():
+      """Test that tool errors are properly handled."""
+      mcp = FastMCP("test-server")
+      
+      @mcp.tool
+      def divide(a: int, b: int) -> float:
+          if b == 0:
+              raise ValueError("Cannot divide by zero")
+          return a / b
+      
+      async with Client(mcp) as client:
+          with pytest.raises(Exception):
+              await client.call_tool("divide", {"a": 10, "b": 0})
+  ```
+
+  ```python Bad: Test Dependencies
+  # Global state that tests depend on
+  test_server = None
+
+  def test_setup_server():
+      """Setup for other tests."""
+      global test_server
+      test_server = FastMCP("shared-server")
+
+  def test_server_works():
+      """Test server functionality."""
+      # Depends on test_setup_server running first
+      assert test_server is not None
+  ```
+</CodeGroup>
+
+#### Clear Intent
+
+Test names and assertions should make the verified behavior obvious. A developer reading your test should understand what feature it validates and how that feature should behave.
+
+```python
+async def test_authenticated_tool_requires_valid_token():
+    """Test that authenticated users can access protected tools."""
+    mcp = FastMCP("test-server")
+    mcp.auth = BearerTokenProvider({"secret-token": "test-user"})
+    
+    @mcp.tool
+    def protected_action() -> str:
+        return "success"
+    
+    async with Client(mcp, auth=BearerAuth("secret-token")) as client:
+        result = await client.call_tool("protected_action", {})
+        assert result.content[0].text == "success"
+```
+
+#### Using Fixtures
+
+Use fixtures to create reusable data, server configurations, or other resources for your tests. Note that you should **not** open FastMCP clients in your fixtures as it can create hard-to-diagnose issues with event loops.
 
 ```python
 import pytest
@@ -5497,22 +6042,87 @@ def weather_server():
     
     return server
 
-@pytest.mark.asyncio
 async def test_temperature_tool(weather_server):
     async with Client(weather_server) as client:
         result = await client.call_tool("get_temperature", {"city": "LA"})
         assert result.data == {"city": "LA", "temp": 85}
-
-@pytest.mark.asyncio
-async def test_unknown_city(weather_server):
-    async with Client(weather_server) as client:
-        result = await client.call_tool("get_temperature", {"city": "Paris"})
-        assert result.data["temp"] == 70  # Default temperature
 ```
 
-## Mocking External Dependencies
+#### Effective Assertions
 
-FastMCP servers are standard Python objects, so you can mock external dependencies using your preferred mocking approach. Replace databases, APIs, or any external service with test doubles to keep your tests fast and deterministic.
+Assertions should be specific and provide context on failure. When a test fails during CI, the assertion message should tell you exactly what went wrong.
+
+```python
+# Basic assertion - minimal context on failure
+assert result.status == "success"
+
+# Better - explains what was expected
+assert result.status == "success", f"Expected successful operation, got {result.status}: {result.error}"
+```
+
+Try not to have too many assertions in a single test unless you truly need to check various aspects of the same behavior. In general, assertions of different behaviors should be in separate tests.
+
+#### Inline Snapshots
+
+FastMCP uses `inline-snapshot` for testing complex data structures. On first run with empty `snapshot()`, pytest will auto-populate the expected value. To update snapshots after intentional changes, run `pytest --inline-snapshot=fix`. This is particularly useful for testing JSON schemas and API responses.
+
+```python
+from inline_snapshot import snapshot
+
+async def test_tool_schema_generation():
+    """Test that tool schemas are generated correctly."""
+    mcp = FastMCP("test-server")
+    
+    @mcp.tool
+    def calculate_tax(amount: float, rate: float = 0.1) -> dict:
+        """Calculate tax on an amount."""
+        return {"amount": amount, "tax": amount * rate, "total": amount * (1 + rate)}
+    
+    tools = mcp.list_tools()
+    schema = tools[0].inputSchema
+    
+    # First run: snapshot() is empty, gets auto-populated
+    # Subsequent runs: compares against stored snapshot
+    assert schema == snapshot({
+        "type": "object", 
+        "properties": {
+            "amount": {"type": "number"}, 
+            "rate": {"type": "number", "default": 0.1}
+        }, 
+        "required": ["amount"]
+    })
+```
+
+### In-Memory Testing
+
+FastMCP uses in-memory transport for testing, where servers and clients communicate directly. The majority of functionality can be tested in a deterministic fashion this way. We use more complex setups only when testing transports themselves.
+
+The in-memory transport runs the real MCP protocol implementation without network overhead. Instead of deploying your server or managing network connections, you pass your server instance directly to the client. Everything runs in the same Python process - you can set breakpoints anywhere and step through with your debugger.
+
+```python
+from fastmcp import FastMCP, Client
+
+# Create your server
+server = FastMCP("WeatherServer")
+
+@server.tool
+def get_temperature(city: str) -> dict:
+    """Get current temperature for a city"""
+    temps = {"NYC": 72, "LA": 85, "Chicago": 68}
+    return {"city": city, "temp": temps.get(city, 70)}
+
+async def test_weather_operations():
+    # Pass server directly - no deployment needed
+    async with Client(server) as client:
+        result = await client.call_tool("get_temperature", {"city": "NYC"})
+        assert result.data == {"city": "NYC", "temp": 72}
+```
+
+This pattern makes tests deterministic and fast - typically completing in milliseconds rather than seconds.
+
+### Mocking External Dependencies
+
+FastMCP servers are standard Python objects, so you can mock external dependencies using your preferred approach:
 
 ```python
 from unittest.mock import AsyncMock
@@ -5538,63 +6148,59 @@ async def test_database_tool():
         mock_db.fetch_users.assert_called_once()
 ```
 
-## Testing Deployed Servers
+### Testing Network Transports
 
-While in-memory testing covers most unit testing needs, you'll occasionally need to test against a deployed server - to verify authentication, test network behavior, or validate deployments.
-
-### HTTP Transport Testing
-
-When you need to test actual network behavior or verify a deployment, connect to your running server using its URL:
+While in-memory testing covers most unit testing needs, you'll occasionally need to test actual network transports. Use the `run_server_in_process` utility to spawn a server in a separate process for testing:
 
 ```python
-from fastmcp import Client
-
-async def test_deployed_server():
-    # Connect to a running server
-    async with Client("http://localhost:8000/mcp/") as client:
-        await client.ping()
-        
-        # Test with real network transport
-        tools = await client.list_tools()
-        assert len(tools) > 0
-        
-        result = await client.call_tool("greet", {"name": "World"})
-        assert "Hello" in result.data
-```
-
-### Testing Authentication
-
-The FastMCP Client handles authentication transparently, making it easy to test secured servers:
-
-```python
+import pytest
+from fastmcp.utilities.tests import run_server_in_process
+from fastmcp import FastMCP, Client
 from fastmcp.client.transports import StreamableHttpTransport
 
-async def test_authenticated_server():
-    # Bearer token authentication
+def run_server(host: str, port: int) -> None:
+    """Function to run in subprocess."""
+    server = FastMCP("TestServer")
+    
+    @server.tool
+    def greet(name: str) -> str:
+        return f"Hello, {name}!"
+    
+    server.run(host=host, port=port)
+
+@pytest.fixture
+async def http_server():
+    """Fixture that runs server in subprocess."""
+    with run_server_in_process(run_server, transport="http") as url:
+        yield f"{url}/mcp"
+
+async def test_http_transport(http_server: str):
+    """Test actual HTTP transport behavior."""
     async with Client(
-        StreamableHttpTransport(
-            "https://api.example.com/mcp",
-            headers={"Authorization": "Bearer test-token"}
-        )
+        transport=StreamableHttpTransport(http_server)
     ) as client:
-        await client.ping()
-        tools = await client.list_tools()
+        result = await client.ping()
+        assert result is True
         
-    # OAuth flow (opens browser for authorization)
-    async with Client("https://api.example.com/mcp", auth="oauth") as client:
-        result = await client.call_tool("protected_tool", {})
-        assert result.data is not None
+        greeting = await client.call_tool("greet", {"name": "World"})
+        assert greeting.data == "Hello, World!"
 ```
 
-## Best Practices
+The `run_server_in_process` utility handles server lifecycle, port allocation, and cleanup automatically. This pattern is essential for testing transport-specific behavior like timeouts, headers, and authentication. Note that FastMCP often uses the `client_process` marker to isolate tests that spawn processes, as they can create contention in CI.
 
-1. **Default to in-memory testing** - It's faster, more reliable, and easier to debug
-2. **Test behavior, not implementation** - Call tools and verify responses rather than testing internals
-3. **Use framework fixtures** - Create reusable server configurations for your test suite
-4. **Mock external dependencies** - Keep tests fast and deterministic by mocking databases, APIs, etc.
-5. **Test error cases** - Verify your server handles invalid inputs and edge cases properly
+### Documentation Testing
 
-The FastMCP Client transforms MCP server testing from a deployment challenge into a straightforward unit testing task. With in-memory connections and deterministic control, you can build comprehensive test suites that run in milliseconds.
+Documentation requires the same validation as code. The `just docs` command launches a local Mintlify server that renders your documentation exactly as users will see it:
+
+```bash
+# Start local documentation server with hot reload
+just docs
+
+# Or run Mintlify directly
+mintlify dev
+```
+
+The local server watches for changes and automatically refreshes. This preview catches formatting issues and helps you see documentation as users will experience it.
 
 
 # Installation
@@ -5662,54 +6268,27 @@ mcp = FastMCP("My MCP Server")
   Prior to `fastmcp==2.3.0` and `mcp==1.8.0`, the 2.x API always mirrored the official 1.0 API. However, as the projects diverge, this can not be guaranteed. You may see deprecation warnings if you attempt to use 1.0 APIs in FastMCP 2.x. Please refer to this documentation for details on new capabilities.
 </Warning>
 
-## Versioning and Breaking Changes
+## Versioning Policy
 
-While we make every effort not to introduce backwards-incompatible changes to our public APIs and behavior, FastMCP exists in a rapidly evolving MCP landscape. We're committed to bringing the most cutting-edge features to our users, which occasionally necessitates changes to existing functionality.
+FastMCP follows semantic versioning with pragmatic adaptations for the rapidly evolving MCP ecosystem. Breaking changes may occur in minor versions (e.g., 2.3.x to 2.4.0) when necessary to stay current with the MCP Protocol.
 
-As a practice, breaking changes will only occur on minor version changes (e.g., 2.3.x to 2.4.0). A minor version change indicates either:
+For production use, always pin to exact versions:
 
-* A significant new feature set that warrants a new minor version
-* Introducing breaking changes that may affect behavior on upgrade
-
-For users concerned about stability in production environments, we recommend pinning FastMCP to a specific version in your dependencies.
-
-Whenever possible, FastMCP will issue deprecation warnings when users attempt to use APIs that are either deprecated or destined for future removal. These warnings will be maintained for at least 1 minor version release, and may be maintained longer.
-
-Note that the "public API" includes the public functionality of the `FastMCP` server, core FastMCP components like `Tool`, `Prompt`, `Resource`, and `ResourceTemplate`, and their respective public methods. It does not include private methods, utilities, or objects that are stored as private attributes, as we do not expect users to rely on those implementation details.
-
-## Installing for Development
-
-If you plan to contribute to FastMCP, you should begin by cloning the repository and using uv to install all dependencies (development dependencies are installed automatically):
-
-```bash
-git clone https://github.com/jlowin/fastmcp.git
-cd fastmcp
-uv sync
+```
+fastmcp==2.11.0  # Good
+fastmcp>=2.11.0  # Bad - will install breaking changes
 ```
 
-This will install all dependencies, including ones for development, and create a virtual environment, which you can activate and use as normal.
+See the full [versioning and release policy](/development/releases#versioning-policy) for details on our public API, deprecation practices, and breaking change philosophy.
 
-### Unit Tests
+## Contributing to FastMCP
 
-FastMCP has a comprehensive unit test suite, and all PR's must introduce and pass appropriate tests. To run the tests, use pytest:
+Interested in contributing to FastMCP? See the [Contributing Guide](/development/contributing) for details on:
 
-```bash
-pytest
-```
-
-### Pre-Commit Hooks
-
-FastMCP uses pre-commit to manage code quality, including formatting, linting, and type-safety. All PRs must pass the pre-commit hooks, which are run as a part of the CI process. To install the pre-commit hooks, run:
-
-```bash
-uv run pre-commit install
-```
-
-Alternatively, to run pre-commit manually at any time, use:
-
-```bash
-pre-commit run --all-files
-```
+* Setting up your development environment
+* Running tests and pre-commit hooks
+* Submitting issues and pull requests
+* Code standards and review process
 
 
 # Quickstart
@@ -10377,7 +10956,7 @@ if __name__ == "__main__":
 
 
 # WorkOS 🤝 FastMCP
-Source: https://gofastmcp.com/integrations/workos-oauth
+Source: https://gofastmcp.com/integrations/workos
 
 Authenticate FastMCP servers with WorkOS Connect
 
@@ -12765,13 +13344,13 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-client-auth-oauth
 
 ## Functions
 
-### `default_cache_dir` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L48" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `default_cache_dir` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L55" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 default_cache_dir() -> Path
 ```
 
-### `check_if_auth_required` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L192" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `check_if_auth_required` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L199" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 check_if_auth_required(mcp_url: str, httpx_kwargs: dict[str, Any] | None = None) -> bool
@@ -12785,11 +13364,15 @@ Check if the MCP endpoint requires authentication by making a test request.
 
 ## Classes
 
-### `StoredToken` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L37" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ClientNotFoundError` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L38" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Raised when OAuth client credentials are not found on the server.
+
+### `StoredToken` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L44" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token storage format with absolute expiry time.
 
-### `FileTokenStorage` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L52" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `FileTokenStorage` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L59" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 File-based token storage implementation for OAuth credentials and tokens.
 Implements the mcp.client.auth.TokenStorage protocol.
@@ -12798,7 +13381,7 @@ Each instance is tied to a specific server URL for proper token isolation.
 
 **Methods:**
 
-#### `get_base_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_base_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L74" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_base_url(url: str) -> str
@@ -12806,7 +13389,7 @@ get_base_url(url: str) -> str
 
 Extract the base URL (scheme + host) from a URL.
 
-#### `get_cache_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L72" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_cache_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L79" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_cache_key(self) -> str
@@ -12814,7 +13397,7 @@ get_cache_key(self) -> str
 
 Generate a safe filesystem key from the server's base URL.
 
-#### `get_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L87" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L94" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_tokens(self) -> OAuthToken | None
@@ -12822,7 +13405,7 @@ get_tokens(self) -> OAuthToken | None
 
 Load tokens from file storage.
 
-#### `set_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L119" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_tokens` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L126" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_tokens(self, tokens: OAuthToken) -> None
@@ -12830,7 +13413,7 @@ set_tokens(self, tokens: OAuthToken) -> None
 
 Save tokens to file storage.
 
-#### `get_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L136" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L143" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client_info(self) -> OAuthClientInformationFull | None
@@ -12838,7 +13421,7 @@ get_client_info(self) -> OAuthClientInformationFull | None
 
 Load client information from file storage.
 
-#### `set_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L164" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_client_info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L171" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 set_client_info(self, client_info: OAuthClientInformationFull) -> None
@@ -12846,7 +13429,7 @@ set_client_info(self, client_info: OAuthClientInformationFull) -> None
 
 Save client information to file storage.
 
-#### `clear` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L170" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `clear` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L177" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 clear(self) -> None
@@ -12854,7 +13437,7 @@ clear(self) -> None
 
 Clear all cached data for this server.
 
-#### `clear_all` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L179" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `clear_all` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L186" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 clear_all(cls, cache_dir: Path | None = None) -> None
@@ -12862,7 +13445,7 @@ clear_all(cls, cache_dir: Path | None = None) -> None
 
 Clear all cached data for all servers.
 
-### `OAuth` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L222" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuth` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L229" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth client provider for MCP servers with browser-based authentication.
 
@@ -12871,21 +13454,32 @@ a browser for user authorization and running a local callback server.
 
 **Methods:**
 
-#### `redirect_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L302" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `redirect_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L309" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 redirect_handler(self, authorization_url: str) -> None
 ```
 
-Open browser for authorization.
+Open browser for authorization, with pre-flight check for invalid client.
 
-#### `callback_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L307" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `callback_handler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L330" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 callback_handler(self) -> tuple[str, str | None]
 ```
 
 Handle OAuth callback and return (auth\_code, state).
+
+#### `async_auth_flow` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/client/auth/oauth.py#L363" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+async_auth_flow(self, request: httpx.Request) -> AsyncGenerator[httpx.Request, httpx.Response]
+```
+
+HTTPX auth flow with automatic retry on stale cached credentials.
+
+If the OAuth flow fails due to invalid/stale client credentials,
+clears the cache and retries once with fresh registration.
 
 
 # client
@@ -15127,7 +15721,7 @@ production use with enterprise identity providers.
 
 ## Classes
 
-### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L55" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L58" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Client for DCR proxy with configurable redirect URI validation.
 
@@ -15156,7 +15750,7 @@ arise from accepting arbitrary redirect URIs.
 
 **Methods:**
 
-#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L94" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L97" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl
@@ -15169,7 +15763,7 @@ we validate their redirect URIs against configurable patterns.
 This is essential for cached token scenarios where the client may
 reconnect with a different port.
 
-### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L120" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L123" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth provider that presents a DCR-compliant interface while proxying to non-DCR IDPs.
 
@@ -15226,7 +15820,6 @@ translating to whatever OAuth variant the upstream provider requires.
 1. Client Registration (DCR):
    * Accept any client registration request
    * Store ProxyDCRClient that accepts dynamic redirect URIs
-   * Return shared upstream credentials to all clients
 
 2. Authorization:
    * Store transaction mapping client details to proxy flow
@@ -15283,50 +15876,31 @@ Handles provider-specific requirements:
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L325" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
 ```
 
-Get client information by ID.
+Get client information by ID. This is generally the random ID
+provided to the DCR client during registration, not the upstream client ID.
 
-For unregistered clients, returns a ProxyDCRClient that accepts
-any localhost redirect URI for DCR clients.
+For unregistered clients, returns None (which will raise an error in the SDK).
 
-Even registered clients use ProxyDCRClient to ensure they can
-authenticate with different dynamic ports on reconnection. This
-handles the case where a client with cached tokens reconnects
-on a different port.
-
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L358" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L378" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 register_client(self, client_info: OAuthClientInformationFull) -> None
 ```
 
-Register a client locally using fixed upstream credentials.
+Register a client locally
 
-This implementation always uses the upstream client\_id and client\_secret
-regardless of what the client requests. It modifies the client\_info object
-in place since the MCP framework ignores return values.
+When a client registers, we create a ProxyDCRClient that is more
+forgiving about validating redirect URIs, since the DCR client's
+redirect URI will likely be localhost or unknown to the proxied IDP. The
+proxied IDP only knows about this server's fixed redirect URI.
 
-This ensures all clients use the same credentials that are registered
-with the upstream server.
-
-Implementation Detail:
-We store a ProxyDCRClient (not the original client\_info) to ensure
-the client can reconnect with different dynamic redirect URIs. This is
-essential for cached token scenarios where the client port changes.
-
-The flow:
-
-1. Client provides its desired redirect URIs (dynamic localhost ports)
-2. We create a ProxyDCRClient that will accept ANY localhost URI
-3. We store this flexible client for future authentications
-4. When client reconnects with a different port, ProxyDCRClient accepts it
-
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L417" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L421" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -15337,10 +15911,11 @@ Start OAuth transaction and redirect to upstream IdP.
 This implements the DCR-compliant proxy pattern:
 
 1. Store transaction with client details and PKCE challenge
-2. Use transaction ID as state for IdP
-3. Redirect to IdP with our fixed callback URL
+2. Generate proxy's own PKCE parameters if forwarding is enabled
+3. Use transaction ID as state for IdP
+4. Redirect to IdP with our fixed callback URL and proxy's PKCE
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L480" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L504" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
@@ -15351,7 +15926,7 @@ Load authorization code for validation.
 Look up our client code and return authorization code object
 with PKCE challenge for validation.
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L522" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L546" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
@@ -15362,7 +15937,7 @@ Exchange authorization code for stored IdP tokens.
 For the DCR-compliant proxy flow, we return the IdP tokens that were obtained
 during the IdP callback exchange. PKCE validation is handled by the MCP framework.
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L589" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L613" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
@@ -15370,7 +15945,7 @@ load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str)
 
 Load refresh token from local storage.
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L597" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L621" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
@@ -15378,7 +15953,7 @@ exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: 
 
 Exchange refresh token for new access token using authlib.
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L672" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L697" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 load_access_token(self, token: str) -> AccessToken | None
@@ -15389,7 +15964,7 @@ Validate access token using upstream JWKS.
 Delegates to the JWT verifier which handles signature validation,
 expiration checking, and claims validation using the upstream JWKS.
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L689" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L714" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -15400,7 +15975,7 @@ Revoke token locally and with upstream server if supported.
 Removes tokens from local storage and attempts to revoke them with
 the upstream server if a revocation endpoint is configured.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L733" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L758" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python
 get_routes(self, mcp_path: str | None = None, mcp_endpoint: Any | None = None) -> list[Route]
@@ -19580,6 +20155,239 @@ Prepare the Python environment using uv.
   If None, creates a temporary directory for ephemeral use.
 
 
+# mcp_server_config
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-mcp_server_config
+
+
+
+# `fastmcp.utilities.mcp_server_config.v1.mcp_server_config`
+
+FastMCP Configuration File Support.
+
+This module provides support for fastmcp.json configuration files that allow
+users to specify server settings in a declarative format instead of using
+command-line arguments.
+
+## Functions
+
+### `generate_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L415" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+generate_schema(output_path: Path | str | None = None) -> dict[str, Any] | None
+```
+
+Generate JSON schema for fastmcp.json files.
+
+This is used to create the schema file that IDEs can use for
+validation and auto-completion.
+
+**Args:**
+
+* `output_path`: Optional path to write the schema to. If provided,
+  writes the schema and returns None. If not provided,
+  returns the schema as a dictionary.
+
+**Returns:**
+
+* JSON schema as a dictionary if output\_path is None, otherwise None
+
+## Classes
+
+### `Deployment` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L36" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Configuration for server deployment and runtime settings.
+
+**Methods:**
+
+#### `apply_runtime_settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L85" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+apply_runtime_settings(self, config_path: Path | None = None) -> None
+```
+
+Apply runtime settings like environment variables and working directory.
+
+**Args:**
+
+* `config_path`: Path to config file for resolving relative paths
+
+Environment variables support interpolation with ${VAR_NAME} syntax.
+For example: "API_URL": "https://api.${ENVIRONMENT}.example.com"
+will substitute the value of the ENVIRONMENT variable at runtime.
+
+### `MCPServerConfig` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L134" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Configuration for a FastMCP server.
+
+This configuration file allows you to specify all settings needed to run
+a FastMCP server in a declarative format.
+
+**Methods:**
+
+#### `validate_source` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L183" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+validate_source(cls, v: dict | Source) -> SourceType
+```
+
+Validate and convert source to proper format.
+
+Supports:
+
+* Dict format: `{"path": "server.py", "entrypoint": "app"}`
+* FileSystemSource instance (passed through)
+
+No string parsing happens here - that's only at CLI boundaries.
+MCPServerConfig works only with properly typed objects.
+
+#### `validate_environment` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L199" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+validate_environment(cls, v: dict | Any) -> EnvironmentType
+```
+
+Ensure environment has a type field for discrimination.
+
+For backward compatibility, if no type is specified, default to "uv".
+
+#### `validate_deployment` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L210" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+validate_deployment(cls, v: dict | Deployment) -> Deployment
+```
+
+Validate and convert deployment to Deployment.
+
+Accepts:
+
+* Deployment instance
+* dict that can be converted to Deployment
+
+#### `from_file` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L223" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+from_file(cls, file_path: Path) -> MCPServerConfig
+```
+
+Load configuration from a JSON file.
+
+**Args:**
+
+* `file_path`: Path to the configuration file
+
+**Returns:**
+
+* MCPServerConfig instance
+
+**Raises:**
+
+* `FileNotFoundError`: If the file doesn't exist
+* `json.JSONDecodeError`: If the file is not valid JSON
+* `pydantic.ValidationError`: If the configuration is invalid
+
+#### `from_cli_args` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L246" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+from_cli_args(cls, source: FileSystemSource, transport: Literal['stdio', 'http', 'sse', 'streamable-http'] | None = None, host: str | None = None, port: int | None = None, path: str | None = None, log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] | None = None, python: str | None = None, dependencies: list[str] | None = None, requirements: str | None = None, project: str | None = None, editable: str | None = None, env: dict[str, str] | None = None, cwd: str | None = None, args: list[str] | None = None) -> MCPServerConfig
+```
+
+Create a config from CLI arguments.
+
+This allows us to have a single code path where everything
+goes through a config object.
+
+**Args:**
+
+* `source`: Server source (FileSystemSource instance)
+* `transport`: Transport protocol
+* `host`: Host for HTTP transport
+* `port`: Port for HTTP transport
+* `path`: URL path for server
+* `log_level`: Logging level
+* `python`: Python version
+* `dependencies`: Python packages to install
+* `requirements`: Path to requirements file
+* `project`: Path to project directory
+* `editable`: Path to install in editable mode
+* `env`: Environment variables
+* `cwd`: Working directory
+* `args`: Server arguments
+
+**Returns:**
+
+* MCPServerConfig instance
+
+#### `find_config` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L323" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+find_config(cls, start_path: Path | None = None) -> Path | None
+```
+
+Find a fastmcp.json file in the specified directory.
+
+**Args:**
+
+* `start_path`: Directory to look in (defaults to current directory)
+
+**Returns:**
+
+* Path to the configuration file, or None if not found
+
+#### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L342" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+prepare(self, skip_source: bool = False, output_dir: Path | None = None) -> None
+```
+
+Prepare environment and source for execution.
+
+When output\_dir is provided, creates a persistent uv project.
+When output\_dir is None, does ephemeral caching (for backwards compatibility).
+
+**Args:**
+
+* `skip_source`: Skip source preparation if True
+* `output_dir`: Directory to create the persistent uv project in (optional)
+
+#### `prepare_environment` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L363" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+prepare_environment(self, output_dir: Path | None = None) -> None
+```
+
+Prepare the Python environment.
+
+**Args:**
+
+* `output_dir`: If provided, creates a persistent uv project in this directory.
+  If None, just populates uv's cache for ephemeral use.
+
+Delegates to the environment's prepare() method
+
+#### `prepare_source` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L374" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+prepare_source(self) -> None
+```
+
+Prepare the source for loading.
+
+Delegates to the source's prepare() method.
+
+#### `run_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/mcp_server_config/v1/mcp_server_config.py#L381" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python
+run_server(self, **kwargs: Any) -> None
+```
+
+Load and run the server with this configuration.
+
+**Args:**
+
+* `**kwargs`: Additional arguments to pass to server.run\_async()
+  These override config settings
+
+
 # __init__
 Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-mcp_server_config-v1-sources-__init__
 
@@ -20551,7 +21359,7 @@ Each method must handle storage, validation, security, and error cases according
 # OAuth Proxy
 Source: https://gofastmcp.com/servers/auth/oauth-proxy
 
-Enable authentication with OAuth providers that don't support Dynamic Client Registration.
+Bridge traditional OAuth providers to work seamlessly with MCP's authentication flow.
 
 export const VersionBadge = ({version}) => {
   return <code className="version-badge-container">
@@ -20564,117 +21372,75 @@ export const VersionBadge = ({version}) => {
 
 <VersionBadge version="2.12.0" />
 
-OAuth Proxy enables your FastMCP server to authenticate with OAuth providers that **don't support Dynamic Client Registration (DCR)**. This includes virtually all traditional OAuth providers: GitHub, Google, Azure, Facebook, Discord, and most enterprise identity systems.
+OAuth Proxy enables FastMCP servers to authenticate with OAuth providers that **don't support Dynamic Client Registration (DCR)**. This includes virtually all traditional OAuth providers: GitHub, Google, Azure, Discord, Facebook, and most enterprise identity systems. For providers that do support DCR (like WorkOS AuthKit), use [`RemoteAuthProvider`](/servers/auth/remote-oauth) instead.
 
-While MCP clients expect to dynamically register and obtain credentials, these providers require manual app registration through their developer consoles. OAuth Proxy bridges this gap by presenting a DCR-compliant interface to MCP clients while using your pre-registered credentials with the upstream provider.
+MCP clients expect to register automatically and obtain credentials on the fly, but traditional providers require manual app registration through their developer consoles. OAuth Proxy bridges this gap by presenting a DCR-compliant interface to MCP clients while using your pre-registered credentials with the upstream provider. When a client attempts to register, the proxy returns your fixed credentials. When a client initiates authorization, the proxy handles the complexity of callback forwarding—storing the client's dynamic callback URL, using its own fixed callback with the provider, then forwarding back to the client after token exchange.
 
-<Tip>
-  **When to use OAuth Proxy vs RemoteAuthProvider:**
+This approach enables any MCP client (whether using random localhost ports or fixed URLs like Claude.ai) to authenticate with any traditional OAuth provider, all while maintaining full OAuth 2.1 and PKCE security.
 
-  * **OAuth Proxy**: For providers WITHOUT Dynamic Client Registration (GitHub, Google, Azure, etc.)
-  * **RemoteAuthProvider**: For providers WITH Dynamic Client Registration (WorkOS AuthKit, etc.)
+## Implementation
 
-  OAuth Proxy makes traditional OAuth providers work seamlessly with MCP's automated authentication flow.
-</Tip>
+### Provider Setup Requirements
 
-## DCR vs Non-DCR Providers
+Before using OAuth Proxy, you need to register your application with your OAuth provider:
 
-The key distinction in MCP authentication is whether your OAuth provider supports **Dynamic Client Registration (DCR)**:
+1. **Register your application** in the provider's developer console (GitHub Settings, Google Cloud Console, Azure Portal, etc.)
+2. **Configure the redirect URI** as your FastMCP server URL plus your chosen callback path:
+   * Default: `https://your-server.com/auth/callback`
+   * Custom: `https://your-server.com/your/custom/path` (if you set `redirect_path`)
+   * Development: `http://localhost:8000/auth/callback`
+3. **Obtain your credentials**: Client ID and Client Secret
+4. **Note the OAuth endpoints**: Authorization URL and Token URL (usually found in the provider's OAuth documentation)
 
-* **Providers WITH DCR** (WorkOS, some OIDC providers): Use [`RemoteAuthProvider`](/servers/auth/remote-oauth)
-  * Clients can register themselves automatically
-  * No manual app registration needed
-  * True dynamic authentication flow
+<Warning>
+  The redirect URI you configure with your provider must exactly match your
+  FastMCP server's URL plus the callback path. If you customize `redirect_path`
+  in OAuth Proxy, update your provider's redirect URI accordingly.
+</Warning>
 
-* **Providers WITHOUT DCR** (GitHub, Google, Azure, Discord, etc.): Use `OAuthProxy` (this guide)
-  * Requires manual app registration in provider's console
-  * You obtain fixed client ID and secret
-  * OAuth Proxy bridges the gap for MCP compatibility
+### Basic Setup
 
-OAuth Proxy makes non-DCR providers work seamlessly with MCP by implementing a local DCR interface that always returns your pre-registered credentials.
+Here's how to implement OAuth Proxy with any provider:
 
-## Understanding the DCR Gap
+```python
+from fastmcp import FastMCP
+from fastmcp.server.auth import OAuthProxy
+from fastmcp.server.auth.providers.jwt import JWTVerifier
 
-**Dynamic Client Registration (DCR)** allows OAuth clients to automatically register themselves with an authorization server and obtain credentials without manual intervention. The MCP specification is designed around this capability, expecting clients to register dynamically.
+# Configure token verification for your provider
+# See the Token Verification guide for provider-specific setups
+token_verifier = JWTVerifier(
+    jwks_uri="https://your-provider.com/.well-known/jwks.json",
+    issuer="https://your-provider.com",
+    audience="your-app-id"
+)
 
-However, most OAuth providers don't support DCR:
+# Create the OAuth proxy
+auth = OAuthProxy(
+    # Provider's OAuth endpoints (from their documentation)
+    upstream_authorization_endpoint="https://provider.com/oauth/authorize",
+    upstream_token_endpoint="https://provider.com/oauth/token",
 
-| Provider Type         | DCR Support | Registration Method | Examples                                 |
-| --------------------- | ----------- | ------------------- | ---------------------------------------- |
-| Modern Auth Platforms | ✅ Yes       | Automatic via API   | WorkOS AuthKit, Some OIDC providers      |
-| Traditional OAuth     | ❌ No        | Manual via console  | GitHub, Google, Azure, Discord, Facebook |
-| Enterprise SSO        | ❌ No        | IT Administrator    | Okta, AD FS, PingIdentity                |
+    # Your registered app credentials
+    upstream_client_id="your-client-id",
+    upstream_client_secret="your-client-secret",
 
-Providers without DCR require you to:
+    # Token validation (see Token Verification guide)
+    token_verifier=token_verifier,
 
-* Manually register applications through their developer console
-* Obtain fixed client IDs and secrets that never change
-* Pre-configure specific redirect URIs
-* Manage credentials through their web interface
-
-This creates a fundamental incompatibility: MCP clients expect to call a registration endpoint and receive credentials, but traditional providers only work with pre-registered apps. OAuth Proxy solves this by accepting any client registration request and returning your fixed upstream credentials.
-
-## How OAuth Proxy Works
-
-The OAuth Proxy implements an intelligent callback forwarding pattern that solves both the DCR problem and the redirect URI mismatch issue:
-
-```mermaid
-sequenceDiagram
-    participant Client as MCP Client<br/>(localhost:random)
-    participant Proxy as FastMCP OAuth Proxy<br/>(server:8000)
-    participant Provider as OAuth Provider<br/>(GitHub, etc.)
-
-    Note over Client, Proxy: Dynamic Registration (Local)
-    Client->>Proxy: 1. POST /register<br/>redirect_uri: localhost:54321/callback
-    Proxy-->>Client: 2. Returns fixed upstream credentials
-
-    Note over Client, Proxy: Authorization with Callback Forwarding
-    Client->>Proxy: 3. GET /authorize<br/>redirect_uri=localhost:54321/callback
-    Note over Proxy: Store transaction with client callback
-    Proxy->>Provider: 4. Redirect to provider<br/>redirect_uri=server:8000/auth/callback
+    # Your FastMCP server's public URL
+    base_url="https://your-server.com",
     
-    Note over Provider, Proxy: Provider Callback
-    Provider->>Proxy: 5. GET /auth/callback<br/>with authorization code
-    Proxy->>Provider: 6. Exchange code for tokens
-    Provider-->>Proxy: 7. Access & refresh tokens
-    
-    Note over Proxy, Client: Client Callback Forwarding
-    Proxy->>Client: 8. Redirect to localhost:54321/callback<br/>with new authorization code
-    
-    Note over Client, Proxy: Token Exchange
-    Client->>Proxy: 9. POST /token with code
-    Proxy-->>Client: 10. Returns stored provider tokens
+    # Optional: customize the callback path (default is "/auth/callback")
+    # redirect_path="/custom/callback",
+)
+
+mcp = FastMCP(name="My Server", auth=auth)
 ```
 
-### The Callback Forwarding Pattern
+### Configuration Parameters
 
-OAuth Proxy implements an innovative callback forwarding pattern that solves the redirect URI mismatch problem:
-
-**The Challenge:**
-
-* MCP clients listen on random localhost ports (e.g., `http://localhost:54321/callback`)
-* Each client session uses a different port
-* OAuth providers only accept pre-registered, fixed redirect URIs
-* Registering every possible localhost port is impossible
-
-**The Solution:**
-
-The proxy acts as an intermediary callback handler:
-
-1. **Dynamic Registration**: Client provides its localhost callback URL during registration
-2. **Transaction Tracking**: Proxy stores the client's callback URL with a transaction ID
-3. **Fixed Provider Callback**: Proxy uses its own fixed callback URL with the provider
-4. **Server-Side Token Exchange**: Proxy receives the provider's callback and exchanges the authorization code for tokens
-5. **Client Forwarding**: Proxy redirects to the client's original localhost callback with a new authorization code
-6. **Token Delivery**: Client exchanges this new code with the proxy to receive the provider's tokens
-
-This pattern maintains full OAuth 2.1 security (including PKCE) while enabling dynamic client ports to work with fixed provider callbacks. The client never knows it's talking to a proxy - it experiences a standard DCR flow.
-
-## Basic Implementation
-
-The `OAuthProxy` class provides the complete proxy implementation:
-
-<Card icon="code" title="OAuthProxy Constructor Parameters">
+<Card icon="code" title="OAuthProxy Parameters">
   <ParamField body="upstream_authorization_endpoint" type="str" required>
     URL of your OAuth provider's authorization endpoint (e.g., `https://github.com/login/oauth/authorize`)
   </ParamField>
@@ -20715,6 +21481,24 @@ The `OAuthProxy` class provides the complete proxy implementation:
     Optional URL to your service documentation
   </ParamField>
 
+  <ParamField body="forward_pkce" type="bool" default="True">
+    Whether to forward PKCE (Proof Key for Code Exchange) to the upstream OAuth provider. When enabled and the client uses PKCE, the proxy generates its own PKCE parameters to send upstream while separately validating the client's PKCE. This ensures end-to-end PKCE security at both layers (client-to-proxy and proxy-to-upstream).
+
+    * `True` (default): Forward PKCE for providers that support it (Google, Azure, GitHub, etc.)
+    * `False`: Disable only if upstream provider doesn't support PKCE
+  </ParamField>
+
+  <ParamField body="token_endpoint_auth_method" type="str | None">
+    Token endpoint authentication method for the upstream OAuth server. Controls how the proxy authenticates when exchanging authorization codes and refresh tokens with the upstream provider.
+
+    * `"client_secret_basic"`: Send credentials in Authorization header (most common)
+    * `"client_secret_post"`: Send credentials in request body (required by some providers)
+    * `"none"`: No authentication (for public clients)
+    * `None` (default): Uses authlib's default (typically `"client_secret_basic"`)
+
+    Set this if your provider requires a specific authentication method and the default doesn't work.
+  </ParamField>
+
   <ParamField body="allowed_client_redirect_uris" type="list[str] | None">
     List of allowed redirect URI patterns for MCP clients. Patterns support wildcards (e.g., `"http://localhost:*"`, `"https://*.example.com/*"`).
 
@@ -20724,209 +21508,182 @@ The `OAuthProxy` class provides the complete proxy implementation:
 
     These patterns apply to MCP client loopback redirects, NOT the upstream OAuth app redirect URI.
   </ParamField>
+
+  <ParamField body="valid_scopes" type="list[str] | None">
+    List of all possible valid scopes for the OAuth provider. These are advertised to clients through the `/.well-known` endpoints. Defaults to `required_scopes` from your TokenVerifier if not specified.
+  </ParamField>
 </Card>
 
-### Dynamic client scope
+### Using Built-in Providers
 
-When `OAuthProxy` creates a dynamic client (`ProxyDCRClient`) during registration or for temporary/unregistered access, it sets the client's `scope` string from your `TokenVerifier.required_scopes` (joined with spaces). If `required_scopes` is empty or `None`, the client's `scope` will be an empty string.
-
-```python
-from fastmcp.server.auth.providers.jwt import JWTVerifier
-from fastmcp.server.auth.oauth_proxy import OAuthProxy
-
-token_verifier = JWTVerifier(
-    jwks_uri="https://provider/.well-known/jwks.json",
-    issuer="https://provider",
-    audience="my-app",
-)
-token_verifier.required_scopes = ["read", "write"]
-
-auth = OAuthProxy(
-    upstream_authorization_endpoint="https://provider/authorize",
-    upstream_token_endpoint="https://provider/token",
-    upstream_client_id="cid",
-    upstream_client_secret="secret",
-    token_verifier=token_verifier,
-    base_url="https://your-server.com",
-)
-
-# Any dynamic client created by the proxy will have scope "read write"
-```
+FastMCP includes pre-configured providers for common services:
 
 ```python
-from fastmcp import FastMCP
-from fastmcp.server.auth import OAuthProxy
-from fastmcp.server.auth.providers.jwt import JWTVerifier
+from fastmcp.server.auth.providers.github import GitHubProvider
 
-# Configure token validation for your provider
-token_verifier = JWTVerifier(
-    jwks_uri="https://your-provider.com/.well-known/jwks.json",
-    issuer="https://your-provider.com",
-    audience="your-app-id"
-)
-
-# Create the OAuth proxy (accepts strings for URLs)
-auth = OAuthProxy(
-    # Upstream provider endpoints
-    upstream_authorization_endpoint="https://your-provider.com/oauth/authorize",
-    upstream_token_endpoint="https://your-provider.com/oauth/token",
-    
-    # Your registered app credentials
-    upstream_client_id="your-registered-client-id",
-    upstream_client_secret="your-registered-client-secret",
-    
-    # Token validation
-    token_verifier=token_verifier,
-    
-    # Your FastMCP server URL (string automatically converted to AnyHttpUrl)
-    base_url="https://your-server.com",
-    
-    # Optional: customize callback path (defaults to "/auth/callback")
-    redirect_path="/auth/callback",
-
+auth = GitHubProvider(
+    client_id="your-github-app-id",
+    client_secret="your-github-app-secret",
+    base_url="https://your-server.com"
 )
 
 mcp = FastMCP(name="My Server", auth=auth)
 ```
 
-### OAuth Provider Configuration
+Available providers include `GitHubProvider`, `GoogleProvider`, and others. These handle token verification automatically.
 
-When registering your application with your OAuth provider, configure the redirect/callback URL as:
+### Scope Configuration
 
-```
-https://your-server.com/auth/callback
-```
-
-For local development with providers that support it (like GitHub):
-
-```
-http://localhost:8000/auth/callback
-```
-
-The proxy automatically:
-
-* Implements DCR by returning your fixed credentials to any client that registers
-* Handles callback forwarding between dynamic client callbacks and your fixed provider callback
-* Exchanges authorization codes server-side for enhanced security
-* Validates tokens using your provider's public keys or API
-* Maintains PKCE security throughout the flow
-
-## Client Redirect URI Security
-
-<Note>
-  OAuth Proxy accepts all redirect URIs by default to maintain compatibility with MCP's Dynamic Client Registration (DCR) pattern, where clients register with unpredictable redirect URIs.
-
-  If you know which clients will connect, you can restrict redirect URIs using the `allowed_client_redirect_uris` parameter:
-
-  ```python
-  # Default: allow all (for DCR compatibility)
-  auth = OAuthProxy(...) 
-
-  # Restrict to localhost only
-  auth = OAuthProxy(
-      ...,
-      allowed_client_redirect_uris=[
-          "http://localhost:*",
-          "http://127.0.0.1:*"
-      ]
-  )
-
-  # Allow specific known clients (e.g., Claude.ai)
-  auth = OAuthProxy(
-      ...,
-      allowed_client_redirect_uris=[
-          "http://localhost:*",
-          "https://claude.ai/api/mcp/auth_callback"
-      ]
-  )
-
-  # Custom patterns with wildcards
-  auth = OAuthProxy(
-      ...,
-      allowed_client_redirect_uris=[
-          "http://localhost:*",
-          "https://*.example.com/auth/*"
-      ]
-  )
-  ```
-
-  **Tip:** Check your server logs for debug messages that say "Client registered with redirect\_uri" messages to see what redirect URIs your clients are using.
-</Note>
-
-## Client Compatibility
-
-<Tip>
-  The OAuth Proxy's callback forwarding enables **any MCP client** to authenticate with **any OAuth provider**, regardless of redirect URI restrictions. Clients can use dynamic localhost ports while providers see their expected fixed callbacks.
-</Tip>
-
-This breakthrough means that MCP clients no longer need to worry about registering specific callback URLs with OAuth providers. The proxy handles the complexity of bridging dynamic client callbacks with the fixed URLs that providers require. The entire flow maintains OAuth 2.1 and PKCE (RFC-7636) compliance for security.
-
-## Token Verification Strategies
-
-Different OAuth providers use different token formats, requiring appropriate verification strategies:
-
-### Provider Token Types
-
-| Provider | Token Type | Verification Method               | Built-in Support              |
-| -------- | ---------- | --------------------------------- | ----------------------------- |
-| GitHub   | Opaque     | API validation (`/user` endpoint) | ✅ `GitHubProvider`            |
-| Google   | JWT        | JWKS signature verification       | ✅ `GoogleProvider`            |
-| Azure AD | JWT        | JWKS signature verification       | Configure `JWTVerifier`       |
-| Discord  | Opaque     | API validation                    | ✅ `DiscordOAuthProxyProvider` |
-| Custom   | Varies     | Implement `TokenVerifier`         | Extend base class             |
-
-### Using Built-in Providers
-
-FastMCP includes pre-configured providers that handle token verification automatically:
+OAuth scopes are configured through your `TokenVerifier`. Set `required_scopes` to automatically request the permissions your application needs:
 
 ```python
-from fastmcp.server.auth.providers.github import GitHubProvider
+JWTVerifier(..., required_scopes = ["read:user", "write:data"])
+```
 
-# GitHub provider with automatic API-based token validation
-auth = GitHubProvider(
-    client_id="your-github-client-id",
-    client_secret="your-github-client-secret",
-    base_url="https://your-server.com"
+Dynamic clients created by the proxy will automatically include these scopes in their authorization requests.
+
+## How It Works
+
+```mermaid
+sequenceDiagram
+    participant Client as MCP Client<br/>(localhost:random)
+    participant Proxy as FastMCP OAuth Proxy<br/>(server:8000)
+    participant Provider as OAuth Provider<br/>(GitHub, etc.)
+
+    Note over Client, Proxy: Dynamic Registration (Local)
+    Client->>Proxy: 1. POST /register<br/>redirect_uri: localhost:54321/callback
+    Proxy-->>Client: 2. Returns fixed upstream credentials
+
+    Note over Client, Proxy: Authorization with PKCE & Callback Forwarding
+    Client->>Proxy: 3. GET /authorize<br/>redirect_uri=localhost:54321/callback<br/>code_challenge=CLIENT_CHALLENGE
+    Note over Proxy: Store transaction with client PKCE<br/>Generate proxy PKCE pair
+    Proxy->>Provider: 4. Redirect to provider<br/>redirect_uri=server:8000/auth/callback<br/>code_challenge=PROXY_CHALLENGE
+
+    Note over Provider, Proxy: Provider Callback
+    Provider->>Proxy: 5. GET /auth/callback<br/>with authorization code
+    Proxy->>Provider: 6. Exchange code for tokens<br/>code_verifier=PROXY_VERIFIER
+    Provider-->>Proxy: 7. Access & refresh tokens
+
+    Note over Proxy, Client: Client Callback Forwarding
+    Proxy->>Client: 8. Redirect to localhost:54321/callback<br/>with new authorization code
+
+    Note over Client, Proxy: Token Exchange
+    Client->>Proxy: 9. POST /token with code<br/>code_verifier=CLIENT_VERIFIER
+    Proxy-->>Client: 10. Returns stored provider tokens
+```
+
+The flow diagram above illustrates the complete OAuth Proxy pattern. Let's understand each phase:
+
+### Registration Phase
+
+When an MCP client calls `/register` with its dynamic callback URL, the proxy responds with your pre-configured upstream credentials. The client stores these credentials believing it has registered a new app. Meanwhile, the proxy records the client's callback URL for later use.
+
+### Authorization Phase
+
+The client initiates OAuth by redirecting to the proxy's `/authorize` endpoint. The proxy:
+
+1. Stores the client's transaction with its PKCE challenge
+2. Generates its own PKCE parameters for upstream security
+3. Redirects to the upstream provider using the fixed callback URL
+
+This dual-PKCE approach maintains end-to-end security at both the client-to-proxy and proxy-to-provider layers.
+
+### Callback Phase
+
+After user authorization, the provider redirects back to the proxy's fixed callback URL. The proxy:
+
+1. Exchanges the authorization code for tokens with the provider
+2. Stores these tokens temporarily
+3. Generates a new authorization code for the client
+4. Redirects to the client's original dynamic callback URL
+
+### Token Exchange Phase
+
+Finally, the client exchanges its authorization code with the proxy to receive the provider's tokens. The proxy validates the client's PKCE verifier before returning the stored tokens.
+
+This entire flow is transparent to the MCP client—it experiences a standard OAuth flow with dynamic registration, unaware that a proxy is managing the complexity behind the scenes.
+
+### PKCE Forwarding
+
+OAuth Proxy automatically handles PKCE (Proof Key for Code Exchange) when working with providers that support or require it. The proxy generates its own PKCE parameters to send upstream while separately validating the client's PKCE, ensuring end-to-end security at both layers.
+
+This is enabled by default via the `forward_pkce` parameter and works seamlessly with providers like Google, Azure AD, and GitHub. Only disable it for legacy providers that don't support PKCE:
+
+```python
+# Disable PKCE forwarding only if upstream doesn't support it
+auth = OAuthProxy(
+    ...,
+    forward_pkce=False  # Default is True
 )
 ```
 
-### Custom Token Verification
+### Redirect URI Validation
 
-For providers without built-in support, implement a [`TokenVerifier`](/servers/auth/token-verification):
+While OAuth Proxy accepts all redirect URIs by default (for DCR compatibility), you can restrict which clients can connect by specifying allowed patterns:
 
-* **JWT tokens**: Use `JWTVerifier` with the provider's JWKS endpoint
-* **Opaque tokens**: Extend `TokenVerifier` to validate via the provider's API
-* **Hybrid approaches**: Combine multiple verification methods as needed
+```python
+# Allow only localhost clients (common for development)
+auth = OAuthProxy(
+    # ... other parameters ...
+    allowed_client_redirect_uris=[
+        "http://localhost:*",
+        "http://127.0.0.1:*"
+    ]
+)
+
+# Allow specific known clients
+auth = OAuthProxy(
+    # ... other parameters ...
+    allowed_client_redirect_uris=[
+        "http://localhost:*",
+        "https://claude.ai/api/mcp/auth_callback",
+        "https://*.mycompany.com/auth/*"  # Wildcard patterns supported
+    ]
+)
+```
+
+Check your server logs for "Client registered with redirect\_uri" messages to identify what URLs your clients use.
+
+## Token Verification
+
+OAuth Proxy requires a compatible `TokenVerifier` to validate tokens from your provider. Different providers use different token formats:
+
+* **JWT tokens** (Google, Azure): Use `JWTVerifier` with the provider's JWKS endpoint
+* **Opaque tokens** (GitHub, Discord): Use provider-specific verifiers or implement custom validation
+
+See the [Token Verification guide](/servers/auth/token-verification) for detailed setup instructions for your provider.
 
 ## Environment Configuration
 
 <VersionBadge version="2.12.1" />
 
-OAuth Proxy-based providers support environment-based configuration for production deployments. Use the specific provider implementations rather than the base OAuth Proxy class:
+For production deployments, configure OAuth Proxy through environment variables instead of hardcoding credentials:
 
 ```bash
-# Use a specific provider implementation
+# Specify the provider implementation
 export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.github.GitHubProvider
-# or
-export FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.google.GoogleProvider
-# or your custom OAuth Proxy implementation
-export FASTMCP_SERVER_AUTH=mycompany.auth.CustomOAuthProvider
 
-# Provider-specific configuration (example for GitHub)
+# Provider-specific credentials
 export FASTMCP_SERVER_AUTH_GITHUB_CLIENT_ID="Ov23li..."
 export FASTMCP_SERVER_AUTH_GITHUB_CLIENT_SECRET="abc123..."
-export FASTMCP_SERVER_AUTH_GITHUB_BASE_URL="https://your-server.com"
+export FASTMCP_SERVER_AUTH_GITHUB_BASE_URL="https://your-production-server.com"
 ```
 
-For custom OAuth Proxy implementations, configure the environment variables based on your provider's settings class.
-
-With environment variables configured, your code becomes:
+With environment configuration, your server code simplifies to:
 
 ```python
 from fastmcp import FastMCP
 
 # Authentication automatically configured from environment
 mcp = FastMCP(name="My Server")
+
+@mcp.tool
+def protected_tool(data: str) -> str:
+    """This tool is now protected by OAuth."""
+    return f"Processed: {data}"
+
+if __name__ == "__main__":
+    mcp.run(transport="http", port=8000)
 ```
 
 
@@ -26646,536 +27403,50 @@ mcp.remove_tool("calculate_sum")
 ```
 
 
-# How to Create an MCP Server in Python
-Source: https://gofastmcp.com/tutorials/create-mcp-server
-
-A step-by-step guide to building a Model Context Protocol (MCP) server using Python and FastMCP, from basic tools to dynamic resources.
-
-So you want to build a Model Context Protocol (MCP) server in Python. The goal is to create a service that can provide tools and data to AI models like Claude, Gemini, or others that support the protocol. While the [MCP specification](https://modelcontextprotocol.io/specification/) is powerful, implementing it from scratch involves a lot of boilerplate: handling JSON-RPC, managing session state, and correctly formatting requests and responses.
-
-This is where **FastMCP** comes in. It's a high-level framework that handles all the protocol complexities for you, letting you focus on what matters: writing the Python functions that power your server.
-
-This guide will walk you through creating a fully-featured MCP server from scratch using FastMCP.
-
-<Tip>
-  Every code block in this tutorial is a complete, runnable example. You can copy and paste it into a file and run it, or paste it directly into a Python REPL like IPython to try it out.
-</Tip>
-
-### Prerequisites
-
-Make sure you have FastMCP installed. If not, follow the [installation guide](/getting-started/installation).
-
-```bash
-pip install fastmcp
-```
-
-## Step 1: Create the Basic Server
-
-Every FastMCP application starts with an instance of the `FastMCP` class. This object acts as the container for all your tools and resources.
-
-Create a new file called `my_mcp_server.py`:
-
-```python my_mcp_server.py
-from fastmcp import FastMCP
-
-# Create a server instance with a descriptive name
-mcp = FastMCP(name="My First MCP Server")
-```
-
-That's it! You have a valid (though empty) MCP server. Now, let's add some functionality.
-
-## Step 2: Add a Tool
-
-Tools are functions that an LLM can execute. Let's create a simple tool that adds two numbers.
-
-To do this, simply write a standard Python function and decorate it with `@mcp.tool`.
-
-```python my_mcp_server.py {5-8}
-from fastmcp import FastMCP
-
-mcp = FastMCP(name="My First MCP Server")
-
-@mcp.tool
-def add(a: int, b: int) -> int:
-    """Adds two integer numbers together."""
-    return a + b
-```
-
-FastMCP automatically handles the rest:
-
-* **Tool Name:** It uses the function name (`add`) as the tool's name.
-* **Description:** It uses the function's docstring as the tool's description for the LLM.
-* **Schema:** It inspects the type hints (`a: int`, `b: int`) to generate a JSON schema for the inputs.
-
-This is the core philosophy of FastMCP: **write Python, not protocol boilerplate.**
-
-## Step 3: Expose Data with Resources
-
-Resources provide read-only data to the LLM. You can define a resource by decorating a function with `@mcp.resource`, providing a unique URI.
-
-Let's expose a simple configuration dictionary as a resource.
-
-```python my_mcp_server.py {10-13}
-from fastmcp import FastMCP
-
-mcp = FastMCP(name="My First MCP Server")
-
-@mcp.tool
-def add(a: int, b: int) -> int:
-    """Adds two integer numbers together."""
-    return a + b
-
-@mcp.resource("resource://config")
-def get_config() -> dict:
-    """Provides the application's configuration."""
-    return {"version": "1.0", "author": "MyTeam"}
-```
-
-When a client requests the URI `resource://config`, FastMCP will execute the `get_config` function and return its output (serialized as JSON) to the client. The function is only called when the resource is requested, enabling lazy-loading of data.
-
-## Step 4: Generate Dynamic Content with Resource Templates
-
-Sometimes, you need to generate resources based on parameters. This is what **Resource Templates** are for. You define them using the same `@mcp.resource` decorator but with placeholders in the URI.
-
-Let's create a template that provides a personalized greeting.
-
-```python my_mcp_server.py {15-17}
-from fastmcp import FastMCP
-
-mcp = FastMCP(name="My First MCP Server")
-
-@mcp.tool
-def add(a: int, b: int) -> int:
-    """Adds two integer numbers together."""
-    return a + b
-
-@mcp.resource("resource://config")
-def get_config() -> dict:
-    """Provides the application's configuration."""
-    return {"version": "1.0", "author": "MyTeam"}
-
-@mcp.resource("greetings://{name}")
-def personalized_greeting(name: str) -> str:
-    """Generates a personalized greeting for the given name."""
-    return f"Hello, {name}! Welcome to the MCP server."
-```
-
-Now, clients can request dynamic URIs:
-
-* `greetings://Ford` will call `personalized_greeting(name="Ford")`.
-* `greetings://Marvin` will call `personalized_greeting(name="Marvin")`.
-
-FastMCP automatically maps the `{name}` placeholder in the URI to the `name` parameter in your function.
-
-## Step 5: Run the Server
-
-To make your server executable, add a `__main__` block to your script that calls `mcp.run()`.
-
-```python my_mcp_server.py {19-20}
-from fastmcp import FastMCP
-
-mcp = FastMCP(name="My First MCP Server")
-
-@mcp.tool
-def add(a: int, b: int) -> int:
-    """Adds two integer numbers together."""
-    return a + b
-
-@mcp.resource("resource://config")
-def get_config() -> dict:
-    """Provides the application's configuration."""
-    return {"version": "1.0", "author": "MyTeam"}
-
-@mcp.resource("greetings://{name}")
-def personalized_greeting(name: str) -> str:
-    """Generates a personalized greeting for the given name."""
-    return f"Hello, {name}! Welcome to the MCP server."
-
-if __name__ == "__main__":
-    mcp.run()
-```
-
-Now you can run your server from the command line:
-
-```bash
-python my_mcp_server.py
-```
-
-This starts the server using the default **STDIO transport**, which is how clients like Claude Desktop communicate with local servers. To learn about other transports, like HTTP, see the [Running Your Server](/deployment/running-server) guide.
-
-## The Complete Server
-
-Here is the full code for `my_mcp_server.py` (click to expand):
-
-```python my_mcp_server.py [expandable]
-from fastmcp import FastMCP
-
-# 1. Create the server
-mcp = FastMCP(name="My First MCP Server")
-
-# 2. Add a tool
-@mcp.tool
-def add(a: int, b: int) -> int:
-    """Adds two integer numbers together."""
-    return a + b
-
-# 3. Add a static resource
-@mcp.resource("resource://config")
-def get_config() -> dict:
-    """Provides the application's configuration."""
-    return {"version": "1.0", "author": "MyTeam"}
-
-# 4. Add a resource template for dynamic content
-@mcp.resource("greetings://{name}")
-def personalized_greeting(name: str) -> str:
-    """Generates a personalized greeting for the given name."""
-    return f"Hello, {name}! Welcome to the MCP server."
-
-# 5. Make the server runnable
-if __name__ == "__main__":
-    mcp.run()
-```
-
-## Next Steps
-
-You've successfully built an MCP server! From here, you can explore more advanced topics:
-
-* [**Tools in Depth**](/servers/tools): Learn about asynchronous tools, error handling, and custom return types.
-* [**Resources & Templates**](/servers/resources): Discover different resource types, including files and HTTP endpoints.
-* [**Prompts**](/servers/prompts): Create reusable prompt templates for your LLM.
-* [**Running Your Server**](/deployment/running-server): Deploy your server with different transports like HTTP.
-
-
-# What is the Model Context Protocol (MCP)?
-Source: https://gofastmcp.com/tutorials/mcp
-
-An introduction to the core concepts of the Model Context Protocol (MCP), explaining what it is, why it's useful, and how it works.
-
-The Model Context Protocol (MCP) is an open standard designed to solve a fundamental problem in AI development: how can Large Language Models (LLMs) reliably and securely interact with external tools, data, and services?
-
-It's the **bridge between the probabilistic, non-deterministic world of AI and the deterministic, reliable world of your code and data.**
-
-While you could build a custom REST API for your LLM, MCP provides a specialized, standardized "port" for AI-native communication. Think of it as **USB-C for AI**: a single, well-defined interface for connecting any compliant LLM to any compliant tool or data source.
-
-This guide provides a high-level overview of the protocol itself. We'll use **FastMCP**, the leading Python framework for MCP, to illustrate the concepts with simple code examples.
-
-## Why Do We Need a Protocol?
-
-With countless APIs already in existence, the most common question is: "Why do we need another one?"
-
-The answer lies in **standardization**. The AI ecosystem is fragmented. Every model provider has its own way of defining and calling tools. MCP's goal is to create a common language that offers several key advantages:
-
-1. **Interoperability:** Build one MCP server, and it can be used by any MCP-compliant client (Claude, Gemini, OpenAI, custom agents, etc.) without custom integration code. This is the protocol's most important promise.
-2. **Discoverability:** Clients can dynamically ask a server what it's capable of at runtime. They receive a structured, machine-readable "menu" of tools and resources.
-3. **Security & Safety:** MCP provides a clear, sandboxed boundary. An LLM can't execute arbitrary code on your server; it can only *request* to run the specific, typed, and validated functions you explicitly expose.
-4. **Composability:** You can build small, specialized MCP servers and combine them to create powerful, complex applications.
-
-## Core MCP Components
-
-An MCP server exposes its capabilities through three primary components: Tools, Resources, and Prompts.
-
-### Tools: Executable Actions
-
-Tools are functions that the LLM can ask the server to execute. They are the action-oriented part of MCP.
-
-In the spirit of a REST API, you can think of **Tools as being like `POST` requests.** They are used to *perform an action*, *change state*, or *trigger a side effect*, like sending an email, adding a user to a database, or making a calculation.
-
-With FastMCP, creating a tool is as simple as decorating a Python function.
-
-```python
-from fastmcp import FastMCP
-
-mcp = FastMCP()
-
-# This function is now an MCP tool named "get_weather"
-@mcp.tool
-def get_weather(city: str) -> dict:
-    """Gets the current weather for a specific city."""
-    # In a real app, this would call a weather API
-    return {"city": city, "temperature": "72F", "forecast": "Sunny"}
-```
-
-[**Learn more about Tools →**](/servers/tools)
-
-### Resources: Read-Only Data
-
-Resources are data sources that the LLM can read. They are used to load information into the LLM's context, providing it with knowledge it doesn't have from its training data.
-
-Following the REST API analogy, **Resources are like `GET` requests.** Their purpose is to *retrieve information* idempotently, ideally without causing side effects. A resource can be anything from a static text file to a dynamic piece of data from a database. Each resource is identified by a unique URI.
-
-```python
-from fastmcp import FastMCP
-
-mcp = FastMCP()
-
-# This function provides a resource at the URI "system://status"
-@mcp.resource("system://status")
-def get_system_status() -> dict:
-    """Returns the current operational status of the service."""
-    return {"status": "all systems normal"}
-```
-
-#### Resource Templates
-
-You can also create **Resource Templates** for dynamic data. A client could request `users://42/profile` to get the profile for a specific user.
-
-```python
-from fastmcp import FastMCP
-
-mcp = FastMCP()
-
-# This template provides user data for any given user ID
-@mcp.resource("users://{user_id}/profile")
-def get_user_profile(user_id: str) -> dict:
-    """Returns the profile for a specific user."""
-    # Fetch user from a database...
-    return {"id": user_id, "name": "Zaphod Beeblebrox"}
-```
-
-[**Learn more about Resources & Templates →**](/servers/resources)
-
-### Prompts: Reusable Instructions
-
-Prompts are reusable, parameterized message templates. They provide a way to define consistent, structured instructions that a client can request to guide the LLM's behavior for a specific task.
-
-```python
-from fastmcp import FastMCP
-
-mcp = FastMCP()
-
-@mcp.prompt
-def summarize_text(text_to_summarize: str) -> str:
-    """Creates a prompt asking the LLM to summarize a piece of text."""
-    return f"""
-        Please provide a concise, one-paragraph summary of the following text:
-        
-        {text_to_summarize}
-        """
-```
-
-[**Learn more about Prompts →**](/servers/prompts)
-
-## Advanced Capabilities
-
-Beyond the core components, MCP also supports more advanced interaction patterns, such as a server requesting that the *client's* LLM generate a completion (known as **sampling**), or a server sending asynchronous **notifications** to a client. These features enable more complex, bidirectional workflows and are fully supported by FastMCP.
-
-## Next Steps
-
-Now that you understand the core concepts of the Model Context Protocol, you're ready to start building. The best place to begin is our step-by-step tutorial.
-
-[**Tutorial: How to Create an MCP Server in Python →**](/tutorials/create-mcp-server)
-
-
-# How to Connect an LLM to a REST API
-Source: https://gofastmcp.com/tutorials/rest-api
-
-A step-by-step guide to making any REST API with an OpenAPI spec available to LLMs using FastMCP.
-
-You've built a powerful REST API, and now you want your LLM to be able to use it. Manually writing a wrapper function for every single endpoint is tedious, error-prone, and hard to maintain.
-
-This is where **FastMCP** shines. If your API has an OpenAPI (or Swagger) specification, FastMCP can automatically convert your entire API into a fully-featured MCP server, making every endpoint available as a secure, typed tool for your AI model.
-
-This guide will walk you through converting a public REST API into an MCP server in just a few lines of code.
-
-<Tip>
-  Every code block in this tutorial is a complete, runnable example. You can copy and paste it into a file and run it, or paste it directly into a Python REPL like IPython to try it out.
-</Tip>
-
-### Prerequisites
-
-Make sure you have FastMCP installed. If not, follow the [installation guide](/getting-started/installation).
-
-```bash
-pip install fastmcp
-```
-
-## Step 1: Choose a Target API
-
-For this tutorial, we'll use the [JSONPlaceholder API](https://jsonplaceholder.typicode.com/), a free, fake online REST API for testing and prototyping. It's perfect because it's simple and has a public OpenAPI specification.
-
-* **API Base URL:** `https://jsonplaceholder.typicode.com`
-* **OpenAPI Spec URL:** We'll use a community-provided spec for it.
-
-## Step 2: Create the MCP Server
-
-Now for the magic. We'll use `FastMCP.from_openapi`. This method takes an `httpx.AsyncClient` configured for your API and its OpenAPI specification, and automatically converts **every endpoint** into a callable MCP `Tool`.
-
-<Tip>
-  Learn more about working with OpenAPI specs in the [OpenAPI integration docs](/integrations/openapi).
-</Tip>
-
-<Note>
-  For this tutorial, we'll use a simplified OpenAPI spec directly in the code. In a real project, you would typically load the spec from a URL or local file.
-</Note>
-
-Create a file named `api_server.py`:
-
-```python api_server.py {31-35}
-import httpx
-from fastmcp import FastMCP
-
-# Create an HTTP client for the target API
-client = httpx.AsyncClient(base_url="https://jsonplaceholder.typicode.com")
-
-# Define a simplified OpenAPI spec for JSONPlaceholder
-openapi_spec = {
-    "openapi": "3.0.0",
-    "info": {"title": "JSONPlaceholder API", "version": "1.0"},
-    "paths": {
-        "/users": {
-            "get": {
-                "summary": "Get all users",
-                "operationId": "get_users",
-                "responses": {"200": {"description": "A list of users."}}
-            }
-        },
-        "/users/{id}": {
-            "get": {
-                "summary": "Get a user by ID",
-                "operationId": "get_user_by_id",
-                "parameters": [{"name": "id", "in": "path", "required": True, "schema": {"type": "integer"}}],
-                "responses": {"200": {"description": "A single user."}}
-            }
-        }
-    }
-}
-
-# Create the MCP server from the OpenAPI spec
-mcp = FastMCP.from_openapi(
-    openapi_spec=openapi_spec,
-    client=client,
-    name="JSONPlaceholder MCP Server"
-)
-
-if __name__ == "__main__":
-    mcp.run(transport="http", port=8000)
-```
-
-And that's it! With just a few lines of code, you've created an MCP server that exposes the entire JSONPlaceholder API as a collection of tools.
-
-## Step 3: Test the Generated Server
-
-Let's verify that our new MCP server works. We can use the `fastmcp.Client` to connect to it and inspect its tools.
-
-<Tip>
-  Learn more about the FastMCP client in the [client docs](/clients/client).
-</Tip>
-
-Create a separate file, `api_client.py`:
-
-```python api_client.py {2, 6, 9, 16}
-import asyncio
-from fastmcp import Client
-
-async def main():
-    # Connect to the MCP server we just created
-    async with Client("http://127.0.0.1:8000/mcp/") as client:
-        
-        # List the tools that were automatically generated
-        tools = await client.list_tools()
-        print("Generated Tools:")
-        for tool in tools:
-            print(f"- {tool.name}")
-            
-        # Call one of the generated tools
-        print("\n\nCalling tool 'get_user_by_id'...")
-        user = await client.call_tool("get_user_by_id", {"id": 1})
-        print(f"Result:\n{user.data}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-First, run your server:
-
-```bash
-python api_server.py
-```
-
-Then, in another terminal, run the client:
-
-```bash
-python api_client.py
-```
-
-You should see a list of generated tools (`get_users`, `get_user_by_id`) and the result of calling the `get_user_by_id` tool, which fetches data from the live JSONPlaceholder API.
-
-<img src="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=26b18dbf2cc2591003bb8d56fa0ddd86" alt="" width="2448" height="2667" data-path="assets/images/tutorial-rest-api-result.png" srcset="https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=280&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=13d5aa5d39f1173dc7ba197c91ca959a 280w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=560&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=06c52599492000a5a570d9263e3cb346 560w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=840&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=8099f710074f3d9873a51593c4dd0413 840w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=1100&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=3db37fd0d17c449c38c47137b7aadfc0 1100w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=1650&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=1bfeebbe8edd59193f6f1fa4dae5519e 1650w, https://mintcdn.com/fastmcp/hUosZw7ujHZFemrG/assets/images/tutorial-rest-api-result.png?w=2500&fit=max&auto=format&n=hUosZw7ujHZFemrG&q=85&s=c30c361f7bc87e6080731cde360ea28f 2500w" data-optimize="true" data-opv="2" />
-
-## Step 4: Customizing Route Maps
-
-By default, FastMCP converts every API endpoint into an MCP `Tool`. This ensures maximum compatibility with contemporary LLM clients, many of which **only support the `tools` part of the MCP specification.**
-
-However, for clients that support the full MCP spec, representing `GET` requests as `Resources` can be more semantically correct and efficient.
-
-FastMCP allows users to customize this behavior using the concept of "route maps". A `RouteMap` is a mapping of an API route to an MCP type. FastMCP checks each API route against your custom maps in order. If a route matches a map, it's converted to the specified `mcp_type`. Any route that doesn't match your custom maps will fall back to the default behavior (becoming a `Tool`).
-
-<Tip>
-  Learn more about route maps in the [OpenAPI integration docs](/integrations/openapi#route-mapping).
-</Tip>
-
-Here’s how you can add custom route maps to turn `GET` requests into `Resources` and `ResourceTemplates` (if they have path parameters):
-
-```python api_server_with_resources.py {3, 37-42}
-import httpx
-from fastmcp import FastMCP
-from fastmcp.server.openapi import RouteMap, MCPType
-
-
-# Create an HTTP client for the target API
-client = httpx.AsyncClient(base_url="https://jsonplaceholder.typicode.com")
-
-# Define a simplified OpenAPI spec for JSONPlaceholder
-openapi_spec = {
-    "openapi": "3.0.0",
-    "info": {"title": "JSONPlaceholder API", "version": "1.0"},
-    "paths": {
-        "/users": {
-            "get": {
-                "summary": "Get all users",
-                "operationId": "get_users",
-                "responses": {"200": {"description": "A list of users."}}
-            }
-        },
-        "/users/{id}": {
-            "get": {
-                "summary": "Get a user by ID",
-                "operationId": "get_user_by_id",
-                "parameters": [{"name": "id", "in": "path", "required": True, "schema": {"type": "integer"}}],
-                "responses": {"200": {"description": "A single user."}}
-            }
-        }
-    }
-}
-
-# Create the MCP server with custom route mapping
-mcp = FastMCP.from_openapi(
-    openapi_spec=openapi_spec,
-    client=client,
-    name="JSONPlaceholder MCP Server",
-    route_maps=[
-        # Map GET requests with path parameters (e.g., /users/{id}) to ResourceTemplate
-        RouteMap(methods=["GET"], pattern=r".*\{.*\}.*", mcp_type=MCPType.RESOURCE_TEMPLATE),
-        # Map all other GET requests to Resource
-        RouteMap(methods=["GET"], mcp_type=MCPType.RESOURCE),
-    ]
-)
-
-if __name__ == "__main__":
-    mcp.run(transport="http", port=8000)
-```
-
-With this configuration:
-
-* `GET /users/{id}` becomes a `ResourceTemplate`.
-* `GET /users` becomes a `Resource`.
-* Any `POST`, `PUT`, etc. endpoints would still become `Tools` by default.
-
-
 # FastMCP Updates
 Source: https://gofastmcp.com/updates
 
 
+
+<Update label="FastMCP 2.12" description="December 31, 2024" tags={["Releases"]}>
+  <Card title="FastMCP 2.12: Auth to the Races" href="https://github.com/jlowin/fastmcp/releases/tag/v2.12.0" cta="Read the release notes">
+    FastMCP 2.12 represents one of our most significant releases to date. After extensive testing and iteration with the community, we're shipping major improvements to authentication, configuration, and MCP feature adoption.
+
+    🔐 **OAuth Proxy** bridges the gap for providers that don't support Dynamic Client Registration, enabling authentication with GitHub, Google, WorkOS, and Azure through minimal configuration.
+
+    📋 **Declarative JSON Configuration** introduces `fastmcp.json` as the single source of truth for server settings, making MCP servers as portable and shareable as container images.
+
+    🧠 **Sampling API Fallback** tackles adoption challenges by letting servers generate completions server-side when clients don't support the feature, encouraging innovation while maintaining compatibility.
+  </Card>
+</Update>
+
+<Update label="FastMCP 2.11" description="December 13, 2024" tags={["Releases"]}>
+  <Card title="FastMCP 2.11: Auth to a Good Start" href="https://github.com/jlowin/fastmcp/releases/tag/v2.11.0" cta="Read the release notes">
+    FastMCP 2.11 brings enterprise-ready authentication and dramatic performance improvements.
+
+    🔒 **Comprehensive OAuth 2.1 Support** with WorkOS AuthKit integration, Dynamic Client Registration, and support for separate resource and authorization servers.
+
+    ⚡ **Experimental OpenAPI Parser** delivers dramatic performance gains through single-pass schema processing and optimized memory usage (enable with environment variable).
+
+    💾 **Enhanced State Management** provides persistent state across tool calls with a simple dictionary interface, improving context handling and type annotations.
+
+    This release emphasizes speed and simplicity while setting the foundation for future enterprise features.
+  </Card>
+</Update>
+
+<Update label="FastMCP 2.10" description="November 21, 2024" tags={["Releases"]}>
+  <Card title="FastMCP 2.10: Great Spec-tations" href="https://github.com/jlowin/fastmcp/releases/tag/v2.10.0" cta="Read the release notes">
+    FastMCP 2.10 achieves full compliance with the 6/18/2025 MCP specification update, introducing powerful new communication patterns.
+
+    💬 **Elicitation Support** enables dynamic server-client communication and "human-in-the-loop" workflows, allowing servers to request additional information during execution.
+
+    📊 **Output Schemas** provide structured outputs for tools, making results more predictable and easier to parse programmatically.
+
+    🛠️ **Enhanced HTTP Routing** with OpenAPI extensions support and configurable algorithms for more flexible API integration.
+
+    This release includes a breaking change to `client.call_tool()` return signatures but significantly expands the interaction capabilities of MCP servers.
+  </Card>
+</Update>
 
 <Update label="FastMCP 2.9" description="June 23, 2025" tags={["Releases", "Blog Posts"]}>
   <Card title="FastMCP 2.9: MCP-Native Middleware" href="https://www.jlowin.dev/blog/fastmcp-2-9-middleware" img="https://jlowin.dev/_image?href=%2F_astro%2Fhero.BkVTdeBk.jpg&w=1200&h=630&f=png" cta="Read more">
