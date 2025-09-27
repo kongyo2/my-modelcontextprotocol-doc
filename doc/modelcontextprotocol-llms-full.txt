@@ -150,6 +150,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [HyperAgent][HyperAgent]                                   | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Jenova][Jenova]                                           | ❌           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             |
   | [JetBrains AI Assistant][JetBrains AI Assistant]           | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❓             |
+  | [JetBrains Junie][JetBrains Junie]                         | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             |
   | [Kilo Code][Kilo Code]                                     | ✅           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             |
   | [Klavis AI Slack/Discord/Web][Klavis AI]                   | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Langflow][Langflow]                                       | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
@@ -290,6 +291,8 @@ This page provides an overview of applications that support the Model Context Pr
   [Jenova]: https://www.jenova.ai
 
   [JetBrains AI Assistant]: https://plugins.jetbrains.com/plugin/22282-jetbrains-ai-assistant
+
+  [JetBrains Junie]: https://www.jetbrains.com/junie
 
   [Kilo Code]: https://github.com/Kilo-Org/kilocode
 
@@ -846,6 +849,16 @@ Delegate tasks to [GitHub Copilot coding agent](https://docs.github.com/en/copil
 * Access to top-tier models from OpenAI, Anthropic, and Google.
 * Offline mode with connected local LLMs via Ollama or LM Studio.
 * Deep integration into IDE workflows, including code suggestions in the editor, VCS assistance, runtime error explanation, and more.
+
+### JetBrains Junie
+
+[Junie](https://www.jetbrains.com/junie) is JetBrains’ AI coding agent for JetBrains IDEs and Android Studio.
+
+**Key features:**
+
+* Connects to MCP servers over **stdio** to use external tools and data sources.
+* Per-command approval with an optional allowlist.
+* Config via `mcp.json` (global `~/.junie/mcp.json` or project `.junie/mcp/`).
 
 ### Kilo Code
 
