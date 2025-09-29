@@ -2272,7 +2272,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
         asyncio.run(main())
     ```
 
-    You can find the complete `client.py` file [here.](https://gist.github.com/zckly/f3f28ea731e096e53b39b47bf0a2d4b1)
+    You can find the complete `client.py` file [here](https://github.com/modelcontextprotocol/quickstart-resources/blob/main/mcp-client-python/client.py).
 
     ## Key Components Explained
 
@@ -2336,7 +2336,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
     ```
 
     <Note>
-      If you're continuing the weather tutorial from the server quickstart, your command might look something like this: `python client.py .../quickstart-resources/weather-server-python/weather.py`
+      If you're continuing [the weather tutorial from the server quickstart](https://github.com/modelcontextprotocol/quickstart-resources/tree/main/weather-server-python), your command might look something like this: `python client.py .../quickstart-resources/weather-server-python/weather.py`
     </Note>
 
     The client will:
@@ -2742,7 +2742,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
     ```
 
     <Note>
-      If you're continuing the weather tutorial from the server quickstart, your command might look something like this: `node build/index.js .../quickstart-resources/weather-server-typescript/build/index.js`
+      If you're continuing [the weather tutorial from the server quickstart](https://github.com/modelcontextprotocol/quickstart-resources/tree/main/weather-server-typescript), your command might look something like this: `node build/index.js .../quickstart-resources/weather-server-typescript/build/index.js`
     </Note>
 
     **The client will:**
