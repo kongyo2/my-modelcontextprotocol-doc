@@ -3914,9 +3914,12 @@ This tutorial will primarily focus on tools.
     Finally, let's initialize and run the server:
 
     ```python
-    if __name__ == "__main__":
+    def main():
         # Initialize and run the server
         mcp.run(transport='stdio')
+
+    if __name__ == "__main__":
+        main()
     ```
 
     Your server is complete! Run `uv run weather.py` to start the MCP server, which will listen for messages from MCP hosts.
