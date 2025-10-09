@@ -7841,7 +7841,7 @@ export const VersionBadge = ({version}) => {
 
 <VersionBadge version="2.12.0" />
 
-This guide shows you how to secure your FastMCP server using **Azure OAuth** (Microsoft Entra ID). Since Azure doesn't support Dynamic Client Registration, this integration uses the [**OAuth Proxy**](/servers/auth/oauth-proxy) pattern to bridge Azure's traditional OAuth with MCP's authentication requirements.
+This guide shows you how to secure your FastMCP server using **Azure OAuth** (Microsoft Entra ID). Since Azure doesn't support Dynamic Client Registration, this integration uses the [**OAuth Proxy**](/servers/auth/oauth-proxy) pattern to bridge Azure's traditional OAuth with MCP's authentication requirements. FastMCP validates Azure JWTs against your application's client\_id.
 
 ## Configuration
 
@@ -7881,6 +7881,34 @@ Create an App registration in Azure Portal to get the credentials needed for aut
     <Tip>
       If you want to use a custom callback path (e.g., `/auth/azure/callback`), make sure to set the same path in both your Azure App registration and the `redirect_path` parameter when configuring the AzureProvider.
     </Tip>
+
+    * **Expose an API**: Configure your Application ID URI and define scopes
+      * Go to **Expose an API** in the App registration sidebar.
+      * Click **Set** next to "Application ID URI" and choose one of:
+        * Keep the default `api://{client_id}`
+        * Set a custom value, following the supported formats (see [Identifier URI restrictions](https://learn.microsoft.com/en-us/entra/identity-platform/identifier-uri-restrictions))
+      * Click **Add a scope** and create a scope your app will require, for example:
+        * Scope name: `read` (or `write`, etc.)
+        * Admin consent display name/description: as appropriate for your org
+        * Who can consent: as needed (Admins only or Admins and users)
+
+    * **Configure Access Token Version**: Ensure your app uses access token v2
+      * Go to **Manifest** in the App registration sidebar.
+      * Find the `requestedAccessTokenVersion` property and set it to `2`:
+        ```json  theme={null}
+        "api": {
+            "requestedAccessTokenVersion": 2
+        }
+        ```
+      * Click **Save** at the top of the manifest editor.
+
+    <Warning>
+      Access token v2 is required for FastMCP's Azure integration to work correctly. If this is not set, you may encounter authentication errors.
+    </Warning>
+
+    <Note>
+      In FastMCP's `AzureProvider`, set `identifier_uri` to your Application ID URI (optional; defaults to `api://{client_id}`) and set `required_scopes` to the unprefixed scope names (e.g., `read`, `write`). During authorization, FastMCP automatically prefixes scopes with your `identifier_uri`.
+    </Note>
   </Step>
 
   <Step title="Create Client Secret">
@@ -7913,7 +7941,7 @@ Create an App registration in Azure Portal to get the credentials needed for aut
 
 Create your FastMCP server using the `AzureProvider`, which handles Azure's OAuth flow automatically:
 
-```python server.py
+```python server.py theme={null}
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.azure import AzureProvider
 
@@ -7923,7 +7951,11 @@ auth_provider = AzureProvider(
     client_secret="your-client-secret",                 # Your Azure App Client Secret
     tenant_id="08541b6e-646d-43de-a0eb-834e6713d6d5", # Your Azure Tenant ID (REQUIRED)
     base_url="http://localhost:8000",                   # Must match your App registration
-    required_scopes=["User.Read", "email", "openid", "profile"],  # Microsoft Graph permissions
+    required_scopes=["your-scope"],                 # Name of scope created when configuring your App
+    # identifier_uri defaults to api://{client_id}
+    # identifier_uri="api://your-api-id",
+    # Optional: request additional upstream scopes in the authorize request
+    # additional_authorize_scopes=["User.Read", "offline_access", "openid", "email"],
     # redirect_path="/auth/callback"                  # Default value, customize if needed
 )
 
@@ -7962,7 +7994,7 @@ async def get_user_info() -> dict:
 
 Start your FastMCP server with HTTP transport to enable OAuth flows:
 
-```bash
+```bash  theme={null}
 fastmcp run server.py --transport http --port 8000
 ```
 
@@ -7972,7 +8004,7 @@ Your server is now running and protected by Azure OAuth authentication.
 
 Create a test client that authenticates with your Azure-protected server:
 
-```python test_client.py
+```python test_client.py theme={null}
 from fastmcp import Client
 import asyncio
 
@@ -8048,18 +8080,22 @@ These environment variables provide default values for the Azure provider, wheth
     Redirect path configured in your Azure App registration
   </ParamField>
 
-  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES" default="[&#x22;User.Read&#x22;, &#x22;email&#x22;, &#x22;openid&#x22;, &#x22;profile&#x22;]">
-    Comma-, space-, or JSON-separated list of required Microsoft Graph scopes
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES" default="">
+    Comma-, space-, or JSON-separated list of required scopes for your API. These are validated on tokens and used as defaults if the client does not request specific scopes.
   </ParamField>
 
-  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_TIMEOUT_SECONDS" default="10">
-    HTTP request timeout for Microsoft Graph API calls
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_ADDITIONAL_AUTHORIZE_SCOPES" default="">
+    Comma-, space-, or JSON-separated list of additional scopes to include in the authorization request without prefixing. Use this to request upstream scopes such as Microsoft Graph permissions. These are not used for token validation.
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_IDENTIFIER_URI" default="api://{client_id}">
+    Application ID URI used to prefix scopes during authorization.
   </ParamField>
 </Card>
 
 Example `.env` file:
 
-```bash
+```bash  theme={null}
 # Use the Azure provider
 FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.azure.AzureProvider
 
@@ -8068,12 +8104,16 @@ FASTMCP_SERVER_AUTH_AZURE_CLIENT_ID=835f09b6-0f0f-40cc-85cb-f32c5829a149
 FASTMCP_SERVER_AUTH_AZURE_CLIENT_SECRET=your-client-secret-here
 FASTMCP_SERVER_AUTH_AZURE_TENANT_ID=08541b6e-646d-43de-a0eb-834e6713d6d5
 FASTMCP_SERVER_AUTH_AZURE_BASE_URL=https://your-server.com
-FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES=User.Read,email,profile
+FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES=read,write
+# Optional custom API configuration
+# FASTMCP_SERVER_AUTH_AZURE_IDENTIFIER_URI=api://your-api-id
+# Request additional upstream scopes (optional)
+# FASTMCP_SERVER_AUTH_AZURE_ADDITIONAL_AUTHORIZE_SCOPES=User.Read,Mail.Read
 ```
 
 With environment variables set, your server code simplifies to:
 
-```python server.py
+```python server.py theme={null}
 from fastmcp import FastMCP
 
 # Authentication is automatically configured from environment
@@ -13400,7 +13440,7 @@ The primary way to create a transformed tool is with the `Tool.from_tool()` clas
 
 In the following simple example, we take a generic `search` tool and adjust its name and description to help an LLM client better understand its purpose.
 
-```python {13-21}
+```python {13-21} theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 
@@ -13429,7 +13469,7 @@ mcp.add_tool(product_search_tool)
 <Tip>
   When you transform a tool, the original tool remains registered on the server. To avoid confusing an LLM with two similar tools, you can disable the original one:
 
-  ```python
+  ```python  theme={null}
   from fastmcp import FastMCP
   from fastmcp.tools import Tool
 
@@ -13498,7 +13538,7 @@ By far the most common reason to transform a tool, after its own description, is
 
 In this example, we add a helpful description to the `user_id` argument:
 
-```python {16-19}
+```python {16-19} theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 from fastmcp.tools.tool_transform import ArgTransform
@@ -13529,7 +13569,7 @@ At times, you may want to rename an argument to make it more intuitive for an LL
 
 For example, in the following example, we take a generic `q` argument and expand it to `search_query`:
 
-```python {15}
+```python {15} theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 from fastmcp.tools.tool_transform import ArgTransform
@@ -13553,7 +13593,7 @@ new_tool = Tool.from_tool(
 
 You can update the default value for any argument using the `default` parameter. Here, we change the default value of the `y` argument to 10:
 
-```python{15}
+```python{15}  theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 from fastmcp.tools.tool_transform import ArgTransform
@@ -13583,7 +13623,7 @@ Sometimes a tool requires arguments that shouldn't be exposed to the LLM, such a
   To pass a constant value to the parent tool, combine `hide=True` with `default=<value>`.
 </Tip>
 
-```python {19-20}
+```python {19-20} theme={null}
 import os
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
@@ -13613,7 +13653,7 @@ The LLM now only sees the `to`, `subject`, and `body` parameters. The `api_key` 
 
 For values that must be generated for each tool call (like timestamps or unique IDs), use `default_factory`, which is called with no arguments every time the tool is called. For example,
 
-```python {3-4}
+```python {3-4} theme={null}
 transform_args = {
     'timestamp': ArgTransform(
         hide=True,
@@ -13632,7 +13672,7 @@ transform_args = {
 
 You can control meta information on transformed tools using the `meta` parameter. Meta information is additional data about the tool that doesn't affect its functionality but can be used by clients for categorization, routing, or other purposes.
 
-```python {15-17}
+```python {15-17} theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 
@@ -13659,7 +13699,7 @@ mcp.add_tool(enhanced_tool)
 
 You can also remove meta information entirely:
 
-```python {6}
+```python {6} theme={null}
 # Remove meta information from parent tool
 simplified_tool = Tool.from_tool(
     analyze_data,
@@ -13674,7 +13714,7 @@ If you don't specify the `meta` parameter, the transformed tool inherits the par
 
 In rare cases where you want to make an optional argument required, you can set `required=True`. This has no effect if the argument was already required.
 
-```python {3}
+```python {3} theme={null}
 transform_args = {
     'user_id': ArgTransform(
         required=True,
@@ -13698,7 +13738,7 @@ The `transform_fn` is an async function that **completely replaces** the parent 
 
 Critically, the transform function's arguments are used to determine the new tool's final schema. Any arguments that are not already present in the parent tool schema OR the `transform_args` will be added to the new tool's schema. Note that when `transform_args` and your function have the same argument name, the `transform_args` metadata will take precedence, if provided.
 
-```python
+```python  theme={null}
 async def my_custom_logic(user_input: str, max_length: int = 100) -> str:
     # Your custom logic here - this completely replaces the parent tool
     return f"Custom result for: {user_input[:max_length]}"
@@ -13725,7 +13765,7 @@ The most common transformation pattern is to validate (potentially renamed) argu
   <Tab title="Using forward()">
     In the simplest case, your parent tool and your transform function have the same arguments. You can call `forward()` with the same argument names as the parent tool:
 
-    ```python {15}
+    ```python {15} theme={null}
     from fastmcp import FastMCP
     from fastmcp.tools import Tool
     from fastmcp.tools.tool_transform import forward
@@ -13754,7 +13794,7 @@ The most common transformation pattern is to validate (potentially renamed) argu
   <Tab title="Using forward() with renamed args">
     When your transformed tool has different argument names than the parent tool, you can call `forward()` with the renamed arguments and it will automatically map the arguments to the parent tool's arguments:
 
-    ```python {15, 20-23}
+    ```python {15, 20-23} theme={null}
     from fastmcp import FastMCP
     from fastmcp.tools import Tool
     from fastmcp.tools.tool_transform import forward
@@ -13787,7 +13827,7 @@ The most common transformation pattern is to validate (potentially renamed) argu
   <Tab title="Using forward_raw()">
     Finally, you can use `forward_raw()` to bypass all argument mapping and call the parent tool directly with its original argument names.
 
-    ```python {15, 20-23}
+    ```python {15, 20-23} theme={null}
     from fastmcp import FastMCP
     from fastmcp.tools import Tool
     from fastmcp.tools.tool_transform import forward
@@ -13824,7 +13864,7 @@ If your `transform_fn` includes `**kwargs` in its signature, it will receive **a
 
 In the following example, we wrap a parent tool that accepts two arguments `x` and `y`. These are renamed to `a` and `b` in the transformed tool, and the transform only validates `a`, passing the other argument through as `**kwargs`.
 
-```python {12, 15}
+```python {12, 15} theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 from fastmcp.tools.tool_transform import forward
@@ -13862,7 +13902,7 @@ mcp.add_tool(new_tool)
 When running MCP Servers under FastMCP with `MCPConfig`, you can also apply a subset of tool transformations
 directly in the MCPConfig json file.
 
-```json
+```json  theme={null}
 {
     "mcpServers": {
         "weather": {
@@ -13903,7 +13943,7 @@ Transformed tools inherit output schemas from their parent by default, but you c
 
 **Inherit from Parent (Default)**
 
-```python
+```python  theme={null}
 Tool.from_tool(parent_tool, name="renamed_tool")
 ```
 
@@ -13911,7 +13951,7 @@ The transformed tool automatically uses the parent tool's output schema and stru
 
 **Custom Output Schema**
 
-```python
+```python  theme={null}
 Tool.from_tool(parent_tool, output_schema={
     "type": "object", 
     "properties": {"status": {"type": "string"}}
@@ -13922,15 +13962,15 @@ Provide your own schema that differs from the parent. The tool must return data 
 
 **Remove Output Schema**
 
-```python
-Tool.from_tool(parent_tool, output_schema=False)
+```python  theme={null}
+Tool.from_tool(parent_tool, output_schema=None)
 ```
 
 Removes the output schema declaration. Automatic structured content still works for object-like returns (dict, dataclass, Pydantic models) but primitive types won't be structured.
 
 **Full Control with Transform Functions**
 
-```python
+```python  theme={null}
 async def custom_output(**kwargs) -> ToolResult:
     result = await forward(**kwargs)
     return ToolResult(content=[...], structured_content={...})
@@ -13950,7 +13990,7 @@ A powerful use case for tool transformation is exposing methods from existing Py
 
 **Without Tool Transformation**, you typically create wrapper functions that duplicate annotations:
 
-```python
+```python  theme={null}
 async def get_repository(
     owner: Annotated[str, "The owner of the repository."],
     repo: Annotated[str, "The name of the repository."],
@@ -13961,7 +14001,7 @@ async def get_repository(
 
 **With Tool Transformation**, you can wrap the client method directly:
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 from fastmcp.tools.tool_transform import ArgTransform
@@ -13987,7 +14027,7 @@ This pattern keeps the implementation in your client and treats the tool as an a
 
 Client methods often have internal parameters (debug flags, auth tokens, rate limit settings) that shouldn't be exposed to LLMs. Use `hide=True` with a default value to handle these automatically:
 
-```python
+```python  theme={null}
 get_issues_tool = Tool.from_tool(
     tool=Tool.from_function(fn=github_client.get_issues),
     description="Get issues from a GitHub repository.",
@@ -14010,7 +14050,7 @@ The LLM only sees `owner`, `repo`, and `limit`. Internal parameters are supplied
 
 When wrapping multiple client methods, you can define reusable argument transformations. This scales well for larger tool sets and keeps annotations consistent:
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
 from fastmcp.tools.tool_transform import ArgTransform
@@ -24445,11 +24485,13 @@ FastMCP supports [MCP proxying](/servers/proxy), which allows you to mirror a lo
 
 You can also create proxies from configuration dictionaries that follow the MCPConfig schema, which is useful for quickly connecting to one or more remote servers. See the [Proxy Servers documentation](/servers/proxy#configuration-based-proxies) for details on configuration-based proxying. Note that MCPConfig follows an emerging standard and its format may evolve over time.
 
+Prefixing rules for tools, prompts, resources, and templates are identical across importing, mounting, and proxies.
+
 ## Importing (Static Composition)
 
 The `import_server()` method copies all components (tools, resources, templates, prompts) from one `FastMCP` instance (the *subserver*) into another (the *main server*). An optional `prefix` can be provided to avoid naming conflicts. If no prefix is provided, components are imported without modification. When multiple servers are imported with the same prefix (or no prefix), the most recently imported server's components take precedence.
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 import asyncio
 
@@ -24509,7 +24551,7 @@ Note that `import_server` performs a **one-time copy** of components. Changes ma
 
 You can also import servers without specifying a prefix, which copies components using their original names:
 
-```python
+```python  theme={null}
 
 from fastmcp import FastMCP
 import asyncio
@@ -24554,7 +24596,7 @@ When importing multiple servers with the same prefix, or no prefix, components f
 
 The `mount()` method creates a **live link** between the `main_mcp` server and the `subserver`. Instead of copying components, requests for components matching the optional `prefix` are **delegated** to the `subserver` at runtime. If no prefix is provided, the subserver's components are accessible without prefixing. When multiple servers are mounted with the same prefix (or no prefix), the most recently mounted server takes precedence for conflicting component names.
 
-```python
+```python  theme={null}
 import asyncio
 from fastmcp import FastMCP, Client
 
@@ -24631,7 +24673,7 @@ FastMCP supports two mounting modes:
    * The mounted server's lifespan is executed when a client connects
    * Communication happens via an in-memory Client transport
 
-```python
+```python  theme={null}
 # Direct mounting (default when no custom lifespan)
 main_mcp.mount(api_server, prefix="api")
 
@@ -24648,7 +24690,7 @@ FastMCP automatically uses proxy mounting when the mounted server has a custom l
 
 When using `FastMCP.as_proxy()` to create a proxy server, mounting that server will always use proxy mounting:
 
-```python
+```python  theme={null}
 # Create a proxy for a remote server
 remote_proxy = FastMCP.as_proxy(Client("http://example.com/mcp"))
 
@@ -24686,20 +24728,20 @@ This was the default format in FastMCP before 2.4. While still supported, it's n
 
 You can configure the prefix format globally in code:
 
-```python
+```python  theme={null}
 import fastmcp
 fastmcp.settings.resource_prefix_format = "protocol" 
 ```
 
 Or via environment variable:
 
-```bash
+```bash  theme={null}
 FASTMCP_RESOURCE_PREFIX_FORMAT=protocol
 ```
 
 Or per-server:
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 
 # Create a server that uses legacy protocol format
@@ -25790,7 +25832,7 @@ It's important to understand that MCP operates on the [JSON-RPC specification](h
 
 The most fundamental way to implement middleware is by overriding the `__call__` method on the `Middleware` base class:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 class RawMiddleware(Middleware):
@@ -25831,17 +25873,31 @@ This hierarchy allows you to target your middleware logic with the right level o
 
 ### Available Hooks
 
+<VersionBadge version="2.9.0" />
+
 * `on_message`: Called for all MCP messages (requests and notifications)
+
 * `on_request`: Called specifically for MCP requests (that expect responses)
+
 * `on_notification`: Called specifically for MCP notifications (fire-and-forget)
-* `on_initialize`: Called when a client connects and initializes the session (returns `None`)
+
 * `on_call_tool`: Called when tools are being executed
+
 * `on_read_resource`: Called when resources are being read
+
 * `on_get_prompt`: Called when prompts are being retrieved
+
 * `on_list_tools`: Called when listing available tools
+
 * `on_list_resources`: Called when listing available resources
+
 * `on_list_resource_templates`: Called when listing resource templates
+
 * `on_list_prompts`: Called when listing available prompts
+
+<VersionBadge version="2.13.0" />
+
+* `on_initialize`: Called when a client connects and initializes the session (returns `None`)
 
 <Note>
   The `on_initialize` hook receives the client's initialization request but **returns `None`** rather than a result. The initialization response is handled internally by the MCP protocol and cannot be modified by middleware. This hook is useful for client detection, logging connections, or initializing session state, but not for modifying the initialization handshake itself.
@@ -25872,7 +25928,7 @@ FastMCP middleware handles two types of operations differently:
 
 If you need to check component properties (like tags) during execution operations, use the FastMCP server instance available through the context:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.exceptions import ToolError
 
@@ -25901,7 +25957,7 @@ class TagBasedMiddleware(Middleware):
 
 The same pattern works for resources and prompts:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.exceptions import ResourceError, PromptError
 
@@ -25931,7 +25987,7 @@ class ComponentAccessMiddleware(Middleware):
 
 For listing operations, the middleware `call_next` function returns a list of FastMCP components prior to being converted to MCP format. You can filter or modify this list and return it to the client. For example:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 class ListingFilterMiddleware(Middleware):
@@ -25958,7 +26014,7 @@ This filtering happens before the components are converted to MCP format and ret
 
 You can deny access to specific tools by raising a `ToolError` in your middleware. This is the correct way to block tool execution, as it integrates properly with the FastMCP error handling system.
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.exceptions import ToolError
 
@@ -25982,7 +26038,7 @@ class AuthMiddleware(Middleware):
 
 For execution operations like tool calls, you can modify arguments before execution or transform results afterward:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 class ToolCallMiddleware(Middleware):
@@ -26012,7 +26068,7 @@ class ToolCallMiddleware(Middleware):
 
 Every middleware hook follows the same pattern. Let's examine the `on_message` hook to understand the structure:
 
-```python
+```python  theme={null}
 async def on_message(self, context: MiddlewareContext, call_next):
     # 1. Pre-processing: Inspect and optionally modify the request
     print(f"Processing {context.method}")
@@ -26061,7 +26117,7 @@ In addition to modifying the request and response, you can also store state data
 
 FastMCP middleware is implemented by subclassing the `Middleware` base class and overriding the hooks you need. You only need to implement the hooks that are relevant to your use case.
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
@@ -26090,7 +26146,7 @@ This creates a basic logging middleware that will print information about every 
 
 Adding middleware to your server is straightforward:
 
-```python
+```python  theme={null}
 mcp = FastMCP("MyServer")
 mcp.add_middleware(LoggingMiddleware())
 ```
@@ -26099,7 +26155,7 @@ mcp.add_middleware(LoggingMiddleware())
 
 Middleware executes in the order it's added to the server. The first middleware added runs first on the way in, and last on the way out:
 
-```python
+```python  theme={null}
 mcp = FastMCP("MyServer")
 
 mcp.add_middleware(AuthenticationMiddleware("secret-token"))
@@ -26127,7 +26183,7 @@ When using [Server Composition](/servers/composition) with `mount` or `import_se
 
 This allows you to create layered middleware architectures where parent servers handle cross-cutting concerns like authentication, while child servers focus on domain-specific middleware.
 
-```python
+```python  theme={null}
 # Parent server with middleware
 parent = FastMCP("Parent")
 parent.add_middleware(AuthenticationMiddleware("token"))
@@ -26156,7 +26212,7 @@ Performance monitoring is essential for understanding your server's behavior and
 
 Here's an example of how it works:
 
-```python
+```python  theme={null}
 import time
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
@@ -26177,7 +26233,7 @@ class SimpleTimingMiddleware(Middleware):
 
 To use the full version with proper logging and configuration:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware.timing import (
     TimingMiddleware, 
     DetailedTimingMiddleware
@@ -26198,7 +26254,7 @@ Request and response logging is crucial for debugging, monitoring, and understan
 
 Here's an example of how it works:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 class SimpleLoggingMiddleware(Middleware):
@@ -26216,7 +26272,7 @@ class SimpleLoggingMiddleware(Middleware):
 
 To use the full versions with advanced features:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware.logging import (
     LoggingMiddleware, 
     StructuredLoggingMiddleware
@@ -26240,7 +26296,7 @@ Rate limiting is essential for protecting your server from abuse, ensuring fair 
 
 Here's an example of how it works:
 
-```python
+```python  theme={null}
 import time
 from collections import defaultdict
 from fastmcp.server.middleware import Middleware, MiddlewareContext
@@ -26272,7 +26328,7 @@ class SimpleRateLimitMiddleware(Middleware):
 
 To use the full versions with advanced algorithms:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware.rate_limiting import (
     RateLimitingMiddleware, 
     SlidingWindowRateLimitingMiddleware
@@ -26299,7 +26355,7 @@ Consistent error handling and recovery is critical for robust MCP servers. FastM
 
 Here's an example of how it works:
 
-```python
+```python  theme={null}
 import logging
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
@@ -26322,7 +26378,7 @@ class SimpleErrorHandlingMiddleware(Middleware):
 
 To use the full versions with advanced features:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware.error_handling import (
     ErrorHandlingMiddleware, 
     RetryMiddleware
@@ -26348,7 +26404,7 @@ The built-in versions include error transformation, custom callbacks, configurab
 
 These middleware work together seamlessly:
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 from fastmcp.server.middleware.timing import TimingMiddleware
 from fastmcp.server.middleware.logging import LoggingMiddleware
@@ -26374,7 +26430,7 @@ This configuration provides comprehensive monitoring, protection, and observabil
 
 You can also create custom middleware by extending the base class:
 
-```python
+```python  theme={null}
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 class CustomHeaderMiddleware(Middleware):
@@ -26958,7 +27014,7 @@ FastMCP provides a powerful proxying capability that allows one FastMCP server i
 
 Proxying means setting up a FastMCP server that doesn't implement its own tools or resources directly. Instead, when it receives a request (like `tools/call` or `resources/read`), it forwards that request to a *backend* MCP server, receives the response, and then relays that response back to the original client.
 
-```mermaid
+```mermaid  theme={null}
 sequenceDiagram
     participant ClientApp as Your Client (e.g., Claude Desktop)
     participant FastMCPProxy as FastMCP Proxy Server
@@ -26994,7 +27050,7 @@ If low latency is a requirement for your use-case, consider using [`import_serve
 
 The recommended way to create a proxy is using `ProxyClient`, which provides full MCP feature support with automatic session isolation:
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 from fastmcp.server.proxy import ProxyClient
 
@@ -27030,7 +27086,7 @@ FastMCP proxies provide session isolation to ensure safe concurrent operations. 
 
 When you pass a disconnected client (which is the normal case), each request gets its own isolated backend session:
 
-```python
+```python  theme={null}
 from fastmcp.server.proxy import ProxyClient
 
 # Each request creates a fresh backend session (recommended)
@@ -27046,7 +27102,7 @@ proxy = FastMCP.as_proxy(ProxyClient("backend_server.py"))
 
 When you pass an already-connected client, the proxy will reuse that session for all requests:
 
-```python
+```python  theme={null}
 from fastmcp import Client
 
 # Create and connect a client
@@ -27064,7 +27120,7 @@ async with Client("backend_server.py") as connected_client:
 
 A common use case is bridging transports - exposing a server running on one transport via a different transport. For example, making a remote SSE server available locally via stdio:
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 from fastmcp.server.proxy import ProxyClient
 
@@ -27081,7 +27137,7 @@ if __name__ == "__main__":
 
 Or expose a local server via HTTP for remote access:
 
-```python
+```python  theme={null}
 # Bridge local server to HTTP
 local_proxy = FastMCP.as_proxy(
     ProxyClient("local_server.py"),
@@ -27107,7 +27163,7 @@ if __name__ == "__main__":
 * **Logging**: Forwards log messages from backend through to client
 * **Progress**: Forwards progress notifications during long operations
 
-```python
+```python  theme={null}
 from fastmcp.server.proxy import ProxyClient
 
 # ProxyClient automatically handles all these features
@@ -27125,7 +27181,7 @@ proxy = FastMCP.as_proxy(backend)
 
 You can selectively disable forwarding by passing `None` for specific handlers:
 
-```python
+```python  theme={null}
 # Disable sampling but keep other features
 backend = ProxyClient(
     "backend_server.py",
@@ -27142,7 +27198,7 @@ When you use a transport string directly with `FastMCP.as_proxy()`, it automatic
 
 You can create a proxy directly from a configuration dictionary that follows the MCPConfig schema. This is useful for quickly setting up proxies to remote servers without manually configuring each connection detail.
 
-```python
+```python  theme={null}
 from fastmcp import FastMCP
 
 # Create a proxy directly from a config dictionary
@@ -27171,7 +27227,7 @@ if __name__ == "__main__":
 
 You can create a proxy to multiple servers by specifying multiple entries in the config. They are automatically mounted with their config names as prefixes:
 
-```python
+```python  theme={null}
 # Multi-server configuration
 config = {
     "mcpServers": {
@@ -27189,10 +27245,29 @@ config = {
 # Create a unified proxy to multiple servers
 composite_proxy = FastMCP.as_proxy(config, name="Composite Proxy")
 
-# Tools and resources are accessible with prefixes:
-# - weather_get_forecast, calendar_add_event 
-# - weather://weather/icons/sunny, calendar://calendar/events/today
+# Tools, resources, prompts, and templates are accessible with prefixes:
+# - Tools: weather_get_forecast, calendar_add_event
+# - Prompts: weather_daily_summary, calendar_quick_add
+# - Resources: weather://weather/icons/sunny, calendar://calendar/events/today
+# - Templates: weather://weather/locations/{id}, calendar://calendar/events/{date}
 ```
+
+## Component Prefixing
+
+When proxying one or more servers, component names are prefixed the same way as with mounting and importing:
+
+* Tools: `{prefix}_{tool_name}`
+* Prompts: `{prefix}_{prompt_name}`
+* Resources: `protocol://{prefix}/path/to/resource` (default path format)
+* Resource templates: `protocol://{prefix}/...` and template names are also prefixed
+
+These rules apply uniformly whether you:
+
+* Mount a proxy on another server
+* Create a multi-server proxy from an `MCPConfig`
+* Use `FastMCP.as_proxy()` directly
+
+For resource URI prefix formats (path vs legacy protocol style) and configuration options, see Server Composition → Resource Prefix Formats.
 
 ## Mirrored Components
 
@@ -27204,7 +27279,7 @@ However, you can create a copy of a mirrored component and store it as a new loc
 
 Therefore, to enable or disable a proxy tool, resource, or prompt, you should first create a local copy and add it to your own server. Here's an example of how to do that for a tool:
 
-```python
+```python  theme={null}
 # Create your own server
 my_server = FastMCP("MyServer")
 
@@ -27230,7 +27305,7 @@ Internally, `FastMCP.as_proxy()` uses the `FastMCPProxy` class. You generally do
 
 ### Direct Usage
 
-```python
+```python  theme={null}
 from fastmcp.server.proxy import FastMCPProxy, ProxyClient
 
 # Provide a client factory for explicit session control
@@ -27249,7 +27324,7 @@ proxy = FastMCPProxy(client_factory=create_client)
 
 `FastMCPProxy` requires explicit session management - no automatic detection is performed. You must choose your session strategy:
 
-```python
+```python  theme={null}
 # Share session across all requests (be careful with concurrency)
 shared_client = ProxyClient("backend_server.py")
 def shared_session_factory():
@@ -27266,7 +27341,7 @@ proxy = FastMCPProxy(client_factory=fresh_session_factory)
 
 For automatic session strategy selection, use the convenience method `FastMCP.as_proxy()` instead.
 
-```python
+```python  theme={null}
 # Custom factory with specific configuration
 def custom_client_factory():
     client = ProxyClient("backend_server.py")
