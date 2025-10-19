@@ -26233,6 +26233,142 @@ Elicitation requires the client to implement an elicitation handler. See [Client
 If a client doesn't support elicitation, calls to `ctx.elicit()` will raise an error indicating that elicitation is not supported.
 
 
+# Icons
+Source: https://gofastmcp.com/servers/icons
+
+Add visual icons to your servers, tools, resources, and prompts
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.14.0" />
+
+Icons provide visual representations for your MCP servers and components, helping client applications present better user interfaces. When displayed in MCP clients, icons help users quickly identify and navigate your server's capabilities.
+
+## Icon Format
+
+Icons use the standard MCP Icon type from the MCP protocol specification. Each icon specifies:
+
+* **src**: URL or data URI pointing to the icon image
+* **mimeType** (optional): MIME type of the image (e.g., "image/png", "image/svg+xml")
+* **sizes** (optional): Array of size descriptors (e.g., \["48x48"], \["any"])
+
+```python  theme={null}
+from mcp.types import Icon
+
+icon = Icon(
+    src="https://example.com/icon.png",
+    mimeType="image/png",
+    sizes=["48x48"]
+)
+```
+
+## Server Icons
+
+Add icons and a website URL to your server for display in client applications:
+
+```python  theme={null}
+from fastmcp import FastMCP
+from mcp.types import Icon
+
+mcp = FastMCP(
+    name="WeatherService",
+    website_url="https://weather.example.com",
+    icons=[
+        Icon(
+            src="https://weather.example.com/icon-48.png",
+            mimeType="image/png",
+            sizes=["48x48"]
+        ),
+        Icon(
+            src="https://weather.example.com/icon-96.png",
+            mimeType="image/png",
+            sizes=["96x96"]
+        ),
+    ]
+)
+```
+
+Server icons appear in MCP client interfaces to help users identify your server among others they may have installed.
+
+## Component Icons
+
+Icons can be added to individual tools, resources, resource templates, and prompts:
+
+### Tool Icons
+
+```python  theme={null}
+from mcp.types import Icon
+
+@mcp.tool(
+    icons=[Icon(src="https://example.com/calculator-icon.png")]
+)
+def calculate_sum(a: int, b: int) -> int:
+    """Add two numbers together."""
+    return a + b
+```
+
+### Resource Icons
+
+```python  theme={null}
+@mcp.resource(
+    "config://settings",
+    icons=[Icon(src="https://example.com/config-icon.png")]
+)
+def get_settings() -> dict:
+    """Retrieve application settings."""
+    return {"theme": "dark", "language": "en"}
+```
+
+### Resource Template Icons
+
+```python  theme={null}
+@mcp.resource(
+    "user://{user_id}/profile",
+    icons=[Icon(src="https://example.com/user-icon.png")]
+)
+def get_user_profile(user_id: str) -> dict:
+    """Get a user's profile."""
+    return {"id": user_id, "name": f"User {user_id}"}
+```
+
+### Prompt Icons
+
+```python  theme={null}
+@mcp.prompt(
+    icons=[Icon(src="https://example.com/prompt-icon.png")]
+)
+def analyze_code(code: str):
+    """Create a prompt for code analysis."""
+    return f"Please analyze this code:\n\n{code}"
+```
+
+## Using Data URIs
+
+For small icons or when you want to embed the icon directly, use data URIs:
+
+```python  theme={null}
+from mcp.types import Icon
+
+# SVG icon as data URI
+svg_icon = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6Ii8+PC9zdmc+",
+    mimeType="image/svg+xml"
+)
+
+@mcp.tool(icons=[svg_icon])
+def my_tool() -> str:
+    """A tool with an embedded SVG icon."""
+    return "result"
+```
+
+
 # Client Logging
 Source: https://gofastmcp.com/servers/logging
 
@@ -27514,6 +27650,12 @@ def data_analysis_prompt(
     A boolean to enable or disable the prompt. See [Disabling Prompts](#disabling-prompts) for more information
   </ParamField>
 
+  <ParamField body="icons" type="list[Icon] | None">
+    <VersionBadge version="2.14.0" />
+
+    Optional list of icon representations for this prompt. See [Icons](/servers/icons) for detailed examples
+  </ParamField>
+
   <ParamField body="meta" type="dict[str, Any] | None">
     <VersionBadge version="2.11.0" />
 
@@ -28234,6 +28376,12 @@ def get_application_status() -> dict:
 
   <ParamField body="enabled" type="bool" default="True">
     A boolean to enable or disable the resource. See [Disabling Resources](#disabling-resources) for more information
+  </ParamField>
+
+  <ParamField body="icons" type="list[Icon] | None">
+    <VersionBadge version="2.14.0" />
+
+    Optional list of icon representations for this resource or template. See [Icons](/servers/icons) for detailed examples
   </ParamField>
 
   <ParamField body="annotations" type="Annotations | dict | None">
@@ -29036,6 +29184,22 @@ The `FastMCP` constructor accepts several arguments:
     Description of how to interact with this server. These instructions help clients understand the server's purpose and available functionality
   </ParamField>
 
+  <ParamField body="version" type="str | None">
+    Version string for your server. If not provided, defaults to the FastMCP library version
+  </ParamField>
+
+  <ParamField body="website_url" type="str | None">
+    <VersionBadge version="2.14.0" />
+
+    URL to a website with more information about your server. Displayed in client applications
+  </ParamField>
+
+  <ParamField body="icons" type="list[Icon] | None">
+    <VersionBadge version="2.14.0" />
+
+    List of icon representations for your server. Icons help users visually identify your server in client applications. See [Icons](/servers/icons) for detailed examples
+  </ParamField>
+
   <ParamField body="auth" type="OAuthProvider | TokenVerifier | None">
     Authentication provider for securing HTTP-based transports. See [Authentication](/servers/auth/authentication) for configuration options
   </ParamField>
@@ -29509,6 +29673,12 @@ def search_products_implementation(query: str, category: str | None = None) -> l
 
   <ParamField body="enabled" type="bool" default="True">
     A boolean to enable or disable the tool. See [Disabling Tools](#disabling-tools) for more information
+  </ParamField>
+
+  <ParamField body="icons" type="list[Icon] | None">
+    <VersionBadge version="2.14.0" />
+
+    Optional list of icon representations for this tool. See [Icons](/servers/icons) for detailed examples
   </ParamField>
 
   <ParamField body="exclude_args" type="list[str] | None">
