@@ -1151,7 +1151,7 @@ MooPoint is a web-based AI chat platform built for developers and advanced users
 
 ### Needle
 
-[Needle](https://needle.app) is a RAG worflow platform that also works as an MCP client, letting you connect and use MCP servers in seconds.
+[Needle](https://needle.app) is a RAG workflow platform that also works as an MCP client, letting you connect and use MCP servers in seconds.
 
 **Key features:**
 
@@ -1893,7 +1893,7 @@ Each SEP must have an **SEP author** -- someone who writes the SEP using the sty
 
 SEPs should be submitted as a GitHub Issue in the [specification repository](https://github.com/modelcontextprotocol/modelcontextprotocol). The standard SEP workflow is:
 
-1. You, the SEP author, create a [well-formatted](#sep-format) GitHub Issue with the `SEP` and `proposal` tags. The SEP number is the same as the GitHub Issue number, the two can be used interchangably.
+1. You, the SEP author, create a [well-formatted](#sep-format) GitHub Issue with the `SEP` and `proposal` tags. The SEP number is the same as the GitHub Issue number, the two can be used interchangeably.
 2. Find a Core Maintainer or Maintainer to sponsor your proposal. Core Maintainers and Maintainers will regularly go over the list of open proposals to determine which proposals to sponsor. You can tag relevant maintainers from [the maintainer list](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/MAINTAINERS.md) in your proposal.
 3. Once a sponsor is found, the GitHub Issue is assigned to the sponsor. The sponsor will add the `draft` tag, ensure the SEP number is in the title, and assign a milestone.
 4. The sponsor will informally review the proposal and may request changes based on community feedback. When ready for formal review, the sponsor will add the `in-review` tag.
@@ -7326,7 +7326,7 @@ Let's walk through what happens when a client wants to connect to your protected
     }
     ```
 
-    You can see a more comprehensive example in [RFC 9278 Section 3.2](https://datatracker.ietf.org/doc/html/rfc9728#name-protected-resource-metadata-r).
+    You can see a more comprehensive example in [RFC 9728 Section 3.2](https://datatracker.ietf.org/doc/html/rfc9728#name-protected-resource-metadata-r).
   </Step>
 
   <Step title="Authorization Server Discovery">
@@ -7366,7 +7366,7 @@ Let's walk through what happens when a client wants to connect to your protected
     <Tip>
       **No DCR or Pre-Registration**
 
-      In case a MCP client connects to a MCP server that doesn't use an authorization server that supports DCR and the client is not pre-registered with said authorization server, it's the responsibility of the client developer to provide an affordance for the end-user to enter client information manually.
+      In case an MCP client connects to an MCP server that doesn't use an authorization server that supports DCR and the client is not pre-registered with said authorization server, it's the responsibility of the client developer to provide an affordance for the end-user to enter client information manually.
     </Tip>
   </Step>
 
