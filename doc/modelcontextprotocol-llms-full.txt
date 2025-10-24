@@ -132,7 +132,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [CodeGPT][CodeGPT]                                         | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Continue][Continue]                                       | ✅           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Copilot-MCP][CopilotMCP]                                  | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
-  | [Cursor][Cursor]                                           | ✅           | ✅         | ✅       | ❌           | ✅          | ✅       | ✅             |
+  | [Cursor][Cursor]                                           | ✅           | ✅         | ✅       | ❌           | ❌          | ✅       | ✅             |
   | [Daydreams Agents][Daydreams]                              | ✅           | ✅         | ✅       | ❌           | ❌          | ❌       | ❓             |
   | [ECA][ECA]                                                 | ✅           | ✅         | ✅       | ❌           | ❌          | ✅       | ❓             |
   | [Emacs Mcp][Mcp.el]                                        | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❓             |
@@ -187,12 +187,13 @@ This page provides an overview of applications that support the Model Context Pr
   | [Superjoin][Superjoin]                                     | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Swarms][Swarms]                                           | ❌           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             |
   | [systemprompt][systemprompt]                               | ✅           | ✅         | ✅       | ❓           | ✅          | ❌       | ❓             |
-  | [Tambo][Tambo]                                             | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
+  | [Tambo][Tambo]                                             | ❌           | ❌         | ✅       | ❓           | ✅          | ❌       | ❓             |
   | [Tencent CloudBase AI DevKit][Tencent CloudBase AI DevKit] | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [TheiaAI/TheiaIDE][TheiaAI/TheiaIDE]                       | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Tome][Tome]                                               | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [TypingMind App][TypingMind App]                           | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [VS Code GitHub Copilot][VS Code]                          | ✅           | ✅         | ✅       | ✅           | ✅          | ✅       | ✅             |
+  | [VT Code][VT Code]                                         | ✅           | ✅         | ✅       | ✅           | ⚠️         | ✅       | ✅             |
   | [Warp][Warp]                                               | ✅           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             |
   | [WhatsMCP][WhatsMCP]                                       | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❓             |
   | [Windsurf Editor][Windsurf]                                | ❌           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             |
@@ -379,6 +380,8 @@ This page provides an overview of applications that support the Model Context Pr
   [TypingMind App]: https://www.typingmind.com
 
   [VS Code]: https://code.visualstudio.com/
+
+  [VT Code]: https://github.com/vinhnx/vtcode
 
   [Windsurf]: https://codeium.com/windsurf
 
@@ -1372,7 +1375,7 @@ Smithery Playground is a developer-first MCP client for exploring, testing and d
 * Support for selection of arbitrary React components in the chat experience, with state management and tool calling.
 * Support for MCP servers, from Tambo's servers or directly from the browser.
 * Supports OAuth 2.1 and custom header-based authentication.
-* Support for MCP tools, with additional MCP features coming soon.
+* Support for MCP tools and sampling, with additional MCP features coming soon.
 
 ### Tencent CloudBase AI DevKit
 
@@ -1437,6 +1440,20 @@ Theia AI and Theia IDE's MCP integration provide users with flexibility, making 
 * Easy server debugging with restart commands and output logging
 * Tool calls with editable inputs and always-allow toggle
 * Integration with existing VS Code extension system to register MCP servers from extensions
+
+### VT Code
+
+[VT Code](https://github.com/vinhnx/vtcode) is a terminal coding agent that integrates with Model Context Protocol (MCP) servers, focusing on predictable tool permissions and robust transport controls.
+
+**Key features:**
+
+* Connect to MCP servers over stdio; optional experimental RMCP/streamable HTTP support
+* Configurable per-provider concurrency, startup/tool timeouts, and retries via `vtcode.toml`
+* Pattern-based allowlists for tools, resources, and prompts with provider-level overrides
+
+**Learn more:**
+
+* [MCP Integration Guide](https://github.com/vinhnx/vtcode/blob/main/docs/guides/mcp-integration.md)
 
 ### Warp
 
