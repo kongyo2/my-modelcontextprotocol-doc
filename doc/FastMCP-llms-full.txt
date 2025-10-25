@@ -5104,30 +5104,33 @@ This automatic approach is convenient for development but not suitable for produ
 
 **For Production:**
 
-Production requires explicit key management to ensure tokens survive restarts and can be shared across multiple server instances. This requires three things working together:
+Production requires explicit key management to ensure tokens survive restarts and can be shared across multiple server instances. This requires the following two things working together:
 
 1. **Explicit JWT signing key** for signing tokens issued to clients
-2. **Explicit token encryption key** for encrypting upstream OAuth tokens at rest
-3. **Persistent network-accessible storage** for encrypted upstream tokens
-
-The keys can be any secret strings (environment variables, secret manager, etc.) and should be different from each other. FastMCP derives proper cryptographic keys from whatever you provide using HKDF.
+2. **Persistent network-accessible storage** for upstream tokens (wrapped in `FernetEncryptionWrapper` to encrypt sensitive data at rest)
 
 **Configuration:**
 
-Add three parameters to your auth provider:
+Add two parameters to your auth provider:
 
-```python {4-7} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+```python {8-12} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
+
 auth = GitHubProvider(
     client_id=os.environ["GITHUB_CLIENT_ID"],
     client_secret=os.environ["GITHUB_CLIENT_SECRET"],
     jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"],
-    client_storage=RedisStore(host="redis.example.com", ...),
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(host="redis.example.com", port=6379),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
+    ),
     base_url="https://your-server.com"  # use HTTPS
 )
 ```
 
-All three parameters are required for production. Without explicit keys, new keys are generated each time the server starts (on Mac/Windows from keyring, on Linux ephemeral). Without persistent storage, encrypted tokens are lost. Both cause token validation to fail after restart, requiring all clients to re-authenticate.
+Both parameters are required for production. Without an explicit signing key, keys are signed using a key derived from the client\_secret, which will cause invalidation upon rotation of the client secret. Without persistent storage, tokens are local to the server and won't be trusted across hosts. **Wrap your storage backend in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without encryption, tokens are stored in plaintext.
 
 For more details on the token architecture and key management, see [OAuth Proxy Key and Storage Management](/servers/auth/oauth-proxy#key-and-storage-management).
 
@@ -6367,6 +6370,15 @@ Source: https://gofastmcp.com/development/tests
 
 Testing patterns and requirements for FastMCP
 
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
 Good tests are the foundation of reliable software. In FastMCP, we treat tests as first-class documentation that demonstrates how features work while protecting against regressions. Every new capability needs comprehensive tests that demonstrate correctness.
 
 ## FastMCP Tests
@@ -6659,6 +6671,8 @@ While in-memory testing covers most unit testing needs, you'll occasionally need
 
 #### In-Process Network Testing (Preferred)
 
+<VersionBadge version="2.13.0" />
+
 For most network transport tests, use `run_server_async` with AnyIO task groups. This runs the server as a task in the same process, providing fast, deterministic tests with full debugger support:
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
@@ -6789,14 +6803,11 @@ auth = GitHubProvider(
 
     # Explicit keys (required for production)
     jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"],
 
     # Persistent network storage (required for production)
     client_storage=RedisStore(host="redis.example.com", port=6379)
 )
 ```
-
-All three are required for production. The keys accept any secret string and should be different from each other.
 
 **More information:**
 
@@ -7520,15 +7531,17 @@ When you run the client for the first time:
 
 <VersionBadge version="2.13.0" />
 
-For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, `token_encryption_key`, and `client_storage`:
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, and `client_storage`:
 
 ```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.auth0 import Auth0Provider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
-# Production setup with persistent token storage
+# Production setup with encrypted persistent token storage
 auth_provider = Auth0Provider(
     config_url="https://.../.well-known/openid-configuration",
     client_id="tv2ObNgaZAWWhhycr7Bz1LU2mxlnsmsB",
@@ -7537,11 +7550,13 @@ auth_provider = Auth0Provider(
     base_url="https://your-production-domain.com",
 
     # Production token management
-    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],           # Secret for signing JWT tokens
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"], # Secret for encrypting tokens at rest
-    client_storage=RedisStore(                               # Persistent storage for client registrations
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"])
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
     )
 )
 
@@ -7549,7 +7564,7 @@ mcp = FastMCP(name="Production Auth0 App", auth=auth_provider)
 ```
 
 <Note>
-  All three parameters (`jwt_signing_key`, `token_encryption_key`, and `client_storage`) work together to ensure tokens and client registrations survive server restarts. Store secrets in environment variables and use a persistent storage backend like Redis or PostgreSQL for distributed deployments.
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
 
   For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
 </Note>
@@ -7991,15 +8006,17 @@ When you run the client for the first time:
 
 <VersionBadge version="2.13.0" />
 
-For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, `token_encryption_key`, and `client_storage`:
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, and `client_storage`:
 
 ```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.aws import AWSCognitoProvider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
-# Production setup with persistent token storage
+# Production setup with encrypted persistent token storage
 auth_provider = AWSCognitoProvider(
     user_pool_id="eu-central-1_XXXXXXXXX",
     aws_region="eu-central-1",
@@ -8008,11 +8025,13 @@ auth_provider = AWSCognitoProvider(
     base_url="https://your-production-domain.com",
 
     # Production token management
-    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],           # Secret for signing JWT tokens
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"], # Secret for encrypting tokens at rest
-    client_storage=RedisStore(                               # Persistent storage for client registrations
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"])
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
     )
 )
 
@@ -8020,7 +8039,7 @@ mcp = FastMCP(name="Production AWS Cognito App", auth=auth_provider)
 ```
 
 <Note>
-  All three parameters (`jwt_signing_key`, `token_encryption_key`, and `client_storage`) work together to ensure tokens and client registrations survive server restarts. Store secrets in environment variables and use a persistent storage backend like Redis or PostgreSQL for distributed deployments.
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
 
   For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
 </Note>
@@ -8367,15 +8386,17 @@ When you run the client for the first time:
 
 <VersionBadge version="2.13.0" />
 
-For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, `token_encryption_key`, and `client_storage`:
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key` and `client_storage`:
 
 ```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.azure import AzureProvider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
-# Production setup with persistent token storage
+# Production setup with encrypted persistent token storage
 auth_provider = AzureProvider(
     client_id="835f09b6-0f0f-40cc-85cb-f32c5829a149",
     client_secret="your-client-secret",
@@ -8384,11 +8405,13 @@ auth_provider = AzureProvider(
     required_scopes=["your-scope"],
 
     # Production token management
-    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],           # Secret for signing JWT tokens
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"], # Secret for encrypting tokens at rest
-    client_storage=RedisStore(                               # Persistent storage for client registrations
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"])
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
     )
 )
 
@@ -8396,7 +8419,7 @@ mcp = FastMCP(name="Production Azure App", auth=auth_provider)
 ```
 
 <Note>
-  All three parameters (`jwt_signing_key`, `token_encryption_key`, and `client_storage`) work together to ensure tokens and client registrations survive server restarts. Store secrets in environment variables and use a persistent storage backend like Redis or PostgreSQL for distributed deployments.
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
 
   For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
 </Note>
@@ -10642,26 +10665,30 @@ When you run the client for the first time:
 
 <VersionBadge version="2.13.0" />
 
-For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, `token_encryption_key`, and `client_storage`:
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key` and `client_storage`:
 
 ```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.github import GitHubProvider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
-# Production setup with persistent token storage
+# Production setup with encrypted persistent token storage
 auth_provider = GitHubProvider(
     client_id="Ov23liAbcDefGhiJkLmN",
     client_secret="github_pat_...",
     base_url="https://your-production-domain.com",
 
     # Production token management
-    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],           # Secret for signing JWT tokens
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"], # Secret for encrypting tokens at rest
-    client_storage=RedisStore(                               # Persistent storage for client registrations
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"])
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
     )
 )
 
@@ -10669,7 +10696,7 @@ mcp = FastMCP(name="Production GitHub App", auth=auth_provider)
 ```
 
 <Note>
-  All three parameters (`jwt_signing_key`, `token_encryption_key`, and `client_storage`) work together to ensure tokens and client registrations survive server restarts. Store secrets in environment variables and use a persistent storage backend like Redis or PostgreSQL for distributed deployments.
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
 
   For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
 </Note>
@@ -10913,15 +10940,17 @@ When you run the client for the first time:
 
 <VersionBadge version="2.13.0" />
 
-For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, `token_encryption_key`, and `client_storage`:
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key` and `client_storage`:
 
 ```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.google import GoogleProvider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
-# Production setup with persistent token storage
+# Production setup with encrypted persistent token storage
 auth_provider = GoogleProvider(
     client_id="123456789.apps.googleusercontent.com",
     client_secret="GOCSPX-abc123...",
@@ -10929,11 +10958,13 @@ auth_provider = GoogleProvider(
     required_scopes=["openid", "https://www.googleapis.com/auth/userinfo.email"],
 
     # Production token management
-    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],           # Secret for signing JWT tokens
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"], # Secret for encrypting tokens at rest
-    client_storage=RedisStore(                               # Persistent storage for client registrations
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"])
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
     )
 )
 
@@ -10941,7 +10972,7 @@ mcp = FastMCP(name="Production Google App", auth=auth_provider)
 ```
 
 <Note>
-  All three parameters (`jwt_signing_key`, `token_encryption_key`, and `client_storage`) work together to ensure tokens and client registrations survive server restarts. Store secrets in environment variables and use a persistent storage backend like Redis or PostgreSQL for distributed deployments.
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
 
   For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
 </Note>
@@ -12870,15 +12901,17 @@ When you run the client for the first time:
 
 <VersionBadge version="2.13.0" />
 
-For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, `token_encryption_key`, and `client_storage`:
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, and `client_storage`:
 
 ```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp import FastMCP
 from fastmcp.server.auth.providers.workos import WorkOSProvider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
-# Production setup with persistent token storage
+# Production setup with encrypted persistent token storage
 auth = WorkOSProvider(
     client_id="client_YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
@@ -12887,11 +12920,13 @@ auth = WorkOSProvider(
     required_scopes=["openid", "profile", "email"],
 
     # Production token management
-    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],           # Secret for signing JWT tokens
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"], # Secret for encrypting tokens at rest
-    client_storage=RedisStore(                               # Persistent storage for client registrations
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"])
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
     )
 )
 
@@ -12899,7 +12934,7 @@ mcp = FastMCP(name="Production WorkOS App", auth=auth)
 ```
 
 <Note>
-  All three parameters (`jwt_signing_key`, `token_encryption_key`, and `client_storage`) work together to ensure tokens and client registrations survive server restarts. Store secrets in environment variables and use a persistent storage backend like Redis or PostgreSQL for distributed deployments.
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
 
   For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
 </Note>
@@ -13903,6 +13938,91 @@ The current behavior of FastMCP decorators with methods is:
 For class and instance methods, you should register them after creating the instance or class to ensure proper method binding. This ensures that the methods are properly bound before being registered.
 
 Understanding these patterns allows you to effectively organize your components into classes while maintaining proper method binding, giving you the benefits of object-oriented design without sacrificing the simplicity of FastMCP's decorator system.
+
+
+# Testing your FastMCP Server
+Source: https://gofastmcp.com/patterns/testing
+
+How to test your FastMCP server.
+
+The best way to ensure a reliable and maintainable FastMCP Server is to test it! The FastMCP Client combined with Pytest provides a simple and powerful way to test your FastMCP servers.
+
+Using Pytest Fixtures, you can wrap your FastMCP Server in a Client instance that makes interacting with your server fast and easy. This is especially useful when building your own MCP Servers and enables a tight development loop by allowing you to avoid using a separate tool like MCP Inspector during development:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+import pytest
+from fastmcp.client import Client
+from fastmcp.client.transports import FastMCPTransport
+
+from my_project.main import mcp
+
+@pytest.fixture
+async def main_mcp_client():
+    async with Client(transport=mcp) as mcp_client:
+        yield mcp_client
+
+async def test_list_tools(main_mcp_client: Client[FastMCPTransport]):
+    list_tools = await main_mcp_client.list_tools()
+
+    assert len(list_tools) == 5
+```
+
+We recommend the [inline-snapshot library](https://github.com/15r10nk/inline-snapshot) for asserting complex data structures coming from your MCP Server. This library allows you to write tests that are easy to read and understand, and are also easy to update when the data structure changes.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from inline_snapshot import snapshot
+
+async def test_list_tools(main_mcp_client: Client[FastMCPTransport]):
+    list_tools = await main_mcp_client.list_tools()
+
+    assert list_tools == snapshot()
+```
+
+Simply run `pytest --inline-snapshot=fix,create` to fill in the `snapshot()` with actual data.
+
+<Tip>
+  For values that change you can leverage the [dirty-equals](https://github.com/samuelcolvin/dirty-equals) library to perform flexible equality assertions on dynamic or non-deterministic values.
+</Tip>
+
+Using the pytest `parametrize` decorator, you can easily test your tools with a wide variety of inputs.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+import pytest
+from my_project.main import mcp
+
+from fastmcp.client import Client
+from fastmcp.client.transports import FastMCPTransport
+@pytest.fixture
+async def main_mcp_client():
+    async with Client(mcp) as client:
+        yield client
+
+
+@pytest.mark.parametrize(
+    "first_number, second_number, expected",
+    [
+        (1, 2, 3),
+        (2, 3, 5),
+        (3, 4, 7),
+    ],
+)
+async def test_add(
+    first_number: int,
+    second_number: int,
+    expected: int,
+    main_mcp_client: Client[FastMCPTransport],
+):
+    result = await main_mcp_client.call_tool(
+        name="add", arguments={"x": first_number, "y": second_number}
+    )
+    assert result.data is not None
+    assert isinstance(result.data, int)
+    assert result.data == expected
+```
+
+<Tip>
+  The [FastMCP Repository contains thousands of tests](https://github.com/jlowin/fastmcp/tree/main/tests) for the FastMCP Client and Server. Everything from connecting to remote MCP servers, to testing tools, resources, and prompts is covered, take a look for inspiration!
+</Tip>
 
 
 # Tool Transformation
@@ -17643,7 +17763,7 @@ This maintains proper OAuth 2.0 token audience boundaries.
 ### `derive_jwt_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L25" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-derive_jwt_key(upstream_secret: str, server_salt: str) -> bytes
+derive_jwt_key(from_secret: str, server_salt: str) -> bytes
 ```
 
 Derive JWT signing key from upstream client secret and server salt.
@@ -17653,7 +17773,7 @@ the upstream OAuth client secret combined with a server-specific salt.
 
 **Args:**
 
-* `upstream_secret`: The OAuth client secret from upstream provider
+* `from_secret`: The OAuth client secret from upstream provider
 * `server_salt`: Random salt unique to this server instance
 
 **Returns:**
@@ -17663,7 +17783,7 @@ the upstream OAuth client secret combined with a server-specific salt.
 ### `derive_encryption_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L46" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-derive_encryption_key(upstream_secret: str) -> bytes
+derive_encryption_key(from_secret: str) -> bytes
 ```
 
 Derive Fernet encryption key from upstream client secret.
@@ -17673,7 +17793,7 @@ encrypting upstream tokens at rest.
 
 **Args:**
 
-* `upstream_secret`: The OAuth client secret from upstream provider
+* `from_secret`: The OAuth client secret from upstream provider
 
 **Returns:**
 
@@ -24642,40 +24762,42 @@ mcp = FastMCP(name="My Server", auth=auth)
   <ParamField body="client_storage" type="AsyncKeyValue | None">
     <VersionBadge version="2.13.0" />
 
-    Storage backend for persisting OAuth client registrations and encrypted upstream tokens.
+    Storage backend for persisting OAuth client registrations and upstream tokens.
 
     **Default behavior:**
-
-    * **Mac/Windows**: DiskStore in your platform's data directory (derived from `platformdirs`)
-    * **Linux**: MemoryStore (ephemeral - clients lost on restart)
-
-    By default on Mac/Windows, clients are automatically persisted to disk, allowing them to survive server restarts as long as the filesystem remains accessible. This means MCP clients only need to register once and can reconnect seamlessly. On Linux where keyring isn't available, ephemeral storage is used to match the ephemeral key strategy.
+    By default, clients are automatically persisted to an encrypted disk store, allowing them to survive server restarts as long as the filesystem remains accessible. This means MCP clients only need to register once and can reconnect seamlessly. The disk store is encrypted using a key derived from the JWT Signing Key (which is derived from the upstream client secret by default). For client registrations to survive upstream client secret rotation, you should provide a JWT Signing Key or your own client\_storage.
 
     For production deployments with multiple servers or cloud deployments, see [Storage Backends](/servers/storage-backends) for available options.
 
-    For production token persistence, use this with `jwt_signing_key` and `token_encryption_key` - all three work together to ensure tokens survive restarts. See [OAuth Token Security](/deployment/http#oauth-token-security).
+    <Warning>
+      **When providing custom storage**, wrap it in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest:
 
-    Testing with in-memory storage:
+      ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+      from key_value.aio.stores.redis import RedisStore
+      from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+      from cryptography.fernet import Fernet
+      import os
+
+      auth = OAuthProxy(
+          ...,
+          jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+          client_storage=FernetEncryptionWrapper(
+              key_value=RedisStore(host="redis.example.com", port=6379),
+              fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
+          )
+      )
+      ```
+
+      Without encryption, upstream OAuth tokens are stored in plaintext.
+    </Warning>
+
+    Testing with in-memory storage (unencrypted):
 
     ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
     from key_value.aio.stores.memory import MemoryStore
 
     # Use in-memory storage for testing (clients lost on restart)
     auth = OAuthProxy(..., client_storage=MemoryStore())
-    ```
-
-    Production with Redis for distributed deployments:
-
-    ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-    from key_value.aio.stores.redis import RedisStore
-    import os
-
-    auth = OAuthProxy(
-        ...,
-        jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
-        token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"],
-        client_storage=RedisStore(host="redis.example.com", port=6379)
-    )
     ```
   </ParamField>
 
@@ -24685,47 +24807,22 @@ mcp = FastMCP(name="My Server", auth=auth)
     Secret used to sign FastMCP JWT tokens issued to clients. Accepts any string or bytes - will be derived into a proper 32-byte cryptographic key using HKDF.
 
     **Default behavior (`None`):**
-
-    * **Mac/Windows**: Auto-managed via system keyring. Keys are generated once and persisted, surviving server restarts with zero configuration. Keys are automatically derived from server attributes, so this approach, while convenient, is **only** suitable for development and local testing. For production, you must provide an explicit secret.
-    * **Linux**: Ephemeral (random salt at startup). Tokens become invalid on server restart, triggering client re-authentication.
+    Derives a 32-byte key using PBKDF2 from the upstream client secret.
 
     **For production:**
-    Provide an explicit secret (e.g., from environment variable) to use a fixed key instead of the auto-generated one. Works with `token_encryption_key` and `client_storage` to ensure tokens survive restarts - all three parameters are required for production deployments. This allows you to manage keys securely in cloud environments and across multiple instances.
+    Provide an explicit secret (e.g., from environment variable) to use a fixed key instead of the key derived from the upstream client secret. This allows you to manage keys securely in cloud environments, allows keys to work across multiple instances, and allows you to rotate keys without losing client registrations.
 
     ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
     import os
 
     auth = OAuthProxy(
         ...,
-        jwt_signing_key=os.environ["JWT_SIGNING_KEY"],  # Any string!
-        token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"],
+        jwt_signing_key=os.environ["JWT_SIGNING_KEY"],  # Any sufficiently complex string!
         client_storage=RedisStore(...)  # Persistent storage
     )
     ```
 
     See [HTTP Deployment - OAuth Token Security](/deployment/http#oauth-token-security) for complete production setup.
-  </ParamField>
-
-  <ParamField body="token_encryption_key" type="str | bytes | None">
-    <VersionBadge version="2.13.0" />
-
-    Secret used to encrypt upstream tokens at rest in `client_storage`. Accepts any string or bytes - will be derived into a proper 32-byte cryptographic key using HKDF.
-
-    **Default behavior (`None`):**
-
-    * **Mac/Windows**: FastMCP will generate a key and store it in the system's keyring. Keys are automatically derived from server attributes, so this approach, while convenient, is **only** suitable for development and local testing. For production, you must provide an explicit secret.
-    * **Linux**: Ephemeral (random salt at startup). Like `jwt_signing_key`, this is ephemeral, though without a valid JWT signing key, encrypted tokens are useless anyway (JWT validation fails first).
-
-    **For production:**
-    Provide an explicit secret distinct from `jwt_signing_key`. Works with `jwt_signing_key` and persistent `client_storage` - all three are required for production deployments.
-
-    ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-    # Use different secrets for each key
-    jwt_signing_key="my-jwt-secret-v1"
-    token_encryption_key="my-encryption-secret-v1"
-    ```
-
-    See [HTTP Deployment - OAuth Token Security](/deployment/http#oauth-token-security).
   </ParamField>
 
   <ParamField body="require_authorization_consent" type="bool" default="True">
@@ -24959,7 +25056,7 @@ Check your server logs for "Client registered with redirect\_uri" messages to id
 
 <VersionBadge version="2.13.0" />
 
-The OAuth proxy requires cryptographic keys for JWT signing and token encryption, plus persistent storage to maintain valid tokens across server restarts.
+The OAuth proxy requires cryptographic keys for JWT signing and storage encryption, plus persistent storage to maintain valid tokens across server restarts.
 
 **Default behavior (appropriate for development only):**
 
@@ -24967,7 +25064,7 @@ The OAuth proxy requires cryptographic keys for JWT signing and token encryption
 * **Linux**: Keys are ephemeral (random salt at startup). Storage defaults to memory. Tokens become invalid on server restart.
 
 **For production:**
-Configure three parameters together: provide a unique `jwt_signing_key` (for signing FastMCP JWTs), a unique `token_encryption_key` (for encrypting upstream tokens at rest), and a shared `client_storage` backend (for storing encrypted tokens). All three are required for production deployments. Use a network-accessible storage backend like Redis or DynamoDB rather than local disk storage. The keys accept any secret string and derive proper cryptographic keys using HKDF. See [OAuth Token Security](/deployment/http#oauth-token-security) and [Storage Backends](/servers/storage-backends) for complete production setup.
+Configure the following parameters together: provide a unique `jwt_signing_key` (for signing FastMCP JWTs), and a shared `client_storage` backend (for storing tokens). Both are required for production deployments. Use a network-accessible storage backend like Redis or DynamoDB rather than local disk storage. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** (see the `client_storage` parameter documentation above for examples). The keys accept any secret string and derive proper cryptographic keys using HKDF. See [OAuth Token Security](/deployment/http#oauth-token-security) and [Storage Backends](/servers/storage-backends) for complete production setup.
 
 ### Confused Deputy Attacks
 
@@ -25170,44 +25267,48 @@ mcp = FastMCP(name="My Server", auth=auth)
     * **Linux**: Ephemeral (random salt at startup). Tokens become invalid on server restart, triggering client re-authentication.
 
     **For production:**
-    Provide an explicit secret (e.g., from environment variable) to use a fixed key instead of the auto-generated one. Works with `token_encryption_key` and `client_storage` to ensure tokens survive restarts - all three parameters are required for production deployments.
-  </ParamField>
-
-  <ParamField body="token_encryption_key" type="str | bytes | None">
-    <VersionBadge version="2.13.0" />
-
-    Secret used to encrypt upstream tokens at rest in `client_storage`. Accepts any string or bytes - will be derived into a proper 32-byte cryptographic key using HKDF.
-
-    **Default behavior (`None`):**
-
-    * **Mac/Windows**: FastMCP will generate a key and store it in the system's keyring. Keys are automatically derived from server attributes, so this approach, while convenient, is **only** suitable for development and local testing. For production, you must provide an explicit secret.
-    * **Linux**: Ephemeral (random salt at startup). Like `jwt_signing_key`, this is ephemeral, though without a valid JWT signing key, encrypted tokens are useless anyway (JWT validation fails first).
-
-    **For production:**
-    Provide an explicit secret distinct from `jwt_signing_key`. Works with `jwt_signing_key` and persistent `client_storage` - all three are required for production deployments.
+    Provide an explicit secret (e.g., from environment variable) to use a fixed key instead of the auto-generated one.
   </ParamField>
 
   <ParamField body="client_storage" type="AsyncKeyValue | None">
     <VersionBadge version="2.13.0" />
 
-    Storage backend for persisting OAuth client registrations and encrypted upstream tokens.
+    Storage backend for persisting OAuth client registrations and upstream tokens.
 
     **Default behavior:**
 
-    * **Mac/Windows**: DiskStore in your platform's data directory (derived from `platformdirs`)
+    * **Mac/Windows**: Encrypted DiskStore in your platform's data directory (derived from `platformdirs`)
     * **Linux**: MemoryStore (ephemeral - clients lost on restart)
 
-    By default on Mac/Windows, clients are automatically persisted to disk, allowing them to survive server restarts as long as the filesystem remains accessible. This means MCP clients only need to register once and can reconnect seamlessly. On Linux where keyring isn't available, ephemeral storage is used to match the ephemeral key strategy.
+    By default on Mac/Windows, clients are automatically persisted to encrypted disk storage, allowing them to survive server restarts as long as the filesystem remains accessible. This means MCP clients only need to register once and can reconnect seamlessly. On Linux where keyring isn't available, ephemeral storage is used to match the ephemeral key strategy.
 
-    For production deployments with multiple servers or cloud deployments, use a network-accessible storage backend rather than local disk storage. See [Storage Backends](/servers/storage-backends) for available options.
+    For production deployments with multiple servers or cloud deployments, use a network-accessible storage backend rather than local disk storage. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest.** See [Storage Backends](/servers/storage-backends) for available options.
 
-    Testing with in-memory storage:
+    Testing with in-memory storage (unencrypted):
 
     ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
     from key_value.aio.stores.memory import MemoryStore
 
     # Use in-memory storage for testing (clients lost on restart)
     auth = OIDCProxy(..., client_storage=MemoryStore())
+    ```
+
+    Production with encrypted Redis storage:
+
+    ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+    from key_value.aio.stores.redis import RedisStore
+    from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+    from cryptography.fernet import Fernet
+    import os
+
+    auth = OIDCProxy(
+        ...,
+        jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+        client_storage=FernetEncryptionWrapper(
+            key_value=RedisStore(host="redis.example.com", port=6379),
+            fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
+        )
+    )
     ```
   </ParamField>
 </Card>
@@ -26194,7 +26295,8 @@ The `Context` object provides a clean interface to access MCP features within yo
 
 * **Logging**: Send debug, info, warning, and error messages back to the client
 * **Progress Reporting**: Update the client on the progress of long-running operations
-* **Resource Access**: Read data from resources registered with the server
+* **Resource Access**: List and read data from resources registered with the server
+* **Prompt Access**: List and retrieve prompts registered with the server
 * **LLM Sampling**: Request the client's LLM to generate text based on provided messages
 * **User Elicitation**: Request structured input from users during tool execution
 * **State Management**: Store and share data between middleware and the handler within a single request
@@ -26356,16 +26458,41 @@ See [Progress Reporting](/servers/progress) for detailed patterns and examples.
 
 ### Resource Access
 
-Read data from resources registered with your FastMCP server, allowing access to files, configuration, or dynamic content.
+List and read data from resources registered with your FastMCP server, allowing access to files, configuration, or dynamic content.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# List available resources
+resources = await ctx.list_resources()
+
+# Read a specific resource
 content_list = await ctx.read_resource("resource://config")
 content = content_list[0].content
 ```
 
-**Method signature:**
+**Method signatures:**
 
+* **`ctx.list_resources() -> list[MCPResource]`**: <VersionBadge version="2.13.0" /> Returns list of all available resources
 * **`ctx.read_resource(uri: str | AnyUrl) -> list[ReadResourceContents]`**: Returns a list of resource content parts
+
+### Prompt Access
+
+<VersionBadge version="2.13.0" />
+
+List and retrieve prompts registered with your FastMCP server, allowing tools and middleware to discover and use available prompts programmatically.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# List available prompts
+prompts = await ctx.list_prompts()
+
+# Get a specific prompt with arguments
+result = await ctx.get_prompt("analyze_data", {"dataset": "users"})
+messages = result.messages
+```
+
+**Method signatures:**
+
+* **`ctx.list_prompts() -> list[MCPPrompt]`**: Returns list of all available prompts
+* **`ctx.get_prompt(name: str, arguments: dict[str, Any] | None = None) -> GetPromptResult`**: Get a specific prompt with optional arguments
 
 ### State Management
 
@@ -26390,8 +26517,8 @@ class UserAuthMiddleware(Middleware):
         # Middleware stores user info in context state
         context.fastmcp_context.set_state("user_id", "user_123")
         context.fastmcp_context.set_state("permissions", ["read", "write"])
-        
-        return await call_next()
+
+        return await call_next(context)
 
 @mcp.tool
 async def secure_operation(data: str, ctx: Context) -> str:
@@ -27815,6 +27942,41 @@ mcp.add_middleware(DetailedTimingMiddleware())
 ```
 
 The built-in versions include custom logger support, proper formatting, and **DetailedTimingMiddleware** provides operation-specific hooks like `on_call_tool` and `on_read_resource` for granular timing.
+
+### Tool Injection Middleware
+
+Tool injection middleware is a middleware that injects tools into the server during the request lifecycle:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.server.middleware.tool_injection import ToolInjectionMiddleware
+
+def my_tool_fn(a: int, b: int) -> int:
+    return a + b
+
+my_tool = Tool.from_function(fn=my_tool_fn, name="my_tool")
+
+mcp.add_middleware(ToolInjectionMiddleware(tools=[my_tool]))
+```
+
+### Prompt Tool Middleware
+
+Prompt tool middleware is a compatibility middleware for clients that are unable to list or get prompts. It provides two tools: `list_prompts` and `get_prompt` which allow clients to list and get prompts respectively using only tool calls.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.server.middleware.tool_injection import PromptToolMiddleware
+
+mcp.add_middleware(PromptToolMiddleware())
+```
+
+### Resource Tool Middleware
+
+Resource tool middleware is a compatibility middleware for clients that are unable to list or read resources. It provides two tools: `list_resources` and `read_resource` which allow clients to list and read resources respectively using only tool calls.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.server.middleware.tool_injection import ResourceToolMiddleware
+
+mcp.add_middleware(ResourceToolMiddleware())
+```
 
 ### Caching Middleware
 
@@ -30530,7 +30692,6 @@ auth = GitHubProvider(
     client_secret=os.environ["GITHUB_CLIENT_SECRET"],
     base_url="https://your-server.com",
     jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"],
     client_storage=RedisStore(host="redis.example.com", port=6379)
 )
 ```
@@ -30561,7 +30722,7 @@ For configuration details on these backends, consult the [py-key-value-aio docum
 
 ### Server-Side OAuth Token Storage
 
-The [OAuth Proxy](/servers/auth/oauth-proxy) and OAuth auth providers use storage for persisting OAuth client registrations and encrypted upstream tokens.
+The [OAuth Proxy](/servers/auth/oauth-proxy) and OAuth auth providers use storage for persisting OAuth client registrations and upstream tokens. **By default, storage is automatically encrypted using `FernetEncryptionWrapper`.** When providing custom storage, wrap it in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest.
 
 **Development (default behavior):**
 
@@ -30584,26 +30745,30 @@ auth = GitHubProvider(
 
 **Production:**
 
-For production deployments, configure explicit keys and persistent network-accessible storage:
+For production deployments, configure explicit keys and persistent network-accessible storage with encryption:
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import os
 from fastmcp.server.auth.providers.github import GitHubProvider
 from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
 
 auth = GitHubProvider(
     client_id=os.environ["GITHUB_CLIENT_ID"],
     client_secret=os.environ["GITHUB_CLIENT_SECRET"],
     base_url="https://your-server.com",
-    # Explicit token encryption and signing keys (required for production)
+    # Explicit JWT signing key (required for production)
     jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
-    token_encryption_key=os.environ["TOKEN_ENCRYPTION_KEY"],
-    # Persistent distributed storage (required for production)
-    client_storage=RedisStore(host="redis.example.com", port=6379)
+    # Encrypted persistent storage (required for production)
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(host="redis.example.com", port=6379),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
+    )
 )
 ```
 
-All three parameters (both keys and storage) are required for production. See [OAuth Token Security](/deployment/http#oauth-token-security) and [Key and Storage Management](/servers/auth/oauth-proxy#key-and-storage-management) for complete setup details.
+Both parameters are required for production. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at rest** - without it, tokens are stored in plaintext. See [OAuth Token Security](/deployment/http#oauth-token-security) and [Key and Storage Management](/servers/auth/oauth-proxy#key-and-storage-management) for complete setup details.
 
 ### Response Caching Middleware
 
