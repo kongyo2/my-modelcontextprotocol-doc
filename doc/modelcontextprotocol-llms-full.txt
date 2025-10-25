@@ -175,7 +175,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [NVIDIA Agent Intelligence toolkit][AIQ toolkit]           | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [OpenSumi][OpenSumi]                                       | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [oterm][oterm]                                             | ❌           | ✅         | ✅       | ❓           | ✅          | ❌       | ❓             |
-  | [Postman][postman]                                         | ✅           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             |
+  | [Postman][postman]                                         | ✅           | ✅         | ✅       | ✅           | ✅          | ❌       | ✅             |
   | [RecurseChat][RecurseChat]                                 | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Roo Code][Roo Code]                                       | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
   | [Shortwave][Shortwave]                                     | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             |
@@ -5921,9 +5921,9 @@ If you encounter issues setting up or using the Filesystem Server, these solutio
     With this change in place, launch Claude Desktop once again.
 
     <Warning>
-      **NPM should be installed globally**
+      **npm should be installed globally**
 
-      The `npx` command may continue to fail if you have not installed NPM globally. If NPM is already installed globally, you will find `%APPDATA%\npm` exists on your system. If not, you can install NPM globally by running the following command:
+      The `npx` command may continue to fail if you have not installed npm globally. If npm is already installed globally, you will find `%APPDATA%\npm` exists on your system. If not, you can install npm globally by running the following command:
 
       ```bash  theme={null}
       npm install -g npm
@@ -7185,12 +7185,12 @@ npx @modelcontextprotocol/inspector <command>
 npx @modelcontextprotocol/inspector <command> <arg1> <arg2>
 ```
 
-#### Inspecting servers from NPM or PyPi
+#### Inspecting servers from npm or PyPI
 
-A common way to start server packages from [NPM](https://npmjs.com) or [PyPi](https://pypi.org).
+A common way to start server packages from [npm](https://npmjs.com) or [PyPI](https://pypi.org).
 
 <Tabs>
-  <Tab title="NPM package">
+  <Tab title="npm package">
     ```bash  theme={null}
     npx -y @modelcontextprotocol/inspector npx <package-name> <args>
     # For example
@@ -7198,7 +7198,7 @@ A common way to start server packages from [NPM](https://npmjs.com) or [PyPi](ht
     ```
   </Tab>
 
-  <Tab title="PyPi package">
+  <Tab title="PyPI package">
     ```bash  theme={null}
     npx @modelcontextprotocol/inspector uvx <package-name> <args>
     # For example
