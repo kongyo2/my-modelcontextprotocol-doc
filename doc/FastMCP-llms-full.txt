@@ -3,6 +3,39 @@ Source: https://gofastmcp.com/changelog
 
 
 
+<Update label="v2.13.0" description="2025-10-25">
+  **[v2.13.0: Cache Me If You Can](https://github.com/jlowin/fastmcp/releases/tag/v2.13.0)**
+
+  FastMCP 2.13 "Cache Me If You Can" represents a fundamental maturation of the framework. After months of community feedback on authentication and state management, this release delivers the infrastructure FastMCP needs to handle production workloads: persistent storage, response caching, and pragmatic OAuth improvements that reflect real-world deployment challenges.
+
+  💾 **Pluggable storage backends** bring persistent state to FastMCP servers. Built on [py-key-value-aio](https://github.com/strawgate/py-key-value), a new library from FastMCP maintainer Bill Easton ([@strawgate](https://github.com/strawgate)), the storage layer provides encrypted disk storage by default, platform-aware token management, and a simple key-value interface for application state. We're excited to bring this elegantly designed library into the FastMCP ecosystem - it's both powerful and remarkably easy to use, including wrappers to add encryption, TTLs, caching, and more to backends ranging from Elasticsearch, Redis, DynamoDB, filesystem, in-memory, and more! OAuth providers now automatically persist tokens across restarts, and developers can store arbitrary state without reaching for external databases. This foundation enables long-running sessions, cached credentials, and stateful applications built on MCP.
+
+  🔐 **OAuth maturity** brings months of production learnings into the framework. The new consent screen prevents confused deputy and authorization bypass attacks discovered in earlier versions while providing a clean UX with customizable branding. The OAuth proxy now issues its own tokens with automatic key derivation from client secrets, and RFC 7662 token introspection support enables enterprise auth flows. Path prefix mounting enables OAuth-protected servers to integrate into existing web applications under custom paths like `/api`, and MCP 1.17+ compliance with RFC 9728 ensures protocol compatibility. Combined with improved error handling and platform-aware token storage, OAuth is now production-ready and security-hardened for serious applications.
+
+  FastMCP now supports out-of-the-box authentication with:
+
+  * **[WorkOS](https://gofastmcp.com/integrations/workos)** and **[AuthKit](https://gofastmcp.com/integrations/authkit)**
+  * **[GitHub](https://gofastmcp.com/integrations/github)**
+  * **[Google](https://gofastmcp.com/integrations/google)**
+  * **[Azure](https://gofastmcp.com/integrations/azure)** (Entra ID)
+  * **[AWS Cognito](https://gofastmcp.com/integrations/aws-cognito)**
+  * **[Auth0](https://gofastmcp.com/integrations/auth0)**
+  * **[Descope](https://gofastmcp.com/integrations/descope)**
+  * **[Scalekit](https://gofastmcp.com/integrations/scalekit)**
+  * **[JWTs](https://gofastmcp.com/servers/auth/token-verification#jwt-token-verification)**
+  * **[RFC 7662 token introspection](https://gofastmcp.com/servers/auth/token-verification#token-introspection-protocol)**
+
+  ⚡ **Response Caching Middleware** dramatically improves performance for expensive operations. Cache tool and resource responses with configurable TTLs, reducing redundant API calls and speeding up repeated queries.
+
+  🔄 **Server lifespans** provide proper initialization and cleanup hooks that run once per server instance instead of per client session. This fixes a long-standing source of confusion in the MCP SDK and enables proper resource management for database connections, background tasks, and other server-level state. Note: this is a breaking behavioral change if you were using the `lifespan` parameter.
+
+  ✨ **Developer experience improvements** include Pydantic input validation for better type safety, icon support for richer UX, RFC 6570 query parameters for resource templates, improved Context API methods (list\_resources, list\_prompts, get\_prompt), and async file/directory resources.
+
+  This release includes contributions from **20** new contributors and represents the largest feature set in a while. Thank you to everyone who tested preview builds and filed issues - your feedback shaped these improvements!
+
+  **Full Changelog**: [v2.12.5...v2.13.0](https://github.com/jlowin/fastmcp/compare/v2.12.5...v2.13.0)
+</Update>
+
 <Update label="v2.12.5" description="2025-10-17">
   **[v2.12.5: Safety Pin](https://github.com/jlowin/fastmcp/releases/tag/v2.12.5)**
 
@@ -14863,7 +14896,7 @@ fastmcp inspect  # auto-detect fastmcp.json
 
 * `server_spec`: Python file to inspect, optionally with :object suffix, or fastmcp.json
 
-### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L785" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `prepare` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/cli/cli.py#L786" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prepare(config_path: Annotated[str | None, cyclopts.Parameter(help='Path to fastmcp.json configuration file')] = None, output_dir: Annotated[str | None, cyclopts.Parameter(help='Directory to create the persistent environment in')] = None, skip_source: Annotated[bool, cyclopts.Parameter(help='Skip source preparation (e.g., git clone)')] = False) -> None
@@ -17449,7 +17482,7 @@ Set is\_binary=True to read file as binary data instead of text.
 
 **Methods:**
 
-#### `validate_absolute_path` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L59" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `validate_absolute_path` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 validate_absolute_path(cls, path: Path) -> Path
@@ -17457,7 +17490,7 @@ validate_absolute_path(cls, path: Path) -> Path
 
 Ensure path is absolute.
 
-#### `set_binary_from_mime_type` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_binary_from_mime_type` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L71" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 set_binary_from_mime_type(cls, is_binary: bool, info: ValidationInfo) -> bool
@@ -17465,7 +17498,7 @@ set_binary_from_mime_type(cls, is_binary: bool, info: ValidationInfo) -> bool
 
 Set is\_binary based on mime\_type if not explicitly set.
 
-#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L74" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L79" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 read(self) -> str | bytes
@@ -17473,13 +17506,13 @@ read(self) -> str | bytes
 
 Read the file content.
 
-### `HttpResource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L84" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `HttpResource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L89" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 A resource that reads from an HTTP endpoint.
 
 **Methods:**
 
-#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L92" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 read(self) -> str | bytes
@@ -17487,13 +17520,13 @@ read(self) -> str | bytes
 
 Read the HTTP content.
 
-### `DirectoryResource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L100" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `DirectoryResource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L106" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 A resource that lists files in a directory.
 
 **Methods:**
 
-#### `validate_absolute_path` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L116" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `validate_absolute_path` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L126" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 validate_absolute_path(cls, path: Path) -> Path
@@ -17501,7 +17534,7 @@ validate_absolute_path(cls, path: Path) -> Path
 
 Ensure path is absolute.
 
-#### `list_files` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L122" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_files` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L132" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 list_files(self) -> list[Path]
@@ -17509,7 +17542,7 @@ list_files(self) -> list[Path]
 
 List files in the directory.
 
-#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L144" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/resources/types.py#L148" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 read(self) -> str
@@ -17760,69 +17793,17 @@ This maintains proper OAuth 2.0 token audience boundaries.
 
 ## Functions
 
-### `derive_jwt_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L25" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `derive_jwt_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L37" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-derive_jwt_key(from_secret: str, server_salt: str) -> bytes
+derive_jwt_key() -> bytes
 ```
 
-Derive JWT signing key from upstream client secret and server salt.
-
-Uses HKDF (RFC 5869) to derive a cryptographically secure signing key from
-the upstream OAuth client secret combined with a server-specific salt.
-
-**Args:**
-
-* `from_secret`: The OAuth client secret from upstream provider
-* `server_salt`: Random salt unique to this server instance
-
-**Returns:**
-
-* 32-byte key suitable for HS256 JWT signing
-
-### `derive_encryption_key` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L46" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-derive_encryption_key(from_secret: str) -> bytes
-```
-
-Derive Fernet encryption key from upstream client secret.
-
-Uses HKDF to derive a cryptographically secure encryption key for
-encrypting upstream tokens at rest.
-
-**Args:**
-
-* `from_secret`: The OAuth client secret from upstream provider
-
-**Returns:**
-
-* 32-byte Fernet key (base64url-encoded)
-
-### `derive_key_from_secret` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-derive_key_from_secret(secret: str | bytes, salt: str, info: bytes) -> bytes
-```
-
-Derive 32-byte key from user-provided secret (string or bytes).
-
-Accepts any length input and derives a proper cryptographic key.
-Uses HKDF to stretch weak inputs into strong keys.
-
-**Args:**
-
-* `secret`: User-provided secret (any string or bytes)
-* `salt`: Application-specific salt string
-* `info`: Key purpose identifier
-
-**Returns:**
-
-* 32-byte key suitable for HS256 JWT signing or Fernet encryption
+Derive JWT signing key from a high-entropy or low-entropy key material and server salt.
 
 ## Classes
 
-### `JWTIssuer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L90" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JWTIssuer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L74" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Issues and validates FastMCP-signed JWT tokens using HS256.
 
@@ -17832,7 +17813,7 @@ a key derived from the upstream client secret.
 
 **Methods:**
 
-#### `issue_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L116" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `issue_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L100" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 issue_access_token(self, client_id: str, scopes: list[str], jti: str, expires_in: int = 3600) -> str
@@ -17855,7 +17836,7 @@ which contains actual user identity and authorization data.
 
 * Signed JWT token
 
-#### `issue_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `issue_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L147" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 issue_refresh_token(self, client_id: str, scopes: list[str], jti: str, expires_in: int) -> str
@@ -17878,7 +17859,7 @@ token which contains actual user identity and authorization data.
 
 * Signed JWT token
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L211" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L195" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 verify_token(self, token: str) -> dict[str, Any]
@@ -17900,47 +17881,29 @@ Validates JWT signature, expiration, issuer, and audience.
 
 * `JoseError`: If token is invalid, expired, or has wrong claims
 
-### `TokenEncryption` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L255" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-Handles encryption/decryption of upstream OAuth tokens at rest.
+# middleware
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-auth-middleware
 
-**Methods:**
 
-#### `encrypt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L266" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-encrypt(self, token: str) -> bytes
-```
+# `fastmcp.server.auth.middleware`
 
-Encrypt a token for storage.
+Enhanced authentication middleware with better error messages.
 
-**Args:**
+This module provides enhanced versions of MCP SDK authentication middleware
+that return more helpful error messages for developers troubleshooting
+authentication issues.
 
-* `token`: Plain text token
+## Classes
 
-**Returns:**
+### `RequireAuthMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/middleware.py#L22" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-* Encrypted token bytes
+Enhanced authentication middleware with detailed error messages.
 
-#### `decrypt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/jwt_issuer.py#L277" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-decrypt(self, encrypted_token: bytes) -> str
-```
-
-Decrypt a token from storage.
-
-**Args:**
-
-* `encrypted_token`: Encrypted token bytes
-
-**Returns:**
-
-* Plain text token
-
-**Raises:**
-
-* `cryptography.fernet.InvalidToken`: If token is corrupted or key is wrong
+Extends the SDK's RequireAuthMiddleware to provide more actionable
+error messages when authentication fails. This helps developers
+understand what went wrong and how to fix it.
 
 
 # oauth_proxy
@@ -17970,7 +17933,7 @@ production use with enterprise identity providers.
 
 ## Functions
 
-### `create_consent_html` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L230" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_consent_html` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L236" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 create_consent_html(client_id: str, redirect_uri: str, scopes: list[str], txn_id: str, csrf_token: str, client_name: str | None = None, title: str = 'Application Access Request', server_name: str | None = None, server_icon_url: str | None = None, server_website_url: str | None = None, client_website_url: str | None = None) -> str
@@ -17980,35 +17943,36 @@ Create a styled HTML consent page for OAuth authorization requests.
 
 ## Classes
 
-### `OAuthTransaction` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L103" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuthTransaction` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L108" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth transaction state for consent flow.
 
 Stored server-side to track active authorization flows with client context.
 Includes CSRF tokens for consent protection per MCP security best practices.
 
-### `ClientCode` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L124" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ClientCode` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Client authorization code with PKCE and upstream tokens.
 
 Stored server-side after upstream IdP callback. Contains the upstream
 tokens bound to the client's PKCE challenge for secure token exchange.
 
-### `UpstreamTokenSet` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L142" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `UpstreamTokenSet` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L147" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Stored upstream OAuth tokens from identity provider.
 
 These tokens are obtained from the upstream provider (Google, GitHub, etc.)
-and are stored encrypted at rest. They are never exposed to MCP clients.
+and stored in plaintext within this model. Encryption is handled transparently
+at the storage layer via FernetEncryptionWrapper. Tokens are never exposed to MCP clients.
 
-### `JTIMapping` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JTIMapping` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L169" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Maps FastMCP token JTI to upstream token ID.
 
 This allows stateless JWT validation while still being able to look up
 the corresponding upstream token when tools need to access upstream APIs.
 
-### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L175" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L181" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Client for DCR proxy with configurable redirect URI validation.
 
@@ -18037,7 +18001,7 @@ arise from accepting arbitrary redirect URIs.
 
 **Methods:**
 
-#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L204" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L210" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl
@@ -18050,7 +18014,7 @@ we validate their redirect URIs against configurable patterns.
 This is essential for cached token scenarios where the client may
 reconnect with a different port.
 
-### `TokenHandler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L377" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `TokenHandler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L383" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 TokenHandler that returns OAuth 2.1 compliant error responses.
 
@@ -18072,7 +18036,7 @@ Per MCP spec: "Invalid or expired tokens MUST receive a HTTP 401 response."
 
 **Methods:**
 
-#### `response` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L396" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `response` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L402" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 response(self, obj: TokenSuccessResponse | TokenErrorResponse)
@@ -18080,7 +18044,7 @@ response(self, obj: TokenSuccessResponse | TokenErrorResponse)
 
 Override response method to provide OAuth 2.1 compliant error handling.
 
-### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L426" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L432" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth provider that presents a DCR-compliant interface while proxying to non-DCR IDPs.
 
@@ -18192,7 +18156,7 @@ Handles provider-specific requirements:
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L860" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L813" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
@@ -18203,7 +18167,7 @@ provided to the DCR client during registration, not the upstream client ID.
 
 For unregistered clients, returns None (which will raise an error in the SDK).
 
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L875" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L829" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 register_client(self, client_info: OAuthClientInformationFull) -> None
@@ -18216,7 +18180,7 @@ forgiving about validating redirect URIs, since the DCR client's
 redirect URI will likely be localhost or unknown to the proxied IDP. The
 proxied IDP only knows about this server's fixed redirect URI.
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L921" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L876" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -18233,7 +18197,7 @@ Flow:
 If consent is disabled (require\_authorization\_consent=False), skip the consent screen
 and redirect directly to the upstream IdP.
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L995" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L951" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
@@ -18244,7 +18208,7 @@ Load authorization code for validation.
 Look up our client code and return authorization code object
 with PKCE challenge for validation.
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1037" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L994" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
@@ -18262,7 +18226,7 @@ Implements the token factory pattern:
 
 PKCE validation is handled by the MCP framework before this method is called.
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1207" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1159" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
@@ -18270,7 +18234,7 @@ load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str)
 
 Load refresh token from local storage.
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1215" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1167" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
@@ -18287,7 +18251,7 @@ Implements two-tier refresh:
 5. Issue new FastMCP access token
 6. Keep same FastMCP refresh token (unless upstream rotates)
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1429" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 load_access_token(self, token: str) -> AccessToken | None
@@ -18306,7 +18270,7 @@ This implements the token swap pattern:
 The FastMCP JWT is a reference token - all authorization data comes
 from validating the upstream token via the TokenVerifier.
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1493" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1424" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -18317,16 +18281,18 @@ Revoke token locally and with upstream server if supported.
 Removes tokens from local storage and attempts to revoke them with
 the upstream server if a revocation endpoint is configured.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1537" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1468" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_routes(self, mcp_path: str | None = None) -> list[Route]
 ```
 
-Get OAuth routes with custom proxy token handler.
+Get OAuth routes with custom handlers for better error UX.
 
-This method creates standard OAuth routes and replaces the token endpoint
-with our proxy handler that forwards requests to the upstream OAuth server.
+This method creates standard OAuth routes and replaces:
+
+* /authorize endpoint: Enhanced error responses for unregistered clients
+* /token endpoint: OAuth 2.1 compliant error codes
 
 **Args:**
 
@@ -18382,7 +18348,7 @@ that is OIDC compliant.
 
 **Methods:**
 
-#### `get_oidc_configuration` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oidc_proxy.py#L318" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_oidc_configuration` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oidc_proxy.py#L326" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_oidc_configuration(self, config_url: AnyHttpUrl, strict: bool | None, timeout_seconds: int | None) -> OIDCConfiguration
@@ -18396,7 +18362,7 @@ Gets the OIDC configuration for the specified configuration URL.
 * `strict`: The strict flag for the configuration
 * `timeout_seconds`: HTTP request timeout in seconds
 
-#### `get_token_verifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oidc_proxy.py#L335" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_token_verifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oidc_proxy.py#L343" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_token_verifier(self) -> TokenVerifier
@@ -18458,7 +18424,7 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 Settings for Auth0 OIDC provider.
 
-### `Auth0Provider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/auth0.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Auth0Provider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/auth0.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 An Auth0 provider implementation for FastMCP.
 
@@ -18502,13 +18468,13 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 Settings for AWS Cognito OAuth provider.
 
-### `AWSCognitoTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AWSCognitoTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier that filters claims to Cognito-specific subset.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L70" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L71" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 verify_token(self, token: str) -> AccessToken | None
@@ -18516,7 +18482,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify token and filter claims to Cognito-specific subset.
 
-### `AWSCognitoProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L94" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AWSCognitoProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L95" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete AWS Cognito OAuth provider for FastMCP.
 
@@ -18533,7 +18499,7 @@ Features:
 
 **Methods:**
 
-#### `get_token_verifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L232" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_token_verifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/aws.py#L241" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_token_verifier(self) -> TokenVerifier
@@ -18567,7 +18533,7 @@ using the OAuth Proxy pattern for non-DCR OAuth flows.
 
 Settings for Azure OAuth provider.
 
-### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L60" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AzureProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L61" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Azure (Microsoft Entra) OAuth provider for FastMCP.
 
@@ -18575,24 +18541,35 @@ This provider implements Azure/Microsoft Entra ID authentication using the
 OAuth Proxy pattern. It supports both organizational accounts and personal
 Microsoft accounts depending on the tenant configuration.
 
+Scope Handling:
+
+* required\_scopes: Provide unprefixed scope names (e.g., \["read", "write"])
+  → Automatically prefixed with identifier\_uri during initialization
+  → Validated on all tokens and advertised to MCP clients
+* additional\_authorize\_scopes: Provide full format (e.g., \["User.Read"])
+  → NOT prefixed, NOT validated, NOT advertised to clients
+  → Used to request Microsoft Graph or other upstream API permissions
+
 Features:
 
 * OAuth proxy to Azure/Microsoft identity platform
 * JWT validation using tenant issuer and JWKS
 * Supports tenant configurations: specific tenant ID, "organizations", or "consumers"
+* Custom API scopes and Microsoft Graph scopes in a single provider
 
 Setup:
 
 1. Create an App registration in Azure Portal
 2. Configure Web platform redirect URI: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback) (or your custom path)
-3. Add an Application ID URI. Either use the default (api://{client_id}) or set a custom one.
-4. Add a custom scope.
-5. Create a client secret.
-6. Get Application (client) ID, Directory (tenant) ID, and client secret
+3. Add an Application ID URI under "Expose an API" (defaults to api://{client_id})
+4. Add custom scopes (e.g., "read", "write") under "Expose an API"
+5. Set access token version to 2 in the App manifest: "requestedAccessTokenVersion": 2
+6. Create a client secret
+7. Get Application (client) ID, Directory (tenant) ID, and client secret
 
 **Methods:**
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L234" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/azure.py#L270" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -18721,7 +18698,7 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 Settings for GitHub OAuth provider.
 
-### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L64" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L65" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for GitHub OAuth tokens.
 
@@ -18730,7 +18707,7 @@ by calling GitHub's API to check if they're valid and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L86" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L87" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 verify_token(self, token: str) -> AccessToken | None
@@ -18738,7 +18715,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify GitHub OAuth token by calling GitHub API.
 
-### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L169" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GitHubProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/github.py#L170" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete GitHub OAuth provider for FastMCP.
 
@@ -18788,7 +18765,7 @@ mcp = FastMCP("My Protected Server", auth=auth)
 
 Settings for Google OAuth provider.
 
-### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L66" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for Google OAuth tokens.
 
@@ -18797,7 +18774,7 @@ by calling Google's tokeninfo API to check if they're valid and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L88" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L89" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 verify_token(self, token: str) -> AccessToken | None
@@ -18805,7 +18782,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify Google OAuth token by calling Google's tokeninfo API.
 
-### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L185" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `GoogleProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/google.py#L186" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete Google OAuth provider for FastMCP.
 
@@ -19281,7 +19258,7 @@ Choose based on your WorkOS setup and authentication requirements.
 
 Settings for WorkOS OAuth provider.
 
-### `WorkOSTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L56" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSTokenVerifier` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L57" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Token verifier for WorkOS OAuth tokens.
 
@@ -19290,7 +19267,7 @@ the /oauth2/userinfo endpoint to check validity and get user info.
 
 **Methods:**
 
-#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L81" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `verify_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L82" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 verify_token(self, token: str) -> AccessToken | None
@@ -19298,7 +19275,7 @@ verify_token(self, token: str) -> AccessToken | None
 
 Verify WorkOS OAuth token by calling userinfo endpoint.
 
-### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L128" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `WorkOSProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Complete WorkOS OAuth provider for FastMCP.
 
@@ -19319,9 +19296,9 @@ Setup Requirements:
 3. Configure redirect URI as: [http://localhost:8000/auth/callback](http://localhost:8000/auth/callback)
 4. Note your Client ID and Client Secret
 
-### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L274" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProviderSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L283" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L291" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `AuthKitProvider` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L300" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 AuthKit metadata provider for DCR (Dynamic Client Registration).
 
@@ -19345,7 +19322,7 @@ For detailed setup instructions, see:
 
 **Methods:**
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L374" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/providers/workos.py#L383" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_routes(self, mcp_path: str | None = None) -> list[Route]
@@ -19426,7 +19403,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-server-context
 
 ## Functions
 
-### `set_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L91" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `set_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L94" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 set_context(context: Context) -> Generator[Context, None, None]
@@ -19434,14 +19411,14 @@ set_context(context: Context) -> Generator[Context, None, None]
 
 ## Classes
 
-### `LogData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `LogData` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L70" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Data object for passing log arguments to client-side handlers.
 
 This provides an interface to match the Python standard library logging,
 for compatibility with structured logging.
 
-### `Context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L100" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L103" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Context object providing access to MCP capabilities.
 
@@ -19487,7 +19464,7 @@ The context is optional - tools that don't need it can omit the parameter.
 
 **Methods:**
 
-#### `fastmcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L152" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `fastmcp` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L155" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 fastmcp(self) -> FastMCP
@@ -19495,7 +19472,7 @@ fastmcp(self) -> FastMCP
 
 Get the FastMCP instance.
 
-#### `request_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L181" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `request_context` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L184" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 request_context(self) -> RequestContext[ServerSession, Any, Request]
@@ -19505,7 +19482,7 @@ Access to the underlying request context.
 
 If called outside of a request context, this will raise a ValueError.
 
-#### `report_progress` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L191" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `report_progress` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L194" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 report_progress(self, progress: float, total: float | None = None, message: str | None = None) -> None
@@ -19518,7 +19495,48 @@ Report progress for the current operation.
 * `progress`: Current progress value e.g. 24
 * `total`: Optional total value e.g. 100
 
-#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L218" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L221" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+list_resources(self) -> list[MCPResource]
+```
+
+List all available resources from the server.
+
+**Returns:**
+
+* List of Resource objects available on the server
+
+#### `list_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L229" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+list_prompts(self) -> list[MCPPrompt]
+```
+
+List all available prompts from the server.
+
+**Returns:**
+
+* List of Prompt objects available on the server
+
+#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L237" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+get_prompt(self, name: str, arguments: dict[str, Any] | None = None) -> GetPromptResult
+```
+
+Get a prompt by name with optional arguments.
+
+**Args:**
+
+* `name`: The name of the prompt to get
+* `arguments`: Optional arguments to pass to the prompt
+
+**Returns:**
+
+* The prompt result
+
+#### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L251" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 read_resource(self, uri: str | AnyUrl) -> list[ReadResourceContents]
@@ -19534,7 +19552,7 @@ Read a resource by URI.
 
 * The resource content as either text or bytes
 
-#### `log` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L231" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `log` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L262" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 log(self, message: str, level: LoggingLevel | None = None, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -19552,7 +19570,7 @@ Messages sent to Clients are also logged to the `fastmcp.server.context.to_clien
 * `logger_name`: Optional logger name
 * `extra`: Optional mapping for additional arguments
 
-#### `client_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L260" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `client_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L291" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 client_id(self) -> str | None
@@ -19560,7 +19578,7 @@ client_id(self) -> str | None
 
 Get the client ID if available.
 
-#### `request_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L269" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `request_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L300" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 request_id(self) -> str
@@ -19568,7 +19586,7 @@ request_id(self) -> str
 
 Get the unique ID for this request.
 
-#### `session_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L274" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `session_id` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L305" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 session_id(self) -> str
@@ -19585,7 +19603,7 @@ the same client session.
 * The session ID for StreamableHTTP transports, or a generated ID
 * for other transports.
 
-#### `session` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L318" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `session` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L349" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 session(self) -> ServerSession
@@ -19593,7 +19611,7 @@ session(self) -> ServerSession
 
 Access to the underlying session for advanced usage.
 
-#### `debug` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L323" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `debug` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L354" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 debug(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -19603,7 +19621,7 @@ Send a `DEBUG`-level message to the connected MCP Client.
 
 Messages sent to Clients are also logged to the `fastmcp.server.context.to_client` logger with a level of `DEBUG`.
 
-#### `info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L339" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `info` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L370" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 info(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -19613,7 +19631,7 @@ Send a `INFO`-level message to the connected MCP Client.
 
 Messages sent to Clients are also logged to the `fastmcp.server.context.to_client` logger with a level of `DEBUG`.
 
-#### `warning` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `warning` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L386" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 warning(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -19623,7 +19641,7 @@ Send a `WARNING`-level message to the connected MCP Client.
 
 Messages sent to Clients are also logged to the `fastmcp.server.context.to_client` logger with a level of `DEBUG`.
 
-#### `error` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L371" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `error` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L402" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 error(self, message: str, logger_name: str | None = None, extra: Mapping[str, Any] | None = None) -> None
@@ -19633,7 +19651,7 @@ Send a `ERROR`-level message to the connected MCP Client.
 
 Messages sent to Clients are also logged to the `fastmcp.server.context.to_client` logger with a level of `DEBUG`.
 
-#### `list_roots` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L387" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `list_roots` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L418" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 list_roots(self) -> list[Root]
@@ -19641,7 +19659,7 @@ list_roots(self) -> list[Root]
 
 List the roots available to the server, as indicated by the client.
 
-#### `send_tool_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L392" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_tool_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L423" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 send_tool_list_changed(self) -> None
@@ -19649,7 +19667,7 @@ send_tool_list_changed(self) -> None
 
 Send a tool list changed notification to the client.
 
-#### `send_resource_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L396" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_resource_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L427" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 send_resource_list_changed(self) -> None
@@ -19657,7 +19675,7 @@ send_resource_list_changed(self) -> None
 
 Send a resource list changed notification to the client.
 
-#### `send_prompt_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L400" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `send_prompt_list_changed` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L431" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 send_prompt_list_changed(self) -> None
@@ -19665,7 +19683,7 @@ send_prompt_list_changed(self) -> None
 
 Send a prompt list changed notification to the client.
 
-#### `sample` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L404" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `sample` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L435" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 sample(self, messages: str | Sequence[str | SamplingMessage], system_prompt: str | None = None, include_context: IncludeContext | None = None, temperature: float | None = None, max_tokens: int | None = None, model_preferences: ModelPreferences | str | list[str] | None = None) -> TextContent | ImageContent | AudioContent
@@ -19677,25 +19695,25 @@ Call this method at any time to have the server request an LLM
 completion from the client. The client must be appropriately configured,
 or the request will error.
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L488" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L519" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 elicit(self, message: str, response_type: None) -> AcceptedElicitation[dict[str, Any]] | DeclinedElicitation | CancelledElicitation
 ```
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L500" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L531" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 elicit(self, message: str, response_type: type[T]) -> AcceptedElicitation[T] | DeclinedElicitation | CancelledElicitation
 ```
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L510" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L541" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 elicit(self, message: str, response_type: list[str]) -> AcceptedElicitation[str] | DeclinedElicitation | CancelledElicitation
 ```
 
-#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L519" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `elicit` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L550" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 elicit(self, message: str, response_type: type[T] | list[str] | None = None) -> AcceptedElicitation[T] | AcceptedElicitation[dict[str, Any]] | AcceptedElicitation[str] | DeclinedElicitation | CancelledElicitation
@@ -19724,7 +19742,7 @@ Clients must send an empty object ("{}")in response.
   type or dataclass or BaseModel. If it is a primitive type, an
   object schema with a single "value" field will be generated.
 
-#### `get_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L612" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_http_request` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L643" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_http_request(self) -> Request
@@ -19732,7 +19750,7 @@ get_http_request(self) -> Request
 
 Get the active starlette request.
 
-#### `set_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L627" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L658" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 set_state(self, key: str, value: Any) -> None
@@ -19740,7 +19758,7 @@ set_state(self, key: str, value: Any) -> None
 
 Set a value in the context state.
 
-#### `get_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L631" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_state` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/context.py#L662" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_state(self, key: str) -> Any
@@ -20598,6 +20616,82 @@ on_list_prompts(self, context: MiddlewareContext, call_next: CallNext) -> Any
 Time prompt listing.
 
 
+# tool_injection
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-middleware-tool_injection
+
+
+
+# `fastmcp.server.middleware.tool_injection`
+
+A middleware for injecting tools into the MCP server context.
+
+## Functions
+
+### `list_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L54" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+list_prompts(context: Context) -> list[Prompt]
+```
+
+List prompts available on the server.
+
+### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L64" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+get_prompt(context: Context, name: Annotated[str, 'The name of the prompt to render.'], arguments: Annotated[dict[str, Any] | None, 'The arguments to pass to the prompt.'] = None) -> mcp.types.GetPromptResult
+```
+
+Render a prompt available on the server.
+
+### `list_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L88" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+list_resources(context: Context) -> list[mcp.types.Resource]
+```
+
+List resources available on the server.
+
+### `read_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+read_resource(context: Context, uri: Annotated[AnyUrl | str, 'The URI of the resource to read.']) -> list[ReadResourceContents]
+```
+
+Read a resource available on the server.
+
+## Classes
+
+### `ToolInjectionMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L21" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+A middleware for injecting tools into the context.
+
+**Methods:**
+
+#### `on_list_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L32" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+on_list_tools(self, context: MiddlewareContext[mcp.types.ListToolsRequest], call_next: CallNext[mcp.types.ListToolsRequest, Sequence[Tool]]) -> Sequence[Tool]
+```
+
+Inject tools into the response.
+
+#### `on_call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L41" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+on_call_tool(self, context: MiddlewareContext[mcp.types.CallToolRequestParams], call_next: CallNext[mcp.types.CallToolRequestParams, ToolResult]) -> ToolResult
+```
+
+Intercept tool calls to injected tools.
+
+### `PromptToolMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L80" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+A middleware for injecting prompts as tools into the context.
+
+### `ResourceToolMiddleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/middleware/tool_injection.py#L111" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+A middleware for injecting resources as tools into the context.
+
+
 # openapi
 Source: https://gofastmcp.com/python-sdk/fastmcp-server-openapi
 
@@ -20976,7 +21070,7 @@ FastMCP - A more ergonomic interface for MCP servers.
 
 ## Functions
 
-### `default_lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `default_lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L108" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 default_lifespan(server: FastMCP[LifespanResultT]) -> AsyncIterator[Any]
@@ -20992,7 +21086,7 @@ Default lifespan context manager that does nothing.
 
 * An empty dictionary as the lifespan result.
 
-### `add_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2684" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `add_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2705" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_resource_prefix(uri: str, prefix: str, prefix_format: Literal['protocol', 'path'] | None = None) -> str
@@ -21036,7 +21130,7 @@ add_resource_prefix("resource:///absolute/path", "prefix")
 
 * `ValueError`: If the URI doesn't match the expected protocol://path format
 
-### `remove_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2744" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `remove_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2765" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_resource_prefix(uri: str, prefix: str, prefix_format: Literal['protocol', 'path'] | None = None) -> str
@@ -21080,7 +21174,7 @@ remove_resource_prefix("resource://prefix//absolute/path", "prefix")
 
 * `ValueError`: If the URI doesn't match the expected protocol://path format
 
-### `has_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2811" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `has_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2832" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 has_resource_prefix(uri: str, prefix: str, prefix_format: Literal['protocol', 'path'] | None = None) -> bool
@@ -21126,53 +21220,53 @@ False
 
 ## Classes
 
-### `FastMCP` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L134" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `FastMCP` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L144" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L323" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L344" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 settings(self) -> Settings
 ```
 
-#### `name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L334" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 name(self) -> str
 ```
 
-#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L338" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L359" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 instructions(self) -> str | None
 ```
 
-#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L342" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L363" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 instructions(self, value: str | None) -> None
 ```
 
-#### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L346" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L367" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 version(self) -> str | None
 ```
 
-#### `website_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L350" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `website_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L371" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 website_url(self) -> str | None
 ```
 
-#### `icons` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L354" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `icons` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L375" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 icons(self) -> list[mcp.types.Icon]
 ```
 
-#### `run_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L381" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L402" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_async(self, transport: Transport | None = None, show_banner: bool = True, **transport_kwargs: Any) -> None
@@ -21184,7 +21278,7 @@ Run the FastMCP server asynchronously.
 
 * `transport`: Transport protocol to use ("stdio", "sse", or "streamable-http")
 
-#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L411" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L432" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run(self, transport: Transport | None = None, show_banner: bool = True, **transport_kwargs: Any) -> None
@@ -21196,13 +21290,13 @@ Run the FastMCP server. Note this is a synchronous function.
 
 * `transport`: Transport protocol to use ("stdio", "sse", or "streamable-http")
 
-#### `add_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L455" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L476" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_middleware(self, middleware: Middleware) -> None
 ```
 
-#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L458" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L479" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tools(self) -> dict[str, Tool]
@@ -21210,13 +21304,13 @@ get_tools(self) -> dict[str, Tool]
 
 Get all tools (unfiltered), including mounted servers, indexed by key.
 
-#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L478" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L499" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tool(self, key: str) -> Tool
 ```
 
-#### `get_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L484" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L505" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resources(self) -> dict[str, Resource]
@@ -21224,13 +21318,13 @@ get_resources(self) -> dict[str, Resource]
 
 Get all resources (unfiltered), including mounted servers, indexed by key.
 
-#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L517" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L538" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resource(self, key: str) -> Resource
 ```
 
-#### `get_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L523" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L544" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resource_templates(self) -> dict[str, ResourceTemplate]
@@ -21238,7 +21332,7 @@ get_resource_templates(self) -> dict[str, ResourceTemplate]
 
 Get all resource templates (unfiltered), including mounted servers, indexed by key.
 
-#### `get_resource_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L556" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L577" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resource_template(self, key: str) -> ResourceTemplate
@@ -21246,7 +21340,7 @@ get_resource_template(self, key: str) -> ResourceTemplate
 
 Get a registered resource template by key.
 
-#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L563" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L584" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_prompts(self) -> dict[str, Prompt]
@@ -21254,13 +21348,13 @@ get_prompts(self) -> dict[str, Prompt]
 
 Get all prompts (unfiltered), including mounted servers, indexed by key.
 
-#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L583" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L604" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_prompt(self, key: str) -> Prompt
 ```
 
-#### `custom_route` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L589" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `custom_route` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L610" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 custom_route(self, path: str, methods: list[str], name: str | None = None, include_in_schema: bool = True) -> Callable[[Callable[[Request], Awaitable[Response]]], Callable[[Request], Awaitable[Response]]]
@@ -21281,7 +21375,7 @@ Request and returns a Response.
   Starlette's reverse URL lookup feature)
 * `include_in_schema`: Whether to include in OpenAPI schema, defaults to True
 
-#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1286" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1307" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool(self, tool: Tool) -> Tool
@@ -21300,7 +21394,7 @@ with the Context type annotation. See the @tool decorator for examples.
 
 * The tool instance that was added to the server.
 
-#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1311" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1332" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_tool(self, name: str) -> None
@@ -21316,7 +21410,7 @@ Remove a tool from the server.
 
 * `NotFoundError`: If the tool is not found
 
-#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1331" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1352" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfig) -> None
@@ -21324,7 +21418,7 @@ add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfi
 
 Add a tool transformation.
 
-#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1337" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1358" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_tool_transformation(self, tool_name: str) -> None
@@ -21332,19 +21426,19 @@ remove_tool_transformation(self, tool_name: str) -> None
 
 Remove a tool transformation.
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1342" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1363" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 tool(self, name_or_fn: AnyFunction) -> FunctionTool
 ```
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1359" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1380" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 tool(self, name_or_fn: str | None = None) -> Callable[[AnyFunction], FunctionTool]
 ```
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1375" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1396" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 tool(self, name_or_fn: str | AnyFunction | None = None) -> Callable[[AnyFunction], FunctionTool] | FunctionTool
@@ -21402,7 +21496,7 @@ def my_tool(x: int) -> str:
 server.tool(my_function, name="custom_name")
 ```
 
-#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1509" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1530" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_resource(self, resource: Resource) -> Resource
@@ -21418,7 +21512,7 @@ Add a resource to the server.
 
 * The resource instance that was added to the server.
 
-#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1531" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1552" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_template(self, template: ResourceTemplate) -> ResourceTemplate
@@ -21434,7 +21528,7 @@ Add a resource template to the server.
 
 * The template instance that was added to the server.
 
-#### `add_resource_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1553" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1574" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_resource_fn(self, fn: AnyFunction, uri: str, name: str | None = None, description: str | None = None, mime_type: str | None = None, tags: set[str] | None = None) -> None
@@ -21454,7 +21548,7 @@ has parameters, it will be registered as a template resource.
 * `mime_type`: Optional MIME type for the resource
 * `tags`: Optional set of tags for categorizing the resource
 
-#### `resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1591" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1612" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 resource(self, uri: str) -> Callable[[AnyFunction], Resource | ResourceTemplate]
@@ -21516,7 +21610,7 @@ async def get_weather(city: str) -> str:
     return f"Weather for {city}: {data}"
 ```
 
-#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1731" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1752" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_prompt(self, prompt: Prompt) -> Prompt
@@ -21532,19 +21626,19 @@ Add a prompt to the server.
 
 * The prompt instance that was added to the server.
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1754" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1775" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prompt(self, name_or_fn: AnyFunction) -> FunctionPrompt
 ```
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1768" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1789" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prompt(self, name_or_fn: str | None = None) -> Callable[[AnyFunction], FunctionPrompt]
 ```
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1781" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1802" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prompt(self, name_or_fn: str | AnyFunction | None = None) -> Callable[[AnyFunction], FunctionPrompt] | FunctionPrompt
@@ -21622,7 +21716,7 @@ def another_prompt(data: str) -> list[Message]:
 server.prompt(my_function, name="custom_name")
 ```
 
-#### `run_stdio_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1925" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_stdio_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1946" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_stdio_async(self, show_banner: bool = True, log_level: str | None = None) -> None
@@ -21635,7 +21729,7 @@ Run the server using stdio transport.
 * `show_banner`: Whether to display the server banner
 * `log_level`: Log level for the server
 
-#### `run_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1955" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1976" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_http_async(self, show_banner: bool = True, transport: Literal['http', 'streamable-http', 'sse'] = 'http', host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None, middleware: list[ASGIMiddleware] | None = None, json_response: bool | None = None, stateless_http: bool | None = None) -> None
@@ -21655,7 +21749,7 @@ Run the server using HTTP transport.
 * `json_response`: Whether to use JSON response format (defaults to settings.json\_response)
 * `stateless_http`: Whether to use stateless HTTP (defaults to settings.stateless\_http)
 
-#### `run_sse_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2034" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_sse_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2055" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_sse_async(self, host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None) -> None
@@ -21663,7 +21757,7 @@ run_sse_async(self, host: str | None = None, port: int | None = None, log_level:
 
 Run the server using SSE transport.
 
-#### `sse_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2062" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `sse_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2083" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 sse_app(self, path: str | None = None, message_path: str | None = None, middleware: list[ASGIMiddleware] | None = None) -> StarletteWithLifespan
@@ -21677,7 +21771,7 @@ Create a Starlette app for the SSE server.
 * `message_path`: The path to the message endpoint
 * `middleware`: A list of middleware to apply to the app
 
-#### `streamable_http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2093" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `streamable_http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2114" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 streamable_http_app(self, path: str | None = None, middleware: list[ASGIMiddleware] | None = None) -> StarletteWithLifespan
@@ -21690,7 +21784,7 @@ Create a Starlette app for the StreamableHTTP server.
 * `path`: The path to the StreamableHTTP endpoint
 * `middleware`: A list of middleware to apply to the app
 
-#### `http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2114" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2135" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 http_app(self, path: str | None = None, middleware: list[ASGIMiddleware] | None = None, json_response: bool | None = None, stateless_http: bool | None = None, transport: Literal['http', 'streamable-http', 'sse'] = 'http') -> StarletteWithLifespan
@@ -21708,13 +21802,13 @@ Create a Starlette app using the specified HTTP transport.
 
 * A Starlette application configured with the specified transport
 
-#### `run_streamable_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_streamable_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2184" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_streamable_http_async(self, host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None) -> None
 ```
 
-#### `mount` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2188" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `mount` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2209" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 mount(self, server: FastMCP[LifespanResultT], prefix: str | None = None, as_proxy: bool | None = None) -> None
@@ -21770,7 +21864,7 @@ There are two modes for mounting servers:
 * `resource_separator`: Deprecated. Separator character for resource URIs.
 * `prompt_separator`: Deprecated. Separator character for prompt names.
 
-#### `import_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2307" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `import_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2328" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import_server(self, server: FastMCP[LifespanResultT], prefix: str | None = None, tool_separator: str | None = None, resource_separator: str | None = None, prompt_separator: str | None = None) -> None
@@ -21812,7 +21906,7 @@ templates, and prompts are imported with their original names.
   applied using the protocol://prefix/path format
 * `prompt_separator`: Deprecated. Separator for prompt names.
 
-#### `from_openapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2445" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_openapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2466" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_openapi(cls, openapi_spec: dict[str, Any], client: httpx.AsyncClient, route_maps: list[RouteMap] | list[RouteMapNew] | None = None, route_map_fn: OpenAPIRouteMapFn | OpenAPIRouteMapFnNew | None = None, mcp_component_fn: OpenAPIComponentFn | OpenAPIComponentFnNew | None = None, mcp_names: dict[str, str] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI | FastMCPOpenAPINew
@@ -21820,7 +21914,7 @@ from_openapi(cls, openapi_spec: dict[str, Any], client: httpx.AsyncClient, route
 
 Create a FastMCP server from an OpenAPI specification.
 
-#### `from_fastapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2494" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_fastapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2515" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_fastapi(cls, app: Any, name: str | None = None, route_maps: list[RouteMap] | list[RouteMapNew] | None = None, route_map_fn: OpenAPIRouteMapFn | OpenAPIRouteMapFnNew | None = None, mcp_component_fn: OpenAPIComponentFn | OpenAPIComponentFnNew | None = None, mcp_names: dict[str, str] | None = None, httpx_client_kwargs: dict[str, Any] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI | FastMCPOpenAPINew
@@ -21828,7 +21922,7 @@ from_fastapi(cls, app: Any, name: str | None = None, route_maps: list[RouteMap] 
 
 Create a FastMCP server from a FastAPI application.
 
-#### `as_proxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2557" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `as_proxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2578" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 as_proxy(cls, backend: Client[ClientTransportT] | ClientTransport | FastMCP[Any] | AnyUrl | Path | MCPConfig | dict[str, Any] | str, **settings: Any) -> FastMCPProxy
@@ -21841,7 +21935,7 @@ instance or any value accepted as the `transport` argument of
 `fastmcp.client.Client`. This mirrors the convenience of the
 `fastmcp.client.Client` constructor.
 
-#### `from_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2616" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2637" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_client(cls, client: Client[ClientTransportT], **settings: Any) -> FastMCPProxy
@@ -21849,13 +21943,13 @@ from_client(cls, client: Client[ClientTransportT], **settings: Any) -> FastMCPPr
 
 Create a FastMCP proxy server from a FastMCP client.
 
-#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2668" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2689" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 generate_name(cls, name: str | None = None) -> str
 ```
 
-### `MountedServer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2678" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `MountedServer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2699" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 
 # settings
@@ -21867,7 +21961,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-settings
 
 ## Classes
 
-### `ExtendedEnvSettingsSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L35" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ExtendedEnvSettingsSource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L36" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 A special EnvSettingsSource that allows for multiple env var prefixes to be used.
 
@@ -21875,23 +21969,23 @@ Raises a deprecation warning if the old `FASTMCP_SERVER_` prefix is used.
 
 **Methods:**
 
-#### `get_field_value` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L42" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_field_value` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L43" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_field_value(self, field: FieldInfo, field_name: str) -> tuple[Any, str, bool]
 ```
 
-### `ExtendedSettingsConfigDict` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ExtendedSettingsConfigDict` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L63" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `ExperimentalSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L66" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ExperimentalSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L67" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `Settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L85" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L86" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 FastMCP settings.
 
 **Methods:**
 
-#### `get_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L97" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L98" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_setting(self, attr: str) -> Any
@@ -21900,7 +21994,7 @@ get_setting(self, attr: str) -> Any
 Get a setting. If the setting contains one or more `__`, it will be
 treated as a nested setting.
 
-#### `set_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L110" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L111" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 set_setting(self, attr: str, value: Any) -> None
@@ -21909,13 +22003,13 @@ set_setting(self, attr: str, value: Any) -> None
 Set a setting. If the setting contains one or more `__`, it will be
 treated as a nested setting.
 
-#### `settings_customise_sources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L124" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `settings_customise_sources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L125" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 settings_customise_sources(cls, settings_cls: type[BaseSettings], init_settings: PydanticBaseSettingsSource, env_settings: PydanticBaseSettingsSource, dotenv_settings: PydanticBaseSettingsSource, file_secret_settings: PydanticBaseSettingsSource) -> tuple[PydanticBaseSettingsSource, ...]
 ```
 
-#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L142" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L143" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 settings(self) -> Self
@@ -21924,13 +22018,13 @@ settings(self) -> Self
 This property is for backwards compatibility with FastMCP \< 2.8.0,
 which accessed fastmcp.settings.settings
 
-#### `normalize_log_level` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L162" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `normalize_log_level` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L163" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 normalize_log_level(cls, v)
 ```
 
-#### `server_auth_class` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L377" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `server_auth_class` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L378" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 server_auth_class(self) -> AuthProvider | None
@@ -22074,7 +22168,7 @@ Manages FastMCP tools.
 
 **Methods:**
 
-#### `has_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L56" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `has_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L60" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 has_tool(self, key: str) -> bool
@@ -22082,7 +22176,7 @@ has_tool(self, key: str) -> bool
 
 Check if a tool exists.
 
-#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L61" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L65" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tool(self, key: str) -> Tool
@@ -22090,7 +22184,7 @@ get_tool(self, key: str) -> Tool
 
 Get tool by key.
 
-#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L68" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L72" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tools(self) -> dict[str, Tool]
@@ -22098,7 +22192,7 @@ get_tools(self) -> dict[str, Tool]
 
 Gets the complete, unfiltered inventory of local tools.
 
-#### `add_tool_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L74" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_from_fn` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L78" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool_from_fn(self, fn: Callable[..., Any], name: str | None = None, description: str | None = None, tags: set[str] | None = None, annotations: ToolAnnotations | None = None, serializer: Callable[[Any], str] | None = None, exclude_args: list[str] | None = None) -> Tool
@@ -22106,7 +22200,7 @@ add_tool_from_fn(self, fn: Callable[..., Any], name: str | None = None, descript
 
 Add a tool to the server.
 
-#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L103" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L107" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool(self, tool: Tool) -> Tool
@@ -22114,7 +22208,7 @@ add_tool(self, tool: Tool) -> Tool
 
 Register a tool with the server.
 
-#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L120" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L124" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfig) -> None
@@ -22122,7 +22216,7 @@ add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfi
 
 Add a tool transformation.
 
-#### `get_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L126" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L130" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tool_transformation(self, tool_name: str) -> ToolTransformConfig | None
@@ -22130,7 +22224,7 @@ get_tool_transformation(self, tool_name: str) -> ToolTransformConfig | None
 
 Get a tool transformation.
 
-#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L130" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L134" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_tool_transformation(self, tool_name: str) -> None
@@ -22138,7 +22232,7 @@ remove_tool_transformation(self, tool_name: str) -> None
 
 Remove a tool transformation.
 
-#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L135" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L139" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_tool(self, key: str) -> None
@@ -22154,7 +22248,7 @@ Remove a tool from the server.
 
 * `NotFoundError`: If the tool is not found
 
-#### `call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L149" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `call_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool_manager.py#L153" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 call_tool(self, key: str, arguments: dict[str, Any]) -> ToolResult
@@ -22533,7 +22627,7 @@ run, inspect, and dev commands.
 
 * Tuple of (MCPServerConfig, resolved\_server\_spec)
 
-### `log_server_banner` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cli.py#L170" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `log_server_banner` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/cli.py#L200" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 log_server_banner(server: FastMCP[Any], transport: Literal['stdio', 'http', 'sse', 'streamable-http']) -> None
@@ -31723,6 +31817,20 @@ mcp.remove_tool("calculate_sum")
 Source: https://gofastmcp.com/updates
 
 
+
+<Update label="FastMCP 2.13.0" description="October 25, 2025" tags={["Releases"]}>
+  <Card title="FastMCP 2.13.0: Cache Me If You Can" href="https://github.com/jlowin/fastmcp/releases/tag/v2.13.0" cta="Read the release notes">
+    FastMCP 2.13 "Cache Me If You Can" represents a fundamental maturation of the framework. After months of community feedback on authentication and state management, this release delivers the infrastructure FastMCP needs to handle production workloads: persistent storage, response caching, and pragmatic OAuth improvements that reflect real-world deployment challenges.
+
+    💾 **Pluggable storage backends** bring persistent state to FastMCP servers. Built on [py-key-value-aio](https://github.com/strawgate/py-key-value), a new library from FastMCP maintainer Bill Easton ([@strawgate](https://github.com/strawgate)), the storage layer provides encrypted disk storage by default, platform-aware token management, and a simple key-value interface for application state. We're excited to bring this elegantly designed library into the FastMCP ecosystem - it's both powerful and remarkably easy to use, including wrappers to add encryption, TTLs, caching, and more to backends ranging from Elasticsearch, Redis, DynamoDB, filesystem, in-memory, and more!
+
+    🔐 **OAuth maturity** brings months of production learnings into the framework. The new consent screen prevents confused deputy and authorization bypass attacks discovered in earlier versions, while the OAuth proxy now issues its own tokens with automatic key derivation. RFC 7662 token introspection support enables enterprise auth flows, and path prefix mounting enables OAuth-protected servers to integrate into existing web applications. FastMCP now supports out-of-the-box authentication with [WorkOS](https://gofastmcp.com/integrations/workos) and [AuthKit](https://gofastmcp.com/integrations/authkit), [GitHub](https://gofastmcp.com/integrations/github), [Google](https://gofastmcp.com/integrations/google), [Azure](https://gofastmcp.com/integrations/azure) (Entra ID), [AWS Cognito](https://gofastmcp.com/integrations/aws-cognito), [Auth0](https://gofastmcp.com/integrations/auth0), [Descope](https://gofastmcp.com/integrations/descope), [Scalekit](https://gofastmcp.com/integrations/scalekit), [JWTs](https://gofastmcp.com/servers/auth/token-verification#jwt-token-verification), and [RFC 7662 token introspection](https://gofastmcp.com/servers/auth/token-verification#token-introspection-protocol).
+
+    ⚡ **Response Caching Middleware** dramatically improves performance for expensive operations, while **Server lifespans** provide proper initialization and cleanup hooks that run once per server instance instead of per client session.
+
+    ✨ **Developer experience improvements** include Pydantic input validation, icon support, RFC 6570 query parameters for resource templates, improved Context API methods, and async file/directory resources.
+  </Card>
+</Update>
 
 <Update label="FastMCP 2.12.5" description="October 17, 2025" tags={["Releases"]}>
   <Card title="FastMCP 2.12.5: Safety Pin" href="https://github.com/jlowin/fastmcp/releases/tag/v2.12.5" cta="Read the release notes">
