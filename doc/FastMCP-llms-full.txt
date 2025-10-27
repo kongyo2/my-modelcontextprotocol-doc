@@ -2328,7 +2328,7 @@ async with Client("https://fastmcp.cloud/mcp", auth=oauth) as client:
 * **`mcp_url`** (`str`): The full URL of the target MCP server endpoint. Used to discover OAuth server metadata
 * **`scopes`** (`str | list[str]`, optional): OAuth scopes to request. Can be space-separated string or list of strings
 * **`client_name`** (`str`, optional): Client name for dynamic registration. Defaults to `"FastMCP Client"`
-* **`token_storage_cache_dir`** (`Path`, optional): Token cache directory. Defaults to `~/.fastmcp/oauth-mcp-client-cache/`
+* **`token_storage`** (`AsyncKeyValue`, optional): Storage backend for persisting OAuth tokens. Defaults to in-memory storage (tokens lost on restart). See [Token Storage](#token-storage) for encrypted storage options
 * **`additional_client_metadata`** (`dict[str, Any]`, optional): Extra metadata for client registration
 * **`callback_port`** (`int`, optional): Fixed port for OAuth callback server. If not specified, uses a random available port
 
@@ -2338,7 +2338,7 @@ The OAuth flow is triggered when you use a FastMCP `Client` configured to use OA
 
 <Steps>
   <Step title="Token Check">
-    The client first checks the `token_storage_cache_dir` for existing, valid tokens for the target server. If one is found, it will be used to authenticate the client.
+    The client first checks the configured `token_storage` backend for existing, valid tokens for the target server. If one is found, it will be used to authenticate the client.
   </Step>
 
   <Step title="OAuth Server Discovery">
@@ -2362,7 +2362,7 @@ The OAuth flow is triggered when you use a FastMCP `Client` configured to use OA
   </Step>
 
   <Step title="Token Caching">
-    The obtained tokens are saved to the `token_storage_cache_dir` for future use, eliminating the need for repeated browser interactions.
+    The obtained tokens are saved to the configured `token_storage` backend for future use, eliminating the need for repeated browser interactions.
   </Step>
 
   <Step title="Authenticated Requests">
@@ -2378,25 +2378,118 @@ The OAuth flow is triggered when you use a FastMCP `Client` configured to use OA
 
 ### Token Storage
 
-OAuth access tokens are automatically cached in `~/.fastmcp/oauth-mcp-client-cache/` and persist between application runs. Files are keyed by the OAuth server's base URL.
+<VersionBadge version="2.13.0" />
 
-### Managing Cache
+<Warning>
+  **Security Consideration**: MCP clients can accumulate OAuth credentials for many different servers over time. Unlike single-service CLI tools (like `gh` or `gcloud`), a compromised token store could expose access to multiple services. Use encrypted storage for production use.
+</Warning>
 
-To clear the tokens for a specific server, instantiate a `FileTokenStorage` instance and call the `clear` method:
+By default, tokens are stored in memory and lost when your application restarts. For persistent storage, provide an `AsyncKeyValue`-compatible storage backend to the `token_storage` parameter.
+
+#### In-Memory Storage (Default)
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from fastmcp.client.auth.oauth import FileTokenStorage
+from fastmcp import Client
+from fastmcp.client.auth import OAuth
 
-storage = FileTokenStorage(server_url="https://fastmcp.cloud/mcp")
-await storage.clear()
+# Default: tokens stored in memory, lost on restart
+oauth = OAuth(mcp_url="https://fastmcp.cloud/mcp")
+
+async with Client("https://fastmcp.cloud/mcp", auth=oauth) as client:
+    await client.ping()
 ```
 
-To clear *all* tokens for all servers, call the `clear_all` method on the `FileTokenStorage` class:
+#### Encrypted Disk Storage (Recommended)
+
+For production use where your client connects to multiple MCP servers, use encrypted storage to protect accumulated credentials:
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from fastmcp.client.auth.oauth import FileTokenStorage
+from fastmcp import Client
+from fastmcp.client.auth import OAuth
+from key_value.aio.stores.file import FileStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
+import os
 
-FileTokenStorage.clear_all()
+# Generate encryption key (store securely, e.g., in environment variable)
+# On first run: Fernet.generate_key() -> save to secure location
+encryption_key = os.environ["OAUTH_STORAGE_ENCRYPTION_KEY"]
+
+# Create encrypted file storage
+encrypted_storage = FernetEncryptionWrapper(
+    key_value=FileStore(base_path="~/.fastmcp/oauth-tokens"),
+    fernet=Fernet(encryption_key)
+)
+
+oauth = OAuth(
+    mcp_url="https://fastmcp.cloud/mcp",
+    token_storage=encrypted_storage
+)
+
+async with Client("https://fastmcp.cloud/mcp", auth=oauth) as client:
+    await client.ping()
+```
+
+<Note>
+  The `FernetEncryptionWrapper` provides AES-128-CBC encryption with HMAC-SHA256 authentication. Your encryption key should be at least 32 bytes and stored securely (environment variables, system keychain, or secrets manager).
+</Note>
+
+#### Plaintext Disk Storage (Development Only)
+
+<Warning>
+  **Not recommended**: Plaintext storage accumulates credentials for multiple MCP servers without encryption. Only use for local development on secure machines.
+</Warning>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from key_value.aio.stores.file import FileStore
+
+# Development only - plaintext storage
+oauth = OAuth(
+    mcp_url="https://fastmcp.cloud/mcp",
+    token_storage=FileStore(base_path="~/.fastmcp/oauth-tokens")
+)
+```
+
+### Custom Storage Backends
+
+You can use any `AsyncKeyValue`-compatible storage backend. See the [key-value library](https://github.com/jlowin/key-value) for available options including Redis, DynamoDB, and more.
+
+For multi-server deployments, wrap your storage in `FernetEncryptionWrapper`:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
+import os
+
+encrypted_storage = FernetEncryptionWrapper(
+    key_value=RedisStore(host="redis.example.com", port=6379),
+    fernet=Fernet(os.environ["OAUTH_STORAGE_ENCRYPTION_KEY"])
+)
+
+oauth = OAuth(
+    mcp_url="https://fastmcp.cloud/mcp",
+    token_storage=encrypted_storage
+)
+```
+
+### Managing Stored Tokens
+
+To clear tokens for a specific server:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# Clear tokens for one server
+await oauth.token_storage_adapter.clear()
+```
+
+To clear all tokens across all storage:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# Clear all tokens in the storage backend
+from key_value.aio.stores.file import FileStore
+
+storage = FileStore(base_path="~/.fastmcp/oauth-tokens")
+await storage.clear()
 ```
 
 
@@ -8205,7 +8298,7 @@ Perfect for enterprise environments with:
 * **Compliance**: Meet enterprise security and compliance requirements
 
 
-# Azure (Microsoft Entra) OAuth 🤝 FastMCP
+# Azure (Microsoft Entra ID) OAuth 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/azure
 
 Secure your FastMCP server with Azure/Microsoft Entra OAuth
@@ -8331,7 +8424,7 @@ auth_provider = AzureProvider(
     client_secret="your-client-secret",                 # Your Azure App Client Secret
     tenant_id="08541b6e-646d-43de-a0eb-834e6713d6d5", # Your Azure Tenant ID (REQUIRED)
     base_url="http://localhost:8000",                   # Must match your App registration
-    required_scopes=["your-scope"],                 # Name of scope created when configuring your App
+    required_scopes=["your-scope"],                 # At least one scope REQUIRED - name of scope from your App
     # identifier_uri defaults to api://{client_id}
     # identifier_uri="api://your-api-id",
     # Optional: request additional upstream scopes in the authorize request
@@ -8366,6 +8459,10 @@ async def get_user_info() -> dict:
   * **"consumers"**: For personal Microsoft accounts only
 
   Using your specific tenant ID is recommended for better security and control.
+</Note>
+
+<Note>
+  **Important**: The `required_scopes` parameter is **REQUIRED** and must include at least one scope. Azure's OAuth API requires the `scope` parameter in all authorization requests - you cannot authenticate without specifying at least one scope. Use the unprefixed scope names from your Azure App registration (e.g., `["read", "write"]`). These scopes must be created under **Expose an API** in your App registration.
 </Note>
 
 ## Testing
@@ -8506,8 +8603,12 @@ These environment variables provide default values for the Azure provider, wheth
     Redirect path configured in your Azure App registration
   </ParamField>
 
-  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES" default="">
-    Comma-, space-, or JSON-separated list of required scopes for your API. These are validated on tokens and used as defaults if the client does not request specific scopes.
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_REQUIRED_SCOPES" required>
+    Comma-, space-, or JSON-separated list of required scopes for your API (at least one scope required). These are validated on tokens and used as defaults if the client does not request specific scopes. Use unprefixed scope names from your Azure App registration (e.g., `read,write`).
+
+    <Note>
+      Azure's OAuth API requires the `scope` parameter - you must provide at least one scope.
+    </Note>
   </ParamField>
 
   <ParamField path="FASTMCP_SERVER_AUTH_AZURE_ADDITIONAL_AUTHORIZE_SCOPES" default="">
