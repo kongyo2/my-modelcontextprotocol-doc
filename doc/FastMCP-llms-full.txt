@@ -8351,6 +8351,7 @@ auth_provider = AzureProvider(
     # Optional: request additional upstream scopes in the authorize request
     # additional_authorize_scopes=["User.Read", "offline_access", "openid", "email"],
     # redirect_path="/auth/callback"                  # Default value, customize if needed
+    # base_authority="login.microsoftonline.us"      # For Azure Government (default: login.microsoftonline.com)
 )
 
 mcp = FastMCP(name="Azure Secured App", auth=auth_provider)
@@ -8538,6 +8539,15 @@ These environment variables provide default values for the Azure provider, wheth
 
   <ParamField path="FASTMCP_SERVER_AUTH_AZURE_IDENTIFIER_URI" default="api://{client_id}">
     Application ID URI used to prefix scopes during authorization.
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_AZURE_BASE_AUTHORITY" default="login.microsoftonline.com">
+    Azure authority base URL. Override this to use Azure Government:
+
+    * `login.microsoftonline.com` - Azure Public Cloud (default)
+    * `login.microsoftonline.us` - Azure Government
+
+    This setting affects all Azure OAuth endpoints (authorization, token, issuer, JWKS).
   </ParamField>
 </Card>
 
