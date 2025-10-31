@@ -2409,6 +2409,10 @@ async with Client("https://fastmcp.cloud/mcp", auth=oauth) as client:
 
 You can use any `AsyncKeyValue`-compatible backend from the [key-value library](https://github.com/strawgate/py-key-value) including Redis, DynamoDB, and more. Wrap your storage in `FernetEncryptionWrapper` for encryption.
 
+<Note>
+  When selecting a storage backend, review the [py-key-value documentation](https://github.com/strawgate/py-key-value) to understand the maturity level and limitations of your chosen backend. Some backends may be in preview or have constraints that affect production suitability.
+</Note>
+
 
 # The FastMCP Client
 Source: https://gofastmcp.com/clients/client
@@ -30851,6 +30855,10 @@ The py-key-value-aio library includes additional implementations for various sto
 * **Valkey** - Redis-compatible server
 
 For configuration details on these backends, consult the [py-key-value-aio documentation](https://github.com/strawgate/py-key-value).
+
+<Warning>
+  Before using these backends in production, review the [py-key-value documentation](https://github.com/strawgate/py-key-value) to understand the maturity level and limitations of your chosen backend. Some backends may be in preview or have specific constraints that make them unsuitable for production use.
+</Warning>
 
 ## Use Cases in FastMCP
 
