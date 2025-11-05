@@ -3979,6 +3979,31 @@ async with client:
 * `arguments`: Dictionary of arguments to pass to the tool (optional)
 * `timeout`: Maximum execution time in seconds (optional, overrides client-level timeout)
 * `progress_handler`: Progress callback function (optional, overrides client-level handler)
+* `meta`: Dictionary of metadata to send with the request (optional, see below)
+
+## Sending Metadata
+
+<VersionBadge version="2.13.1" />
+
+The `meta` parameter sends ancillary information alongside tool calls. This can be used for various purposes like observability, debugging, client identification, or any context the server may need beyond the tool's primary arguments.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+async with client:
+    result = await client.call_tool(
+        name="send_email",
+        arguments={
+            "to": "user@example.com",
+            "subject": "Hello",
+            "body": "Welcome!"
+        },
+        meta={
+            "trace_id": "abc-123",
+            "request_source": "mobile_app"
+        }
+    )
+```
+
+The structure and usage of `meta` is determined by your application. See [Client Metadata](/servers/context#client-metadata) in the server documentation to learn how to access this data in your tool implementations.
 
 ## Handling Results
 
@@ -26967,6 +26992,35 @@ async def request_info(ctx: Context) -> dict:
 * **`ctx.request_id -> str`**: Get the unique ID for the current MCP request
 * **`ctx.client_id -> str | None`**: Get the ID of the client making the request, if provided during initialization
 * **`ctx.session_id -> str | None`**: Get the MCP session ID for session-based data sharing (HTTP transports only)
+
+#### Client Metadata
+
+<VersionBadge version="2.13.1" />
+
+Clients can send contextual information with their requests using the `meta` parameter. This metadata is accessible through `ctx.request_context.meta` and is available for all MCP operations (tools, resources, prompts).
+
+The `meta` field is `None` when clients don't provide metadata. When provided, metadata is accessible via attribute access (e.g., `meta.user_id`) rather than dictionary access. The structure of metadata is determined by the client making the request.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+@mcp.tool
+def send_email(to: str, subject: str, body: str, ctx: Context) -> str:
+    """Send an email, logging metadata about the request."""
+
+    # Access client-provided metadata
+    meta = ctx.request_context.meta
+
+    if meta:
+        # Meta is accessed as an object with attribute access
+        user_id = meta.user_id if hasattr(meta, 'user_id') else None
+        trace_id = meta.trace_id if hasattr(meta, 'trace_id') else None
+
+        # Use metadata for logging, observability, etc.
+        if trace_id:
+            log_with_trace(f"Sending email for user {user_id}", trace_id)
+
+    # Send the email...
+    return f"Email sent to {to}"
+```
 
 <Warning>
   The MCP request is part of the low-level MCP SDK and intended for advanced use cases. Most users will not need to use it directly.
