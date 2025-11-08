@@ -1,101 +1,3 @@
-# Model Context Protocol
-Source: https://modelcontextprotocol.io/about/index
-
-The open protocol that connects AI applications to the systems where context lives
-
-<div className="landing-page">
-  <section className="intro-video-section">
-    <div className="intro-logo">
-      <img src="https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=532f106faedf9079b75d2bdb69426588" alt="MCP Logo" data-og-width="1024" width="1024" data-og-height="1024" height="1024" data-path="mcp.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=280&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=037ef1df099e670b03fb91f6e976f152 280w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=560&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=8a6dbc4df8d808d98ac569887466726e 560w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=840&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=d176cf89440f18ae110a7e1843040480 840w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=1100&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=fc83c85802998c592cdabe9789541140 1100w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=1650&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=777d825ac0e80aaa4e2bddfc7e55e629 1650w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=2500&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=994b7b625177d67fcd1cd21159897407 2500w" />
-    </div>
-
-    <div className="intro-content">
-      <h2 className="intro-title">Connect your AI applications to the world</h2>
-
-      <p className="intro-description">
-        AI-enabled tools are powerful, but they're often limited to the
-        information you manually provide or require bespoke integrations.
-      </p>
-
-      <p className="intro-description">
-        Whether it's reading files from your computer, searching through an
-        internal or external knowledge base, or updating tasks in an project
-        management tool, MCP provides a secure, standardized, *simple* way to
-        give AI systems the context they need.
-      </p>
-    </div>
-  </section>
-
-  <section className="how-section">
-    <h2 className="section-title">How it works</h2>
-
-    <div className="steps-container">
-      <div className="step-number">1</div>
-
-      <div className="step-content">
-        <h3>Choose MCP servers</h3>
-
-        <p>
-          Pick from pre-built servers for popular tools like GitHub, Google
-          Drive, Slack and hundreds of others. Combine multiple servers for
-          complete workflows, or easily build your own for custom integrations.
-        </p>
-      </div>
-
-      <div className="step-number">2</div>
-
-      <div className="step-content">
-        <h3>Connect your AI application</h3>
-
-        <p>
-          Configure your AI application (like Claude, VS Code, or ChatGPT) to
-          connect to your MCP servers. The application can now see available
-          tools, resources and prompts from all connected servers.
-        </p>
-      </div>
-
-      <div className="step-number">3</div>
-
-      <div className="step-content">
-        <h3>Work with context</h3>
-
-        <p>
-          Your AI-powered application can now access real data, execute actions,
-          and provide more helpful responses based on your actual context.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section className="ecosystem-section">
-    <h2 className="section-title">Join a growing ecosystem</h2>
-
-    <div className="stats-grid">
-      <a href="/docs/sdk" target="_blank" className="stat-card">
-        <div className="stat-number">10</div>
-        <div className="stat-label">Official SDKs</div>
-      </a>
-
-      <a href="/clients" target="_blank" className="stat-card">
-        <div className="stat-number">90+</div>
-        <div className="stat-label">Compatible Clients</div>
-      </a>
-
-      <a href="https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#%EF%B8%8F-official-integrations" target="_blank" rel="noopener noreferrer" className="stat-card">
-        <div className="stat-number">1000+</div>
-        <div className="stat-label">Available Servers</div>
-      </a>
-    </div>
-  </section>
-
-  <section className="cta-buttons">
-    <a href="/docs/getting-started/intro" className="cta-primary">
-      Get Started
-    </a>
-  </section>
-</div>
-
-
 # Example Clients
 Source: https://modelcontextprotocol.io/clients
 
@@ -2376,7 +2278,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
 
         # Initial Claude API call
         response = self.anthropic.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-20250514",
             max_tokens=1000,
             messages=messages,
             tools=available_tools
@@ -2416,7 +2318,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
 
                 # Get next response from Claude
                 response = self.anthropic.messages.create(
-                    model="claude-3-5-sonnet-20241022",
+                    model="claude-sonnet-4-20250514",
                     max_tokens=1000,
                     messages=messages,
                     tools=available_tools
@@ -2837,7 +2739,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
       ];
 
       const response = await this.anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
         messages,
         tools: this.tools,
@@ -2866,7 +2768,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
           });
 
           const response = await this.anthropic.messages.create({
-            model: "claude-3-5-sonnet-20241022",
+            model: "claude-sonnet-4-20250514",
             max_tokens: 1000,
             messages,
           });
@@ -3402,7 +3304,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
 
     ```kotlin  theme={null}
     private val messageParamsBuilder: MessageCreateParams.Builder = MessageCreateParams.builder()
-        .model(Model.CLAUDE_3_5_SONNET_20241022)
+        .model(Model.CLAUDE_SONNET_4_20250514)
         .maxTokens(1024)
 
     suspend fun processQuery(query: String): String {
@@ -3733,7 +3635,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
     var options = new ChatOptions
     {
         MaxOutputTokens = 1000,
-        ModelId = "claude-3-5-sonnet-20241022",
+        ModelId = "claude-sonnet-4-20250514",
         Tools = [.. tools]
     };
 
@@ -6812,7 +6714,7 @@ The flow ensures security through multiple human-in-the-loop checkpoints. Users 
   ],
   modelPreferences: {
     hints: [{
-      name: "claude-3-5-sonnet"  // Suggested model
+      name: "claude-sonnet-4-20250514"  // Suggested model
     }],
     costPriority: 0.3,      // Less concerned about API cost
     speedPriority: 0.2,     // Can wait for thorough analysis
@@ -8386,125 +8288,6 @@ For additional details, refer to:
 * [Available MCP SDKs](/docs/sdk)
 
 Understanding these standards will help you implement authorization correctly and troubleshoot issues when they arise.
-
-
-# Example Servers
-Source: https://modelcontextprotocol.io/examples
-
-A list of example servers and implementations
-
-This page showcases various Model Context Protocol (MCP) servers that demonstrate the protocol's capabilities and versatility. These servers enable Large Language Models (LLMs) to securely access tools and data sources.
-
-## Reference implementations
-
-These official reference servers demonstrate core MCP features and SDK usage:
-
-### Current reference servers
-
-* **[Everything](https://github.com/modelcontextprotocol/servers/tree/main/src/everything)** - Reference / test server with prompts, resources, and tools
-* **[Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)** - Web content fetching and conversion for efficient LLM usage
-* **[Filesystem](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem)** - Secure file operations with configurable access controls
-* **[Git](https://github.com/modelcontextprotocol/servers/tree/main/src/git)** - Tools to read, search, and manipulate Git repositories
-* **[Memory](https://github.com/modelcontextprotocol/servers/tree/main/src/memory)** - Knowledge graph-based persistent memory system
-* **[Sequential Thinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking)** - Dynamic and reflective problem-solving through thought sequences
-* **[Time](https://github.com/modelcontextprotocol/servers/tree/main/src/time)** - Time and timezone conversion capabilities
-
-### Archived servers (historical reference)
-
-⚠️ **Note**: The following servers have been moved to the [servers-archived repository](https://github.com/modelcontextprotocol/servers-archived) and are no longer actively maintained. They are provided for historical reference only.
-
-#### Data and file systems
-
-* **[PostgreSQL](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/postgres)** - Read-only database access with schema inspection capabilities
-* **[SQLite](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sqlite)** - Database interaction and business intelligence features
-* **[Google Drive](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/gdrive)** - File access and search capabilities for Google Drive
-
-#### Development tools
-
-* **[Git](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/git)** - Tools to read, search, and manipulate Git repositories
-* **[GitHub](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github)** - Repository management, file operations, and GitHub API integration
-* **[GitLab](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/gitlab)** - GitLab API integration enabling project management
-* **[Sentry](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sentry)** - Retrieving and analyzing issues from Sentry.io
-
-#### Web and browser automation
-
-* **[Brave Search](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/brave-search)** - Web and local search using Brave's Search API
-* **[Puppeteer](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/puppeteer)** - Browser automation and web scraping capabilities
-
-#### Productivity and communication
-
-* **[Slack](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/slack)** - Channel management and messaging capabilities
-* **[Google Maps](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/google-maps)** - Location services, directions, and place details
-
-#### AI and specialized tools
-
-* **[EverArt](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/everart)** - AI image generation using various models
-* **[AWS KB Retrieval](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/aws-kb-retrieval-server)** - Retrieval from AWS Knowledge Base using Bedrock Agent Runtime
-
-## Official integrations
-
-Visit the [MCP Servers Repository (Official Integrations section)](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#%EF%B8%8F-official-integrations) for a list of MCP servers maintained by companies for their platforms.
-
-## Community implementations
-
-Visit the [MCP Servers Repository (Community section)](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#-community-servers) for a list of MCP servers maintained by community members.
-
-## Getting started
-
-### Using reference servers
-
-TypeScript-based servers can be used directly with `npx`:
-
-```bash  theme={null}
-npx -y @modelcontextprotocol/server-memory
-```
-
-Python-based servers can be used with `uvx` (recommended) or `pip`:
-
-```bash  theme={null}
-# Using uvx
-uvx mcp-server-git
-
-# Using pip
-pip install mcp-server-git
-python -m mcp_server_git
-```
-
-### Configuring with Claude
-
-To use an MCP server with Claude, add it to your configuration:
-
-```json  theme={null}
-{
-  "mcpServers": {
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
-    },
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/path/to/allowed/files"
-      ]
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
-      }
-    }
-  }
-}
-```
-
-## Additional resources
-
-Visit the [MCP Servers Repository (Resources section)](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#-resources) for a collection of other resources and projects related to MCP.
-
-Visit our [GitHub Discussions](https://github.com/orgs/modelcontextprotocol/discussions) to engage with the MCP community.
 
 
 # Architecture
@@ -13302,5 +13085,222 @@ agree on a single version to use for the session.
 The protocol provides appropriate error handling if version negotiation fails, allowing
 clients to gracefully terminate connections when they cannot find a version compatible
 with the server.
+
+
+# Model Context Protocol
+Source: https://modelcontextprotocol.io/about/index
+
+The open protocol that connects AI applications to the systems where context lives
+
+<div className="landing-page">
+  <section className="intro-video-section">
+    <div className="intro-logo">
+      <img src="https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=532f106faedf9079b75d2bdb69426588" alt="MCP Logo" data-og-width="1024" width="1024" data-og-height="1024" height="1024" data-path="mcp.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=280&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=037ef1df099e670b03fb91f6e976f152 280w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=560&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=8a6dbc4df8d808d98ac569887466726e 560w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=840&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=d176cf89440f18ae110a7e1843040480 840w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=1100&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=fc83c85802998c592cdabe9789541140 1100w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=1650&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=777d825ac0e80aaa4e2bddfc7e55e629 1650w, https://mintcdn.com/mcp/4ZXF1PrDkEaJvXpn/mcp.png?w=2500&fit=max&auto=format&n=4ZXF1PrDkEaJvXpn&q=85&s=994b7b625177d67fcd1cd21159897407 2500w" />
+    </div>
+
+    <div className="intro-content">
+      <h2 className="intro-title">Connect your AI applications to the world</h2>
+
+      <p className="intro-description">
+        AI-enabled tools are powerful, but they're often limited to the
+        information you manually provide or require bespoke integrations.
+      </p>
+
+      <p className="intro-description">
+        Whether it's reading files from your computer, searching through an
+        internal or external knowledge base, or updating tasks in an project
+        management tool, MCP provides a secure, standardized, *simple* way to
+        give AI systems the context they need.
+      </p>
+    </div>
+  </section>
+
+  <section className="how-section">
+    <h2 className="section-title">How it works</h2>
+
+    <div className="steps-container">
+      <div className="step-number">1</div>
+
+      <div className="step-content">
+        <h3>Choose MCP servers</h3>
+
+        <p>
+          Pick from pre-built servers for popular tools like GitHub, Google
+          Drive, Slack and hundreds of others. Combine multiple servers for
+          complete workflows, or easily build your own for custom integrations.
+        </p>
+      </div>
+
+      <div className="step-number">2</div>
+
+      <div className="step-content">
+        <h3>Connect your AI application</h3>
+
+        <p>
+          Configure your AI application (like Claude, VS Code, or ChatGPT) to
+          connect to your MCP servers. The application can now see available
+          tools, resources and prompts from all connected servers.
+        </p>
+      </div>
+
+      <div className="step-number">3</div>
+
+      <div className="step-content">
+        <h3>Work with context</h3>
+
+        <p>
+          Your AI-powered application can now access real data, execute actions,
+          and provide more helpful responses based on your actual context.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section className="ecosystem-section">
+    <h2 className="section-title">Join a growing ecosystem</h2>
+
+    <div className="stats-grid">
+      <a href="/docs/sdk" target="_blank" className="stat-card">
+        <div className="stat-number">10</div>
+        <div className="stat-label">Official SDKs</div>
+      </a>
+
+      <a href="/clients" target="_blank" className="stat-card">
+        <div className="stat-number">90+</div>
+        <div className="stat-label">Compatible Clients</div>
+      </a>
+
+      <a href="https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#%EF%B8%8F-official-integrations" target="_blank" rel="noopener noreferrer" className="stat-card">
+        <div className="stat-number">1000+</div>
+        <div className="stat-label">Available Servers</div>
+      </a>
+    </div>
+  </section>
+
+  <section className="cta-buttons">
+    <a href="/docs/getting-started/intro" className="cta-primary">
+      Get Started
+    </a>
+  </section>
+</div>
+
+
+# Example Servers
+Source: https://modelcontextprotocol.io/examples
+
+A list of example servers and implementations
+
+This page showcases various Model Context Protocol (MCP) servers that demonstrate the protocol's capabilities and versatility. These servers enable Large Language Models (LLMs) to securely access tools and data sources.
+
+## Reference implementations
+
+These official reference servers demonstrate core MCP features and SDK usage:
+
+### Current reference servers
+
+* **[Everything](https://github.com/modelcontextprotocol/servers/tree/main/src/everything)** - Reference / test server with prompts, resources, and tools
+* **[Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch)** - Web content fetching and conversion for efficient LLM usage
+* **[Filesystem](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem)** - Secure file operations with configurable access controls
+* **[Git](https://github.com/modelcontextprotocol/servers/tree/main/src/git)** - Tools to read, search, and manipulate Git repositories
+* **[Memory](https://github.com/modelcontextprotocol/servers/tree/main/src/memory)** - Knowledge graph-based persistent memory system
+* **[Sequential Thinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking)** - Dynamic and reflective problem-solving through thought sequences
+* **[Time](https://github.com/modelcontextprotocol/servers/tree/main/src/time)** - Time and timezone conversion capabilities
+
+### Archived servers (historical reference)
+
+⚠️ **Note**: The following servers have been moved to the [servers-archived repository](https://github.com/modelcontextprotocol/servers-archived) and are no longer actively maintained. They are provided for historical reference only.
+
+#### Data and file systems
+
+* **[PostgreSQL](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/postgres)** - Read-only database access with schema inspection capabilities
+* **[SQLite](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sqlite)** - Database interaction and business intelligence features
+* **[Google Drive](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/gdrive)** - File access and search capabilities for Google Drive
+
+#### Development tools
+
+* **[Git](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/git)** - Tools to read, search, and manipulate Git repositories
+* **[GitHub](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github)** - Repository management, file operations, and GitHub API integration
+* **[GitLab](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/gitlab)** - GitLab API integration enabling project management
+* **[Sentry](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sentry)** - Retrieving and analyzing issues from Sentry.io
+
+#### Web and browser automation
+
+* **[Brave Search](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/brave-search)** - Web and local search using Brave's Search API
+* **[Puppeteer](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/puppeteer)** - Browser automation and web scraping capabilities
+
+#### Productivity and communication
+
+* **[Slack](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/slack)** - Channel management and messaging capabilities
+* **[Google Maps](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/google-maps)** - Location services, directions, and place details
+
+#### AI and specialized tools
+
+* **[EverArt](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/everart)** - AI image generation using various models
+* **[AWS KB Retrieval](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/aws-kb-retrieval-server)** - Retrieval from AWS Knowledge Base using Bedrock Agent Runtime
+
+## Official integrations
+
+Visit the [MCP Servers Repository (Official Integrations section)](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#%EF%B8%8F-official-integrations) for a list of MCP servers maintained by companies for their platforms.
+
+## Community implementations
+
+Visit the [MCP Servers Repository (Community section)](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#-community-servers) for a list of MCP servers maintained by community members.
+
+## Getting started
+
+### Using reference servers
+
+TypeScript-based servers can be used directly with `npx`:
+
+```bash  theme={null}
+npx -y @modelcontextprotocol/server-memory
+```
+
+Python-based servers can be used with `uvx` (recommended) or `pip`:
+
+```bash  theme={null}
+# Using uvx
+uvx mcp-server-git
+
+# Using pip
+pip install mcp-server-git
+python -m mcp_server_git
+```
+
+### Configuring with Claude
+
+To use an MCP server with Claude, add it to your configuration:
+
+```json  theme={null}
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/path/to/allowed/files"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+      }
+    }
+  }
+}
+```
+
+## Additional resources
+
+Visit the [MCP Servers Repository (Resources section)](https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#-resources) for a collection of other resources and projects related to MCP.
+
+Visit our [GitHub Discussions](https://github.com/orgs/modelcontextprotocol/discussions) to engage with the MCP community.
 
 
