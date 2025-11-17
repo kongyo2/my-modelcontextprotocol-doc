@@ -6788,17 +6788,16 @@ async def test_database_tool():
 
 ### Testing Network Transports
 
-While in-memory testing covers most unit testing needs, you'll occasionally need to test actual network transports like HTTP or SSE. FastMCP provides two approaches: in-process async servers using AnyIO task groups (preferred), and separate subprocess servers (for special cases).
+While in-memory testing covers most unit testing needs, you'll occasionally need to test actual network transports like HTTP or SSE. FastMCP provides two approaches: in-process async servers (preferred), and separate subprocess servers (for special cases).
 
 #### In-Process Network Testing (Preferred)
 
 <VersionBadge version="2.13.0" />
 
-For most network transport tests, use `run_server_async` with AnyIO task groups. This runs the server as a task in the same process, providing fast, deterministic tests with full debugger support:
+For most network transport tests, use `run_server_async` as an async context manager. This runs the server as a task in the same process, providing fast, deterministic tests with full debugger support:
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import pytest
-from anyio.abc import TaskGroup
 from fastmcp import FastMCP, Client
 from fastmcp.client.transports import StreamableHttpTransport
 from fastmcp.utilities.tests import run_server_async
@@ -6806,19 +6805,19 @@ from fastmcp.utilities.tests import run_server_async
 def create_test_server() -> FastMCP:
     """Create a test server instance."""
     server = FastMCP("TestServer")
-    
+
     @server.tool
     def greet(name: str) -> str:
         return f"Hello, {name}!"
-    
+
     return server
 
 @pytest.fixture
-async def http_server(task_group: TaskGroup) -> str:
-    """Start server in-process using task group."""
+async def http_server() -> str:
+    """Start server in-process for testing."""
     server = create_test_server()
-    url = await run_server_async(task_group, server, transport="http")
-    return url
+    async with run_server_async(server) as url:
+        yield url
 
 async def test_http_transport(http_server: str):
     """Test actual HTTP transport behavior."""
@@ -6827,12 +6826,12 @@ async def test_http_transport(http_server: str):
     ) as client:
         result = await client.ping()
         assert result is True
-        
+
         greeting = await client.call_tool("greet", {"name": "World"})
         assert greeting.data == "Hello, World!"
 ```
 
-The `task_group` fixture is provided globally by `conftest.py` and automatically handles server lifecycle and cleanup. This approach is faster than subprocess-based testing and provides better error messages.
+The `run_server_async` context manager automatically handles server lifecycle and cleanup. This approach is faster than subprocess-based testing and provides better error messages.
 
 #### Subprocess Testing (Special Cases)
 
@@ -14103,6 +14102,25 @@ Source: https://gofastmcp.com/patterns/testing
 How to test your FastMCP server.
 
 The best way to ensure a reliable and maintainable FastMCP Server is to test it! The FastMCP Client combined with Pytest provides a simple and powerful way to test your FastMCP servers.
+
+## Prerequisites
+
+Testing FastMCP servers requires `pytest-asyncio` to handle async test functions and fixtures. Install it as a development dependency:
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+pip install pytest-asyncio
+```
+
+We recommend configuring pytest to automatically handle async tests by setting the asyncio mode to `auto` in your `pyproject.toml`:
+
+```toml  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+```
+
+This eliminates the need to decorate every async test with `@pytest.mark.asyncio`.
+
+## Testing with Pytest Fixtures
 
 Using Pytest Fixtures, you can wrap your FastMCP Server in a Client instance that makes interacting with your server fast and easy. This is especially useful when building your own MCP Servers and enables a tight development loop by allowing you to avoid using a separate tool like MCP Inspector during development:
 
@@ -24232,7 +24250,7 @@ consent pages, and other user-facing interfaces.
 ### `create_page` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/ui.py#L453" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-create_page(content: str, title: str = 'FastMCP', additional_styles: str = '', csp_policy: str = "default-src 'none'; style-src 'unsafe-inline'; img-src https:; base-uri 'none'") -> str
+create_page(content: str, title: str = 'FastMCP', additional_styles: str = '', csp_policy: str = "default-src 'none'; style-src 'unsafe-inline'; img-src https: data:; base-uri 'none'") -> str
 ```
 
 Create a complete HTML page with FastMCP styling.
@@ -26995,6 +27013,48 @@ async def request_info(ctx: Context) -> dict:
 * **`ctx.client_id -> str | None`**: Get the ID of the client making the request, if provided during initialization
 * **`ctx.session_id -> str | None`**: Get the MCP session ID for session-based data sharing (HTTP transports only)
 
+#### Request Context Availability
+
+<VersionBadge version="2.13.1" />
+
+The `ctx.request_context` property provides access to the underlying MCP request context, but returns `None` when the MCP session has not been established yet. This typically occurs:
+
+* During middleware execution in the `on_request` hook before the MCP handshake completes
+* During the initialization phase of client connections
+
+The MCP request context is distinct from the HTTP request. For HTTP transports, HTTP request data may be available even when the MCP session is not yet established.
+
+To safely access the request context in situations where it may not be available:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP, Context
+from fastmcp.server.dependencies import get_http_request
+
+mcp = FastMCP(name="Session Aware Demo")
+
+@mcp.tool
+async def session_info(ctx: Context) -> dict:
+    """Return session information when available."""
+
+    # Check if MCP session is available
+    if ctx.request_context:
+        # MCP session available - can access MCP-specific attributes
+        return {
+            "session_id": ctx.session_id,
+            "request_id": ctx.request_id,
+            "has_meta": ctx.request_context.meta is not None
+        }
+    else:
+        # MCP session not available - use HTTP helpers for request data (if using HTTP transport)
+        request = get_http_request()
+        return {
+            "message": "MCP session not available",
+            "user_agent": request.headers.get("user-agent", "Unknown")
+        }
+```
+
+For HTTP request access that works regardless of MCP session availability (when using HTTP transports), use the [HTTP request helpers](#http-requests) like `get_http_request()` and `get_http_headers()`.
+
 #### Client Metadata
 
 <VersionBadge version="2.13.1" />
@@ -28034,6 +28094,41 @@ This hierarchy allows you to target your middleware logic with the right level o
 <Note>
   The `on_initialize` hook receives the client's initialization request but **returns `None`** rather than a result. The initialization response is handled internally by the MCP protocol and cannot be modified by middleware. This hook is useful for client detection, logging connections, or initializing session state, but not for modifying the initialization handshake itself.
 </Note>
+
+### MCP Session Availability in Middleware
+
+<VersionBadge version="2.13.1" />
+
+The MCP session and request context are not available during certain phases like initialization. When middleware runs during these phases, `context.fastmcp_context.request_context` returns `None` rather than the full MCP request context.
+
+This typically occurs when:
+
+* The `on_request` hook fires during client initialization
+* The MCP handshake hasn't completed yet
+
+To handle this in middleware, check if the MCP request context is available before accessing MCP-specific attributes. Note that the MCP request context is distinct from the HTTP request - for HTTP transports, you can use HTTP helpers to access request data even when the MCP session is not available:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.server.middleware import Middleware, MiddlewareContext
+
+class SessionAwareMiddleware(Middleware):
+    async def on_request(self, context: MiddlewareContext, call_next):
+        ctx = context.fastmcp_context
+
+        if ctx.request_context:
+            # MCP session available - can access session-specific attributes
+            session_id = ctx.session_id
+            request_id = ctx.request_id
+        else:
+            # MCP session not available yet - use HTTP helpers for request data (if using HTTP transport)
+            from fastmcp.server.dependencies import get_http_headers
+            headers = get_http_headers()
+            # Access HTTP data for auth, logging, etc.
+
+        return await call_next(context)
+```
+
+For HTTP request data (headers, client IP, etc.) when using HTTP transports, use `get_http_request()` or `get_http_headers()` from `fastmcp.server.dependencies`, which work regardless of MCP session availability. See [HTTP Requests](/servers/context#http-requests) for details.
 
 ## Component Access in Middleware
 
