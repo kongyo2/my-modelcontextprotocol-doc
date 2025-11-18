@@ -1501,7 +1501,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
 
        ```bash  theme={null}
        git clone https://github.com/spring-projects/spring-ai-examples.git
-       cd model-context-protocol/brave-chatbot
+       cd model-context-protocol/web-search/brave-chatbot
        ```
 
     3. Set up your API keys:
@@ -11776,7 +11776,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [Gemini CLI][Gemini CLI]                                   | ❌           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [GenAIScript][GenAIScript]                                 | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [GitHub Copilot coding agent][GitHubCopilotCodingAgent]    | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             | ❓              |
-  | [Goose][Goose]                                             | ✅           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             | ✅              |
+  | [goose][goose]                                             | ✅           | ✅         | ✅       | ❌           | ✅          | ❌       | ❌             | ✅              |
   | [gptme][gptme]                                             | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [HyperAgent][HyperAgent]                                   | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Jenova][Jenova]                                           | ❌           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             | ❓              |
@@ -11927,7 +11927,7 @@ This page provides an overview of applications that support the Model Context Pr
 
   [GitHubCopilotCodingAgent]: https://docs.github.com/en/enterprise-cloud@latest/copilot/concepts/about-copilot-coding-agent
 
-  [Goose]: https://block.github.io/goose/docs/goose-architecture/#interoperability-with-extensions
+  [goose]: https://block.github.io/goose/docs/goose-architecture/#interoperability-with-extensions
 
   [Jenova]: https://www.jenova.ai
 
@@ -12455,16 +12455,16 @@ Programmatically assemble prompts for LLMs using [GenAIScript](https://microsoft
 * Abstraction to make it easy and productive
 * Seamless Visual Studio Code integration
 
-### Goose
+### goose
 
-[Goose](https://github.com/block/goose) is an open source AI agent that supercharges your software development by automating coding tasks.
+[goose](https://github.com/block/goose) is an open source AI agent that supercharges your software development by automating coding tasks.
 
 **Key features:**
 
-* Expose MCP functionality to Goose through tools.
+* Expose MCP functionality to goose through tools.
 * MCPs can be installed directly via the [extensions directory](https://block.github.io/goose/v1/extensions/), CLI, or UI.
-* Goose allows you to extend its functionality by [building your own MCP servers](https://block.github.io/goose/docs/tutorials/custom-extensions).
-* Includes built-in tools for development, web scraping, automation, memory, and integrations with JetBrains and Google Drive.
+* goose allows you to extend its functionality by [building your own MCP servers](https://block.github.io/goose/docs/tutorials/custom-extensions).
+* Includes built-in extensions for development, memory, computer control, and auto-visualization.
 
 ### GitHub Copilot coding agent
 
