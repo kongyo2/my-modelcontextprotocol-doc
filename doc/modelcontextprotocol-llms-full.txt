@@ -1364,6 +1364,10 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
       try {
         await mcpClient.connectToServer(process.argv[2]);
         await mcpClient.chatLoop();
+      } catch (e) {
+        console.error("Error:", e);
+        await mcpClient.cleanup();
+        process.exit(1);
       } finally {
         await mcpClient.cleanup();
         process.exit(0);
@@ -1466,6 +1470,7 @@ Before you begin, it helps to have gone through our [Build an MCP Server](/docs/
     * `Tool execution failed`: Verify the tool's required environment variables are set
     * `ANTHROPIC_API_KEY is not set`: Check your .env file and environment variables
     * `TypeError`: Ensure you're using the correct types for tool arguments
+    * `BadRequestError`: Ensure you have enough credits to access the Anthropic API
   </Tab>
 
   <Tab title="Java">
@@ -11774,7 +11779,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [Genkit][Genkit]                                           | ⚠️          | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Glama][Glama]                                             | ✅           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Gemini CLI][Gemini CLI]                                   | ❌           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
-  | [GenAIScript][GenAIScript]                                 | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
+  | [GenAIScript][GenAIScript]                                 | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [GitHub Copilot coding agent][GitHubCopilotCodingAgent]    | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             | ❓              |
   | [goose][goose]                                             | ✅           | ✅         | ✅       | ❌           | ✅          | ❌       | ❌             | ✅              |
   | [gptme][gptme]                                             | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
