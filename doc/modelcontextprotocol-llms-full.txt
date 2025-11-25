@@ -3874,10 +3874,10 @@ This tutorial will primarily focus on tools.
     [McpServerToolType]
     public static class WeatherTools
     {
-        [McpServerTool, Description("Get weather alerts for a US state.")]
+        [McpServerTool, Description("Get weather alerts for a US state code.")]
         public static async Task<string> GetAlerts(
             HttpClient client,
-            [Description("The US state to get alerts for.")] string state)
+            [Description("The US state code to get alerts for.")] string state)
         {
             using var jsonDocument = await client.ReadJsonDocumentAsync($"/alerts/active/area/{state}");
             var jsonElement = jsonDocument.RootElement;
@@ -10556,6 +10556,10 @@ sequenceDiagram
     Note over Client,Server: Resource Discovery
     Client->>Server: resources/list
     Server-->>Client: List of resources
+
+    Note over Client,Server: Resource Template Discovery
+    Client->>Server: resources/templates/list
+    Server-->>Client: List of resource templates
 
     Note over Client,Server: Resource Access
     Client->>Server: resources/read
