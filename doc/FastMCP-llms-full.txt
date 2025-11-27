@@ -25343,6 +25343,24 @@ mcp = FastMCP(name="My Server", auth=auth)
       Disabling consent removes an important security layer. Only disable for local development or testing environments where you fully control all connecting clients.
     </Warning>
   </ParamField>
+
+  <ParamField body="consent_csp_policy" type="str | None" default="None">
+    Content Security Policy for the consent page.
+
+    * `None` (default): Uses the built-in CSP policy with appropriate directives for form submission
+    * Empty string `""`: Disables CSP entirely (no meta tag rendered)
+    * Custom string: Uses the provided value as the CSP policy
+
+    This is useful for organizations that have their own CSP policies and need to override or disable FastMCP's built-in CSP directives.
+
+    ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+    # Disable CSP entirely (let org CSP policies apply)
+    auth = OAuthProxy(..., consent_csp_policy="")
+
+    # Use custom CSP policy
+    auth = OAuthProxy(..., consent_csp_policy="default-src 'self'; style-src 'unsafe-inline'")
+    ```
+  </ParamField>
 </Card>
 
 ### Using Built-in Providers
@@ -25815,6 +25833,20 @@ mcp = FastMCP(name="My Server", auth=auth)
         )
     )
     ```
+  </ParamField>
+
+  <ParamField body="require_authorization_consent" type="bool" default="True">
+    Whether to require user consent before authorizing MCP clients. When enabled (default), users see a consent screen that displays which client is requesting access. See [OAuthProxy documentation](/servers/auth/oauth-proxy#confused-deputy-attacks) for details on confused deputy attack protection.
+  </ParamField>
+
+  <ParamField body="consent_csp_policy" type="str | None" default="None">
+    Content Security Policy for the consent page.
+
+    * `None` (default): Uses the built-in CSP policy with appropriate directives for form submission
+    * Empty string `""`: Disables CSP entirely (no meta tag rendered)
+    * Custom string: Uses the provided value as the CSP policy
+
+    This is useful for organizations that have their own CSP policies and need to override or disable FastMCP's built-in CSP directives.
   </ParamField>
 </Card>
 
@@ -27723,7 +27755,7 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<VersionBadge version="2.14.0" />
+<VersionBadge version="2.13.0" />
 
 Icons provide visual representations for your MCP servers and components, helping client applications present better user interfaces. When displayed in MCP clients, icons help users quickly identify and navigate your server's capabilities.
 
