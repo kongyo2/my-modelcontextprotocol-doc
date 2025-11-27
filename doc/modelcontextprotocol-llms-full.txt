@@ -1798,7 +1798,7 @@ This tutorial will primarily focus on tools.
             "User-Agent": USER_AGENT,
             "Accept": "application/geo+json"
         }
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
                 response = await client.get(url, headers=headers, timeout=30.0)
                 response.raise_for_status()
@@ -1847,8 +1847,8 @@ This tutorial will primarily focus on tools.
         """Get weather forecast for a location.
 
         Args:
-            latitude: Latitude of the location
-            longitude: Longitude of the location
+        	latitude: Latitude of the location (recommended: up to 4 decimal places)
+        	longitude: Longitude of the location (recommended: up to 4 decimal places)
         """
         # First get the forecast grid endpoint
         points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
@@ -12290,8 +12290,8 @@ Messages in a prompt can contain:
 
 <Note>
   All content types in prompt messages support optional
-  [annotations](./resources#annotations) for
-  metadata about audience, priority, and modification times.
+  [annotations](./resources#annotations) for metadata about audience, priority,
+  and modification times.
 </Note>
 
 #### Text Content
@@ -13789,7 +13789,7 @@ Revisions may be marked as:
   receive backwards compatible changes.
 * **Final**: past, complete specifications that will not be changed.
 
-The **current** protocol version is [**2025-06-18**](/specification/2025-06-18/).
+The **current** protocol version is [**2025-06-18**](/specification/2025-11-25/).
 
 ## Negotiation
 
@@ -13938,7 +13938,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [CodeGPT][CodeGPT]                                         | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Continue][Continue]                                       | ✅           | ✅         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Copilot-MCP][CopilotMCP]                                  | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
-  | [Cursor][Cursor]                                           | ✅           | ✅         | ✅       | ❌           | ❌          | ✅       | ✅             | ❓              |
+  | [Cursor][Cursor]                                           | ❌           | ✅         | ✅       | ❌           | ❌          | ✅       | ✅             | ❓              |
   | [Daydreams Agents][Daydreams]                              | ✅           | ✅         | ✅       | ❌           | ❌          | ❌       | ❓             | ❓              |
   | [ECA][ECA]                                                 | ✅           | ✅         | ✅       | ❌           | ❌          | ✅       | ❓             | ❓              |
   | [Emacs Mcp][Mcp.el]                                        | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❓             | ❓              |
