@@ -13958,6 +13958,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [JetBrains Junie][JetBrains Junie]                         | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             | ❓              |
   | [Kilo Code][Kilo Code]                                     | ✅           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             | ❓              |
   | [Klavis AI Slack/Discord/Web][Klavis AI]                   | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
+  | [Langdock][Langdock]                                       | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Langflow][Langflow]                                       | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [LibreChat][LibreChat]                                     | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ✅              |
   | [LM-Kit.NET][LM-Kit.NET]                                   | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             | ❓              |
@@ -14110,6 +14111,8 @@ This page provides an overview of applications that support the Model Context Pr
   [JetBrains Junie]: https://www.jetbrains.com/junie
 
   [Kilo Code]: https://github.com/Kilo-Org/kilocode
+
+  [Langdock]: https://docs.langdock.com/resources/integrations/mcp
 
   [Langflow]: https://github.com/langflow-ai/langflow
 
@@ -14735,6 +14738,16 @@ Delegate tasks to [GitHub Copilot coding agent](https://docs.github.com/en/copil
 **Learn more:**
 
 * [Demo video showing MCP usage in Slack/Discord](https://youtu.be/9-QQAhrQWw8)
+
+### Langdock
+
+[Langdock](https://langdock.com) is the enterprise-ready solution for rolling out AI to all of your employees while enabling your developers to build and deploy custom AI workflows on top.
+
+**Key features:**
+
+* Remote MCP Server (SSE & Streamable HTTP) support, connect to any MCP server via OAuth, API Key, or without authentication.
+* MCP Tool discovery and management, including tool confirmation UI.
+* Enterprise-grade security and compliance features
 
 ### Langflow
 
