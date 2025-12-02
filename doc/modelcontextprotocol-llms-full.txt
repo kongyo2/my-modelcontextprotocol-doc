@@ -4053,7 +4053,7 @@ MCP uses [JSON-RPC 2.0](https://www.jsonrpc.org/) as its underlying RPC protocol
 
 #### Lifecycle management
 
-MCP is a <Tooltip tip="A subset of MCP can be made stateless using the Streamable HTTP transport">stateful protocol</Tooltip> that requires lifecycle management. The purpose of lifecycle management is to negotiate the <Tooltip tip="Features and operations that a client or server supports, such as tools, resources, or prompts">capabilities</Tooltip> that both client and server support. Detailed information can be found in the [specification](/specification/2025-06-18/basic/lifecycle), and the [example](#example) showcases the initialization sequence.
+MCP is a <Tooltip tip="A subset of MCP can be made stateless using the Streamable HTTP transport">stateful protocol</Tooltip> that requires lifecycle management. The purpose of lifecycle management is to negotiate the <Tooltip tip="Features and operations that a client or server supports, such as tools, resources, or prompts">capabilities</Tooltip> that both client and server support. Detailed information can be found in the [specification](/specification/latest/basic/lifecycle), and the [example](#example) showcases the initialization sequence.
 
 #### Primitives
 
@@ -7300,7 +7300,7 @@ may reserve particular names for purpose-specific metadata, as declared in those
 * Unless empty, MUST begin and end with an alphanumeric character (`[a-z0-9A-Z]`).
 * MAY contain hyphens (`-`), underscores (`_`), dots (`.`), and alphanumerics in between.
 
-#### `icons`
+### `icons`
 
 The `icons` property provides a standardized way for servers to expose visual identifiers for their resources, tools, prompts, and implementations. Icons enhance user interfaces by providing visual context and improving the discoverability of available functionality.
 
