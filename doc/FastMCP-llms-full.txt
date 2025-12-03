@@ -10221,12 +10221,6 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<Tip>
-  **New in 2.11**: FastMCP is introducing a next-generation OpenAPI parser. The new parser has greatly improved performance and compatibility, and is also easier to maintain. To enable it, set the environment variable `FASTMCP_EXPERIMENTAL_ENABLE_NEW_OPENAPI_PARSER=true`.
-
-  The new parser is largely API-compatible with the existing implementation and will become the default in a future version. We encourage all users to test it and report any issues before it becomes the default.
-</Tip>
-
 FastMCP provides two powerful ways to integrate with FastAPI applications:
 
 1. **[Generate an MCP server FROM your FastAPI app](#generating-an-mcp-server)** - Convert existing API endpoints into MCP tools
@@ -10429,9 +10423,6 @@ Because FastMCP's FastAPI integration is based on its [OpenAPI integration](/int
 # Assumes the FastAPI app from above is already defined
 from fastmcp import FastMCP
 from fastmcp.server.openapi import RouteMap, MCPType
-
-# If using experimental parser, import from experimental module:
-# from fastmcp.experimental.server.openapi import RouteMap, MCPType
 
 # Custom mapping rules
 mcp = FastMCP.from_fastapi(
@@ -11943,6 +11934,343 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 
+# OCI IAM OAuth 🤝 FastMCP
+Source: https://gofastmcp.com/integrations/oci
+
+Secure your FastMCP server with OCI IAM OAuth
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.13.0" />
+
+This guide shows you how to secure your FastMCP server using **OCI IAM OAuth**. Since OCI IAM doesn't support Dynamic Client Registration, this integration uses the [**OIDC Proxy**](/servers/auth/oidc-proxy) pattern to bridge OCI's traditional OAuth with MCP's authentication requirements.
+
+## Configuration
+
+### Prerequisites
+
+1. An OCI cloud Account with access to create an Integrated Application in an Identity Domain.
+2. Your FastMCP server's URL (For dev environments, it is [http://localhost:8000](http://localhost:8000). For PROD environments, it could be [https://mcp.\$\{DOMAIN}.com](https://mcp.\$\{DOMAIN}.com))
+
+### Step 1: Make sure client access is enabled for JWK's URL
+
+<Steps>
+  <Step title="Navigate to OCI IAM Domain Settings">
+    Login to OCI console ([https://cloud.oracle.com](https://cloud.oracle.com) for OCI commercial cloud).
+    From "Identity & Security" menu, open Domains page.
+    On the Domains list page, select the domain that you are using for MCP Authentication.
+    Open Settings tab.
+    Click on "Edit Domain Settings" button.
+
+    <Frame>
+      <img src="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=189e2e2c679c33b33a79164756cb6440" alt="OCI console showing the Edit Domain Settings button in the IAM Domain settings page" data-og-width="1489" width="1489" data-og-height="307" height="307" data-path="integrations/images/oci/ocieditdomainsettingsbutton.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?w=280&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=72efbc25e978daac993b559bdc09b0d7 280w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?w=560&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=af645c2122c07997ce006428e1fb358e 560w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?w=840&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=ac35f055a4def431abc642bda1a3f08d 840w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?w=1100&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=2f22168773dbb1a0965c1ffcc700f9bd 1100w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?w=1650&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=2ec995069ee90933789fc0e381c1f985 1650w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettingsbutton.png?w=2500&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=a9a06d349b8d2fee37e8325b45a96c37 2500w" />
+    </Frame>
+  </Step>
+
+  <Step title="Update Domain Setting">
+    Enable "Configure client access" checkbox as shown in the screenshot.
+
+    <Frame>
+      <img src="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=3f4422ba7b3c45fec724b4bb5de6ff31" alt="OCI IAM Domain Settings" data-og-width="719" width="719" data-og-height="360" height="360" data-path="integrations/images/oci/ocieditdomainsettings.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?w=280&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=2665bbb7cc08e068a7684f2d0ddafadc 280w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?w=560&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=58d7af8b4e0b65306b443269508a2150 560w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?w=840&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=2aea4bdc7947eef4105fe42a82a349ad 840w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?w=1100&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=ded585ac89dc197f4048434c4c81fa60 1100w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?w=1650&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=465d4b3a449450d7ae38b848daab7c57 1650w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocieditdomainsettings.png?w=2500&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=d0a6358aeb13211dd1579313f4a2a26b 2500w" />
+    </Frame>
+  </Step>
+</Steps>
+
+### Step 2: Create OAuth client for MCP server authentication
+
+Follow the Steps as mentioned below to create an OAuth client.
+
+<Steps>
+  <Step title="Navigate to OCI IAM Integrated Applications">
+    Login to OCI console ([https://cloud.oracle.com](https://cloud.oracle.com) for OCI commercial cloud).
+    From "Identity & Security" menu, open Domains page.
+    On the Domains list page, select the domain in which you want to create MCP server OAuth client. If you need help finding the list page for the domain, see [Listing Identity Domains.](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/to-view-identity-domains.htm#view-identity-domains).
+    On the details page, select Integrated applications. A list of applications in the domain is displayed.
+  </Step>
+
+  <Step title="Add an Integrated Application">
+    Select Add application.
+    In the Add application window, select Confidential Application.
+    Select Launch workflow.
+    In the Add application details page, Enter name and description as shown below.
+
+    <Frame>
+      <img src="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=5855c5dc6cd69f8a0c53f3f103e7b4fc" alt="Adding a Confidential Integrated Application in OCI IAM Domain" data-og-width="2852" width="2852" data-og-height="1200" height="1200" data-path="integrations/images/oci/ociaddapplication.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?w=280&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=d0f4e8aa0c96a0e8aa8c1c1e08ffefe7 280w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?w=560&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=a0900eba5d20c899b2881bdabcbbdb2c 560w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?w=840&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=d8fcb00216ca7d4dc5c2294185e79957 840w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?w=1100&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=8fbc1a1ba36975fed4cbc7a106581fb9 1100w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?w=1650&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=6fd416bcf3be09d0bed64e3f2298ef06 1650w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ociaddapplication.png?w=2500&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=e6f70935717ae9907b109cd89b5057b9 2500w" />
+    </Frame>
+  </Step>
+
+  <Step title="Update OAuth Configuration for an Integrated Application">
+    Once the Integrated Application is created, Click on "OAuth configuration" tab.
+    Click on "Edit OAuth configuration" button.
+    Configure the application as OAuth client by selecting "Configure this application as a client now" radio button.
+    Select "Authorization code" grant type. If you are planning to use the same OAuth client application for token exchange, select "Client credentials" grant type as well. In the sample, we will use the same client.
+    For Authorization grant type, select redirect URL. In most cases, this will be the MCP server URL followed by "/oauth/callback".
+
+    <Frame>
+      <img src="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=885b0adc7c2a25ee71cf7e455b6afd62" alt="OAuth Configuration for an Integrated Application in OCI IAM Domain" data-og-width="998" width="998" data-og-height="522" height="522" data-path="integrations/images/oci/ocioauthconfiguration.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?w=280&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=ef40ce6d2ded822550d5d7938ffcd71f 280w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?w=560&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=46d8db4c87ac4966f8d15beeaeffd475 560w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?w=840&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=0eeb569886c184fd1e192fee120b06e1 840w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?w=1100&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=55bf561391a0282cd03874d884ff51f5 1100w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?w=1650&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=7308f03d616ea58d3673de12caabd045 1650w, https://mintcdn.com/fastmcp/dDafRTA33FK_2khu/integrations/images/oci/ocioauthconfiguration.png?w=2500&fit=max&auto=format&n=dDafRTA33FK_2khu&q=85&s=1244add730484e72effb5477bb3b08ee 2500w" />
+    </Frame>
+  </Step>
+
+  <Step title="Activate the Integrated Application">
+    Click on "Submit" button to update OAuth configuration for the client application.
+    **Note: You don't need to do any special configuration to support PKCE for the OAuth client.**
+    Make sure to Activate the client application.
+    Note down client ID and client secret for the application. Update .env file and replace FASTMCP\_SERVER\_AUTH\_OCI\_CLIENT\_ID and FASTMCP\_SERVER\_AUTH\_OCI\_CLIENT\_SECRET values.
+    FASTMCP\_SERVER\_AUTH\_OCI\_IAM\_GUID in the env file is the Identity domain URL that you chose for the MCP server.
+  </Step>
+</Steps>
+
+This is all you need to implement MCP server authentication against OCI IAM. However, you may want to use an authenticated user token to invoke OCI control plane APIs and propagate identity to the OCI control plane instead of using a service user account. In that case, you need to implement token exchange.
+
+### Step 3: Token Exchange Setup (Only if MCP server needs to talk to OCI Control Plane)
+
+Token exchange helps you exchange a logged-in user's OCI IAM token for an OCI control plane session token, also known as UPST (User Principal Session Token). To learn more about token exchange, refer to my [Workload Identity Federation Blog](https://www.ateam-oracle.com/post/workload-identity-federation)
+
+For token exchange, we need to configure Identity propagation trust. The blog above discusses setting up the trust using REST APIs. However, you can also use OCI CLI. Before using the CLI command below, ensure that you have created a token exchange OAuth client. In most cases, you can use the same OAuth client that you created above. You will use the client ID of the token exchange OAuth client in the CLI command below and replace it with {FASTMCP_SERVER_AUTH_OCI_CLIENT_ID}.
+
+You will also need to update the client secret for the token exchange OAuth client in the .env file. It is the FASTMCP\_SERVER\_AUTH\_OCI\_CLIENT\_SECRET parameter. Update FASTMCP\_SERVER\_AUTH\_OCI\_IAM\_GUID and FASTMCP\_SERVER\_AUTH\_OCI\_CLIENT\_ID as well for the token exchange OAuth client in the .env file.
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+oci identity-domains identity-propagation-trust create \
+--schemas '["urn:ietf:params:scim:schemas:oracle:idcs:IdentityPropagationTrust"]' \
+--public-key-endpoint "https://{FASTMCP_SERVER_AUTH_OCI_IAM_GUID}.identity.oraclecloud.com/admin/v1/SigningCert/jwk" \
+--name "For Token Exchange" --type "JWT" \
+--issuer "https://identity.oraclecloud.com/" --active true \
+--endpoint "https://{FASTMCP_SERVER_AUTH_OCI_IAM_GUID}.identity.oracleclcoud.com" \
+--subject-claim-name "sub" --allow-impersonation false \
+--subject-mapping-attribute "username" \
+--subject-type "User" --client-claim-name "iss" \
+--client-claim-values '["https://identity.oraclecloud.com/"]' \
+--oauth-clients '["{FASTMCP_SERVER_AUTH_OCI_CLIENT_ID}"]'
+```
+
+To exchange access token for OCI token and create a signer object, you need to add below code in MCP server. You can then use the signer object to create any OCI control plane client.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+
+from fastmcp.server.dependencies import get_access_token
+from fastmcp.utilities.logging import get_logger
+from oci.auth.signers import TokenExchangeSigner
+import os
+
+logger = get_logger(__name__)
+
+# Load configuration from environment
+FASTMCP_SERVER_AUTH_OCI_IAM_GUID = os.environ["FASTMCP_SERVER_AUTH_OCI_IAM_GUID"]
+FASTMCP_SERVER_AUTH_OCI_CLIENT_ID = os.environ["FASTMCP_SERVER_AUTH_OCI_CLIENT_ID"]
+FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET = os.environ["FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET"]
+
+_global_token_cache = {} #In memory cache for OCI session token signer
+    
+def get_oci_signer() -> TokenExchangeSigner:
+
+    authntoken = get_access_token()
+    tokenID = authntoken.claims.get("jti")
+    token = authntoken.token
+    
+    #Check if the signer exists for the token ID in memory cache
+    cached_signer = _global_token_cache.get(tokenID)
+    logger.debug(f"Global cached signer: {cached_signer}")
+    if cached_signer:
+        logger.debug(f"Using globally cached signer for token ID: {tokenID}")
+        return cached_signer
+
+    #If the signer is not yet created for the token then create new OCI signer object
+    logger.debug(f"Creating new signer for token ID: {tokenID}")
+    signer = TokenExchangeSigner(
+        jwt_or_func=token,
+        oci_domain_id=FASTMCP_SERVER_AUTH_OCI_IAM_GUID.split(".")[0],
+        client_id=FASTMCP_SERVER_AUTH_OCI_CLIENT_ID,
+        client_secret=FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET,
+    )
+    logger.debug(f"Signer {signer} created for token ID: {tokenID}")
+        
+    #Cache the signer object in memory cache
+    _global_token_cache[tokenID] = signer
+    logger.debug(f"Signer cached for token ID: {tokenID}")
+
+    return signer
+```
+
+## Running MCP server
+
+Once the setup is complete, to run the MCP server, run the below command.
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+fastmcp run server.py:mcp --transport http --port 8000
+```
+
+To run MCP client, run the below command.
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+python3 client.py
+```
+
+MCP Client sample is as below.
+
+```python client.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import Client
+import asyncio
+
+async def main():
+    # The client will automatically handle OCI OAuth flows
+    async with Client("http://localhost:8000/mcp/", auth="oauth") as client:
+        # First-time connection will open OCI login in your browser
+        print("✓ Authenticated with OCI IAM")
+
+        tools = await client.list_tools()
+        print(f"🔧 Available tools ({len(tools)}):")
+        for tool in tools:
+            print(f"   - {tool.name}: {tool.description}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+When you run the client for the first time:
+
+1. Your browser will open to OCI IAM's login page
+2. Sign in with your OCI account and grant the requested consent
+3. After authorization, you'll be redirected back to the redirect path
+4. The client receives the token and can make authenticated requests
+
+## Production Configuration
+
+<VersionBadge version="2.13.0" />
+
+For production deployments with persistent token management across server restarts, configure `jwt_signing_key`, and `client_storage`:
+
+```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+
+import os
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.oci import OCIProvider
+
+from key_value.aio.stores.redis import RedisStore
+from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
+from cryptography.fernet import Fernet
+
+# Load configuration from environment
+FASTMCP_SERVER_AUTH_OCI_CONFIG_URL = os.environ["FASTMCP_SERVER_AUTH_OCI_CONFIG_URL"]
+FASTMCP_SERVER_AUTH_OCI_CLIENT_ID = os.environ["FASTMCP_SERVER_AUTH_OCI_CLIENT_ID"]
+FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET = os.environ["FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET"]
+
+# Production setup with encrypted persistent token storage
+auth_provider = OCIProvider(
+    config_url=FASTMCP_SERVER_AUTH_OCI_CONFIG_URL,
+    client_id=FASTMCP_SERVER_AUTH_OCI_CLIENT_ID,
+    client_secret=FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET,
+    base_url="https://your-production-domain.com",
+
+    # Production token management
+    jwt_signing_key=os.environ["JWT_SIGNING_KEY"],
+    client_storage=FernetEncryptionWrapper(
+        key_value=RedisStore(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"])
+        ),
+        fernet=Fernet(os.environ["STORAGE_ENCRYPTION_KEY"])
+    )
+)
+
+mcp = FastMCP(name="Production OCI App", auth=auth_provider)
+```
+
+<Note>
+  Parameters (`jwt_signing_key` and `client_storage`) work together to ensure tokens and client registrations survive server restarts. **Wrap your storage in `FernetEncryptionWrapper` to encrypt sensitive OAuth tokens at Rest** - without it, tokens are stored in plaintext. Store secrets in environment variables and use a persistent storage backend like Redis for distributed deployments.
+
+  For complete details on these parameters, see the [OAuth Proxy documentation](/servers/auth/oauth-proxy#configuration-parameters).
+</Note>
+
+<Info>
+  The client caches tokens locally, so you won't need to re-authenticate for subsequent runs unless the token expires or you explicitly clear the cache.
+</Info>
+
+## Environment Variables
+
+For production deployments, use environment variables instead of hardcoding credentials.
+
+### Provider Selection
+
+Setting this environment variable allows the OCI provider to be used automatically without explicitly instantiating it in code.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH" default="Not set">
+    Set to `fastmcp.server.auth.providers.oci.OCIProvider` to use OCI IAM authentication.
+  </ParamField>
+</Card>
+
+### OCI-Specific Configuration
+
+These environment variables provide default values for the OCI IAM provider, whether it's instantiated manually or configured via `FASTMCP_SERVER_AUTH`.
+
+<Card>
+  <ParamField path="FASTMCP_SERVER_AUTH_OCI_IAM_GUID" required>
+    Your OCI Application Configuration URL (e.g., `idcs-asdascxasd11......identity.oraclecloud.com`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_OCI_CONFIG_URL" required>
+    Your OCI Application Configuration URL (e.g., `https://{FASTMCP_SERVER_AUTH_OCI_IAM_GUID}.identity.oraclecloud.com/.well-known/openid-configuration`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_OCI_CLIENT_ID" required>
+    Your OCI Application Client ID (e.g., `tv2ObNgaZAWWhhycr7Bz1LU2mxlnsmsB`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET" required>
+    Your OCI Application Client Secret (e.g., `idcsssvPYqbjemq...`)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_OCI_BASE_URL" required>
+    Public URL where OAuth endpoints will be accessible (includes any mount path)
+  </ParamField>
+
+  <ParamField path="FASTMCP_SERVER_AUTH_OCI_REDIRECT_PATH" default="/auth/callback">
+    Redirect path configured in your OCI IAM Integrated Application
+  </ParamField>
+</Card>
+
+Example `.env` file:
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# Use the OCI IAM provider
+FASTMCP_SERVER_AUTH=fastmcp.server.auth.providers.oci.OCIProvider
+
+# OCI IAM configuration and credentials
+FASTMCP_SERVER_AUTH_OCI_IAM_GUID=idcs-asaacasd1111.....
+FASTMCP_SERVER_AUTH_OCI_CONFIG_URL=https://{FASTMCP_SERVER_AUTH_OCI_IAM_GUID}.identity.oraclecloud.com/.well-known/openid-configuration
+FASTMCP_SERVER_AUTH_OCI_CLIENT_ID=<your-client-id>
+FASTMCP_SERVER_AUTH_OCI_CLIENT_SECRET=<your-client-secret>
+FASTMCP_SERVER_AUTH_OCI_BASE_URL=https://your-server.com
+```
+
+With environment variables set, your server code simplifies to:
+
+```python server.py theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
+from fastmcp.server.dependencies import get_access_token
+
+# Authentication is automatically configured from environment
+mcp = FastMCP(name="OCI Secured App")
+
+@mcp.tool
+def whoami() -> str:
+    """The whoami function is to test MCP server without requiring token exchange.
+    This tool can be used to test successful authentication against OCI IAM.
+    It will return logged in user's subject (username from IAM domain)."""
+    token = get_access_token()
+    user = token.claims.get("sub")
+    return f"You are User: {user}"
+```
+
+
 # OpenAI API 🤝 FastMCP
 Source: https://gofastmcp.com/integrations/openai
 
@@ -12191,12 +12519,6 @@ export const VersionBadge = ({version}) => {
 
 <VersionBadge version="2.0.0" />
 
-<Tip>
-  **New in 2.11**: FastMCP is introducing a next-generation OpenAPI parser. The new parser has greatly improved performance and compatibility, and is also easier to maintain. To enable it, set the environment variable `FASTMCP_EXPERIMENTAL_ENABLE_NEW_OPENAPI_PARSER=true`.
-
-  The new parser is largely API-compatible with the existing implementation and will become the default in a future version. We encourage all users to test it and report any issues before it becomes the default.
-</Tip>
-
 FastMCP can automatically generate an MCP server from any OpenAPI specification, allowing AI models to interact with existing APIs through the MCP protocol. Instead of manually creating tools and resources, you provide an OpenAPI spec and FastMCP intelligently converts API endpoints into the appropriate MCP components.
 
 <Tip>
@@ -12276,16 +12598,6 @@ DEFAULT_ROUTE_MAPPINGS = [
     RouteMap(mcp_type=MCPType.TOOL),
 ]
 ```
-
-<Tip>
-  **Experimental Parser**: If you're using the new parser (enabled via `FASTMCP_EXPERIMENTAL_ENABLE_NEW_OPENAPI_PARSER=true`), import from the experimental module instead:
-
-  ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-  from fastmcp.experimental.server.openapi import RouteMap, MCPType
-  ```
-
-  The API is identical, but the implementation provides better performance and serverless compatibility.
-</Tip>
 
 ### Custom Route Maps
 
@@ -12565,19 +12877,11 @@ At times you may want to modify those MCP components in a variety of ways, such 
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from fastmcp.server.openapi import (
-    HTTPRoute, 
-    OpenAPITool, 
-    OpenAPIResource, 
+    HTTPRoute,
+    OpenAPITool,
+    OpenAPIResource,
     OpenAPIResourceTemplate,
 )
-
-# If using experimental parser, import from experimental module:
-# from fastmcp.experimental.server.openapi import (
-#     HTTPRoute,
-#     OpenAPITool,
-#     OpenAPIResource,
-#     OpenAPIResourceTemplate,
-# )
 
 def customize_components(
     route: HTTPRoute, 
@@ -18411,31 +18715,58 @@ production use with enterprise identity providers.
 
 ## Functions
 
-### `create_consent_html` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L236" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `create_consent_html` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L259" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-create_consent_html(client_id: str, redirect_uri: str, scopes: list[str], txn_id: str, csrf_token: str, client_name: str | None = None, title: str = 'Application Access Request', server_name: str | None = None, server_icon_url: str | None = None, server_website_url: str | None = None, client_website_url: str | None = None) -> str
+create_consent_html(client_id: str, redirect_uri: str, scopes: list[str], txn_id: str, csrf_token: str, client_name: str | None = None, title: str = 'Application Access Request', server_name: str | None = None, server_icon_url: str | None = None, server_website_url: str | None = None, client_website_url: str | None = None, csp_policy: str | None = None) -> str
 ```
 
 Create a styled HTML consent page for OAuth authorization requests.
 
+**Args:**
+
+* `csp_policy`: Content Security Policy override.
+  If None, uses the built-in CSP policy with appropriate directives.
+  If empty string "", disables CSP entirely (no meta tag is rendered).
+  If a non-empty string, uses that as the CSP policy value.
+
+### `create_error_html` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L429" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+create_error_html(error_title: str, error_message: str, error_details: dict[str, str] | None = None, server_name: str | None = None, server_icon_url: str | None = None) -> str
+```
+
+Create a styled HTML error page for OAuth errors.
+
+**Args:**
+
+* `error_title`: The error title (e.g., "OAuth Error", "Authorization Failed")
+* `error_message`: The main error message to display
+* `error_details`: Optional dictionary of error details to show (e.g., `{"Error Code"\: "invalid_client"}`)
+* `server_name`: Optional server name to display
+* `server_icon_url`: Optional URL to server icon/logo
+
+**Returns:**
+
+* Complete HTML page as a string
+
 ## Classes
 
-### `OAuthTransaction` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L108" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuthTransaction` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L109" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth transaction state for consent flow.
 
 Stored server-side to track active authorization flows with client context.
 Includes CSRF tokens for consent protection per MCP security best practices.
 
-### `ClientCode` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L129" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ClientCode` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L130" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Client authorization code with PKCE and upstream tokens.
 
 Stored server-side after upstream IdP callback. Contains the upstream
 tokens bound to the client's PKCE challenge for secure token exchange.
 
-### `UpstreamTokenSet` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L147" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `UpstreamTokenSet` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L148" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Stored upstream OAuth tokens from identity provider.
 
@@ -18443,14 +18774,21 @@ These tokens are obtained from the upstream provider (Google, GitHub, etc.)
 and stored in plaintext within this model. Encryption is handled transparently
 at the storage layer via FernetEncryptionWrapper. Tokens are never exposed to MCP clients.
 
-### `JTIMapping` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L169" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `JTIMapping` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L170" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Maps FastMCP token JTI to upstream token ID.
 
 This allows stateless JWT validation while still being able to look up
 the corresponding upstream token when tools need to access upstream APIs.
 
-### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L181" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `RefreshTokenMetadata` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L182" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Metadata for a refresh token, stored keyed by token hash.
+
+We store only metadata (not the token itself) for security - if storage
+is compromised, attackers get hashes they can't reverse into usable tokens.
+
+### `ProxyDCRClient` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L204" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Client for DCR proxy with configurable redirect URI validation.
 
@@ -18479,7 +18817,7 @@ arise from accepting arbitrary redirect URIs.
 
 **Methods:**
 
-#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L210" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `validate_redirect_uri` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L233" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl
@@ -18492,7 +18830,7 @@ we validate their redirect URIs against configurable patterns.
 This is essential for cached token scenarios where the client may
 reconnect with a different port.
 
-### `TokenHandler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L383" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `TokenHandler` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L522" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 TokenHandler that returns OAuth 2.1 compliant error responses.
 
@@ -18514,7 +18852,7 @@ Per MCP spec: "Invalid or expired tokens MUST receive a HTTP 401 response."
 
 **Methods:**
 
-#### `response` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L402" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `response` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L541" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 response(self, obj: TokenSuccessResponse | TokenErrorResponse)
@@ -18522,7 +18860,7 @@ response(self, obj: TokenSuccessResponse | TokenErrorResponse)
 
 Override response method to provide OAuth 2.1 compliant error handling.
 
-### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L432" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OAuthProxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L571" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 OAuth provider that presents a DCR-compliant interface while proxying to non-DCR IDPs.
 
@@ -18602,15 +18940,19 @@ translating to whatever OAuth variant the upstream provider requires.
 
 ## State Management
 
-The proxy maintains minimal but crucial state:
+The proxy maintains minimal but crucial state via pluggable storage (client\_storage):
 
 * \_oauth\_transactions: Active authorization flows with client context
 * \_client\_codes: Authorization codes with PKCE challenges and upstream tokens
-* \_access\_tokens, \_refresh\_tokens: Token storage for revocation
-* Token relationship mappings for cleanup and rotation
+* \_jti\_mapping\_store: Maps FastMCP token JTIs to upstream token IDs
+* \_refresh\_token\_store: Refresh token metadata (keyed by token hash)
+
+All state is stored in the configured client\_storage backend (Redis, disk, etc.)
+enabling horizontal scaling across multiple instances.
 
 ## Security Considerations
 
+* Refresh tokens stored by hash only (defense in depth if storage compromised)
 * PKCE enforced end-to-end (client to proxy, proxy to upstream)
 * Authorization codes are single-use with short expiry
 * Transaction IDs are cryptographically random
@@ -18634,7 +18976,7 @@ Handles provider-specific requirements:
 
 **Methods:**
 
-#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L813" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L968" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_client(self, client_id: str) -> OAuthClientInformationFull | None
@@ -18645,7 +18987,7 @@ provided to the DCR client during registration, not the upstream client ID.
 
 For unregistered clients, returns None (which will raise an error in the SDK).
 
-#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L829" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `register_client` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L984" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 register_client(self, client_info: OAuthClientInformationFull) -> None
@@ -18658,7 +19000,7 @@ forgiving about validating redirect URIs, since the DCR client's
 redirect URI will likely be localhost or unknown to the proxied IDP. The
 proxied IDP only knows about this server's fixed redirect URI.
 
-#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L876" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `authorize` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1033" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str
@@ -18675,7 +19017,7 @@ Flow:
 If consent is disabled (require\_authorization\_consent=False), skip the consent screen
 and redirect directly to the upstream IdP.
 
-#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L951" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1112" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 load_authorization_code(self, client: OAuthClientInformationFull, authorization_code: str) -> AuthorizationCode | None
@@ -18686,7 +19028,7 @@ Load authorization code for validation.
 Look up our client code and return authorization code object
 with PKCE challenge for validation.
 
-#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L994" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `exchange_authorization_code` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1159" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 exchange_authorization_code(self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode) -> OAuthToken
@@ -18704,15 +19046,18 @@ Implements the token factory pattern:
 
 PKCE validation is handled by the MCP framework before this method is called.
 
-#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1159" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1337" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None
 ```
 
-Load refresh token from local storage.
+Load refresh token metadata from distributed storage.
 
-#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1167" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+Looks up by token hash and reconstructs the RefreshToken object.
+Validates that the token belongs to the requesting client.
+
+#### `exchange_refresh_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1366" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 exchange_refresh_token(self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]) -> OAuthToken
@@ -18729,7 +19074,7 @@ Implements two-tier refresh:
 5. Issue new FastMCP access token
 6. Keep same FastMCP refresh token (unless upstream rotates)
 
-#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1368" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `load_access_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1570" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 load_access_token(self, token: str) -> AccessToken | None
@@ -18748,7 +19093,7 @@ This implements the token swap pattern:
 The FastMCP JWT is a reference token - all authorization data comes
 from validating the upstream token via the TokenVerifier.
 
-#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1424" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `revoke_token` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1626" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 revoke_token(self, token: AccessToken | RefreshToken) -> None
@@ -18756,10 +19101,11 @@ revoke_token(self, token: AccessToken | RefreshToken) -> None
 
 Revoke token locally and with upstream server if supported.
 
-Removes tokens from local storage and attempts to revoke them with
-the upstream server if a revocation endpoint is configured.
+For refresh tokens, removes from local storage by hash.
+For all tokens, attempts upstream revocation if endpoint is configured.
+Access token JTI mappings expire via TTL.
 
-#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1468" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/auth/oauth_proxy.py#L1659" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_routes(self, mcp_path: str | None = None) -> list[Route]
@@ -21420,52 +21766,48 @@ A middleware for injecting prompts as tools into the context.
 A middleware for injecting resources as tools into the context.
 
 
-# openapi
-Source: https://gofastmcp.com/python-sdk/fastmcp-server-openapi
+# __init__
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-openapi-__init__
 
 
 
 # `fastmcp.server.openapi`
 
-FastMCP server implementation for OpenAPI integration.
+OpenAPI server implementation for FastMCP - refactored for better maintainability.
+
+
+# components
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-openapi-components
+
+
+
+# `fastmcp.server.openapi.components`
+
+OpenAPI component implementations: Tool, Resource, and ResourceTemplate classes.
 
 ## Classes
 
-### `MCPType` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L78" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Type of FastMCP component to create from a route.
-
-### `RouteType` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L97" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Deprecated: Use MCPType instead.
-
-This enum is kept for backward compatibility and will be removed in a future version.
-
-### `RouteMap` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L111" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Mapping configuration for HTTP routes to FastMCP component types.
-
-### `OpenAPITool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L229" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OpenAPITool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/components.py#L27" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Tool implementation for OpenAPI endpoints.
 
 **Methods:**
 
-#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L262" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/components.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run(self, arguments: dict[str, Any]) -> ToolResult
 ```
 
-Execute the HTTP request based on the route configuration.
+Execute the HTTP request using RequestDirector for simplified parameter handling.
 
-### `OpenAPIResource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L523" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OpenAPIResource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/components.py#L157" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Resource implementation for OpenAPI endpoints.
 
 **Methods:**
 
-#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L554" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `read` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/components.py#L190" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 read(self) -> str | bytes
@@ -21473,21 +21815,53 @@ read(self) -> str | bytes
 
 Fetch the resource data by making an HTTP request.
 
-### `OpenAPIResourceTemplate` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L644" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `OpenAPIResourceTemplate` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/components.py#L289" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Resource template implementation for OpenAPI endpoints.
 
 **Methods:**
 
-#### `create_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L675" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `create_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/components.py#L322" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-create_resource(self, uri: str, params: dict[str, Any], context: Context | None = None) -> Resource
+create_resource(self, uri: str, params: dict[str, Any], context: 'Context | None' = None) -> Resource
 ```
 
 Create a resource with the given parameters.
 
-### `FastMCPOpenAPI` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi.py#L700" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+# routing
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-openapi-routing
+
+
+
+# `fastmcp.server.openapi.routing`
+
+Route mapping logic for OpenAPI operations.
+
+## Classes
+
+### `MCPType` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/routing.py#L33" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Type of FastMCP component to create from a route.
+
+### `RouteMap` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/routing.py#L51" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Mapping configuration for HTTP routes to FastMCP component types.
+
+
+# server
+Source: https://gofastmcp.com/python-sdk/fastmcp-server-openapi-server
+
+
+
+# `fastmcp.server.openapi.server`
+
+FastMCP server implementation for OpenAPI integration.
+
+## Classes
+
+### `FastMCPOpenAPI` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/openapi/server.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 FastMCP server implementation that creates components from an OpenAPI schema.
 
@@ -21798,7 +22172,7 @@ FastMCP - A more ergonomic interface for MCP servers.
 
 ## Functions
 
-### `default_lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L112" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `default_lifespan` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L104" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 default_lifespan(server: FastMCP[LifespanResultT]) -> AsyncIterator[Any]
@@ -21814,7 +22188,7 @@ Default lifespan context manager that does nothing.
 
 * An empty dictionary as the lifespan result.
 
-### `add_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2505" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `add_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2454" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_resource_prefix(uri: str, prefix: str) -> str
@@ -21849,7 +22223,7 @@ add_resource_prefix("resource:///absolute/path", "prefix")
 
 * `ValueError`: If the URI doesn't match the expected protocol://path format
 
-### `remove_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2543" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `remove_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2492" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_resource_prefix(uri: str, prefix: str) -> str
@@ -21884,7 +22258,7 @@ remove_resource_prefix("resource://prefix//absolute/path", "prefix")
 
 * `ValueError`: If the URI doesn't match the expected protocol://path format
 
-### `has_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2587" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `has_resource_prefix` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2536" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 has_resource_prefix(uri: str, prefix: str) -> bool
@@ -21921,53 +22295,53 @@ False
 
 ## Classes
 
-### `FastMCP` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L148" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `FastMCP` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L140" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L324" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L316" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 settings(self) -> Settings
 ```
 
-#### `name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L335" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L327" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 name(self) -> str
 ```
 
-#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L339" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L331" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 instructions(self) -> str | None
 ```
 
-#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L343" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `instructions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L335" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 instructions(self, value: str | None) -> None
 ```
 
-#### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L347" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `version` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L339" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 version(self) -> str | None
 ```
 
-#### `website_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L351" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `website_url` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L343" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 website_url(self) -> str | None
 ```
 
-#### `icons` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L355" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `icons` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L347" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 icons(self) -> list[mcp.types.Icon]
 ```
 
-#### `run_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L382" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L374" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_async(self, transport: Transport | None = None, show_banner: bool = True, **transport_kwargs: Any) -> None
@@ -21979,7 +22353,7 @@ Run the FastMCP server asynchronously.
 
 * `transport`: Transport protocol to use ("stdio", "sse", or "streamable-http")
 
-#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L412" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L404" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run(self, transport: Transport | None = None, show_banner: bool = True, **transport_kwargs: Any) -> None
@@ -21991,13 +22365,13 @@ Run the FastMCP server. Note this is a synchronous function.
 
 * `transport`: Transport protocol to use ("stdio", "sse", or "streamable-http")
 
-#### `add_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L456" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_middleware` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L448" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_middleware(self, middleware: Middleware) -> None
 ```
 
-#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L459" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tools` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L451" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tools(self) -> dict[str, Tool]
@@ -22005,13 +22379,13 @@ get_tools(self) -> dict[str, Tool]
 
 Get all tools (unfiltered), including mounted servers, indexed by key.
 
-#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L479" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L471" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_tool(self, key: str) -> Tool
 ```
 
-#### `get_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L485" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resources` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L477" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resources(self) -> dict[str, Resource]
@@ -22019,13 +22393,13 @@ get_resources(self) -> dict[str, Resource]
 
 Get all resources (unfiltered), including mounted servers, indexed by key.
 
-#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L516" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L508" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resource(self, key: str) -> Resource
 ```
 
-#### `get_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L522" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource_templates` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L514" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resource_templates(self) -> dict[str, ResourceTemplate]
@@ -22033,7 +22407,7 @@ get_resource_templates(self) -> dict[str, ResourceTemplate]
 
 Get all resource templates (unfiltered), including mounted servers, indexed by key.
 
-#### `get_resource_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L553" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_resource_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L545" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_resource_template(self, key: str) -> ResourceTemplate
@@ -22041,7 +22415,7 @@ get_resource_template(self, key: str) -> ResourceTemplate
 
 Get a registered resource template by key.
 
-#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L560" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompts` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L552" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_prompts(self) -> dict[str, Prompt]
@@ -22049,13 +22423,13 @@ get_prompts(self) -> dict[str, Prompt]
 
 Get all prompts (unfiltered), including mounted servers, indexed by key.
 
-#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L580" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L572" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_prompt(self, key: str) -> Prompt
 ```
 
-#### `custom_route` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L586" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `custom_route` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L578" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 custom_route(self, path: str, methods: list[str], name: str | None = None, include_in_schema: bool = True) -> Callable[[Callable[[Request], Awaitable[Response]]], Callable[[Request], Awaitable[Response]]]
@@ -22076,7 +22450,7 @@ Request and returns a Response.
   Starlette's reverse URL lookup feature)
 * `include_in_schema`: Whether to include in OpenAPI schema, defaults to True
 
-#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1272" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1264" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool(self, tool: Tool) -> Tool
@@ -22095,7 +22469,7 @@ with the Context type annotation. See the @tool decorator for examples.
 
 * The tool instance that was added to the server.
 
-#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1297" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1289" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_tool(self, name: str) -> None
@@ -22111,7 +22485,7 @@ Remove a tool from the server.
 
 * `NotFoundError`: If the tool is not found
 
-#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1317" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1309" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfig) -> None
@@ -22119,7 +22493,7 @@ add_tool_transformation(self, tool_name: str, transformation: ToolTransformConfi
 
 Add a tool transformation.
 
-#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1323" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `remove_tool_transformation` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1315" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 remove_tool_transformation(self, tool_name: str) -> None
@@ -22127,19 +22501,19 @@ remove_tool_transformation(self, tool_name: str) -> None
 
 Remove a tool transformation.
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1328" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1320" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 tool(self, name_or_fn: AnyFunction) -> FunctionTool
 ```
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1345" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1337" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 tool(self, name_or_fn: str | None = None) -> Callable[[AnyFunction], FunctionTool]
 ```
 
-#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1361" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1353" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 tool(self, name_or_fn: str | AnyFunction | None = None) -> Callable[[AnyFunction], FunctionTool] | FunctionTool
@@ -22199,7 +22573,7 @@ def my_tool(x: int) -> str:
 server.tool(my_function, name="custom_name")
 ```
 
-#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1498" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1490" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_resource(self, resource: Resource) -> Resource
@@ -22215,7 +22589,7 @@ Add a resource to the server.
 
 * The resource instance that was added to the server.
 
-#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1520" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_template` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1512" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_template(self, template: ResourceTemplate) -> ResourceTemplate
@@ -22231,7 +22605,7 @@ Add a resource template to the server.
 
 * The template instance that was added to the server.
 
-#### `resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1542" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `resource` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1534" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 resource(self, uri: str) -> Callable[[AnyFunction], Resource | ResourceTemplate]
@@ -22293,7 +22667,7 @@ async def get_weather(city: str) -> str:
     return f"Weather for {city}: {data}"
 ```
 
-#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1682" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `add_prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1674" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 add_prompt(self, prompt: Prompt) -> Prompt
@@ -22309,19 +22683,19 @@ Add a prompt to the server.
 
 * The prompt instance that was added to the server.
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1705" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1697" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prompt(self, name_or_fn: AnyFunction) -> FunctionPrompt
 ```
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1719" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1711" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prompt(self, name_or_fn: str | None = None) -> Callable[[AnyFunction], FunctionPrompt]
 ```
 
-#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1732" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `prompt` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1724" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 prompt(self, name_or_fn: str | AnyFunction | None = None) -> Callable[[AnyFunction], FunctionPrompt] | FunctionPrompt
@@ -22399,7 +22773,7 @@ def another_prompt(data: str) -> list[Message]:
 server.prompt(my_function, name="custom_name")
 ```
 
-#### `run_stdio_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1876" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_stdio_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1868" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_stdio_async(self, show_banner: bool = True, log_level: str | None = None) -> None
@@ -22412,7 +22786,7 @@ Run the server using stdio transport.
 * `show_banner`: Whether to display the server banner
 * `log_level`: Log level for the server
 
-#### `run_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1906" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run_http_async` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1898" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run_http_async(self, show_banner: bool = True, transport: Literal['http', 'streamable-http', 'sse'] = 'http', host: str | None = None, port: int | None = None, log_level: str | None = None, path: str | None = None, uvicorn_config: dict[str, Any] | None = None, middleware: list[ASGIMiddleware] | None = None, json_response: bool | None = None, stateless_http: bool | None = None) -> None
@@ -22432,7 +22806,7 @@ Run the server using HTTP transport.
 * `json_response`: Whether to use JSON response format (defaults to settings.json\_response)
 * `stateless_http`: Whether to use stateless HTTP (defaults to settings.stateless\_http)
 
-#### `http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1985" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `http_app` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L1977" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 http_app(self, path: str | None = None, middleware: list[ASGIMiddleware] | None = None, json_response: bool | None = None, stateless_http: bool | None = None, transport: Literal['http', 'streamable-http', 'sse'] = 'http') -> StarletteWithLifespan
@@ -22450,7 +22824,7 @@ Create a Starlette app using the specified HTTP transport.
 
 * A Starlette application configured with the specified transport
 
-#### `mount` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2034" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `mount` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2026" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 mount(self, server: FastMCP[LifespanResultT], prefix: str | None = None, as_proxy: bool | None = None) -> None
@@ -22506,7 +22880,7 @@ There are two modes for mounting servers:
 * `resource_separator`: Deprecated. Separator character for resource URIs.
 * `prompt_separator`: Deprecated. Separator character for prompt names.
 
-#### `import_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2152" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `import_server` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2144" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import_server(self, server: FastMCP[LifespanResultT], prefix: str | None = None, tool_separator: str | None = None, resource_separator: str | None = None, prompt_separator: str | None = None) -> None
@@ -22548,23 +22922,23 @@ templates, and prompts are imported with their original names.
   applied using the protocol://prefix/path format
 * `prompt_separator`: Deprecated. Separator for prompt names.
 
-#### `from_openapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2286" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_openapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2278" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from_openapi(cls, openapi_spec: dict[str, Any], client: httpx.AsyncClient, route_maps: list[RouteMap] | list[RouteMapNew] | None = None, route_map_fn: OpenAPIRouteMapFn | OpenAPIRouteMapFnNew | None = None, mcp_component_fn: OpenAPIComponentFn | OpenAPIComponentFnNew | None = None, mcp_names: dict[str, str] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI | FastMCPOpenAPINew
+from_openapi(cls, openapi_spec: dict[str, Any], client: httpx.AsyncClient, route_maps: list[RouteMap] | None = None, route_map_fn: OpenAPIRouteMapFn | None = None, mcp_component_fn: OpenAPIComponentFn | None = None, mcp_names: dict[str, str] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI
 ```
 
 Create a FastMCP server from an OpenAPI specification.
 
-#### `from_fastapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2335" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_fastapi` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2306" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from_fastapi(cls, app: Any, name: str | None = None, route_maps: list[RouteMap] | list[RouteMapNew] | None = None, route_map_fn: OpenAPIRouteMapFn | OpenAPIRouteMapFnNew | None = None, mcp_component_fn: OpenAPIComponentFn | OpenAPIComponentFnNew | None = None, mcp_names: dict[str, str] | None = None, httpx_client_kwargs: dict[str, Any] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI | FastMCPOpenAPINew
+from_fastapi(cls, app: Any, name: str | None = None, route_maps: list[RouteMap] | None = None, route_map_fn: OpenAPIRouteMapFn | None = None, mcp_component_fn: OpenAPIComponentFn | None = None, mcp_names: dict[str, str] | None = None, httpx_client_kwargs: dict[str, Any] | None = None, tags: set[str] | None = None, **settings: Any) -> FastMCPOpenAPI
 ```
 
 Create a FastMCP server from a FastAPI application.
 
-#### `as_proxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2398" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `as_proxy` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2347" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 as_proxy(cls, backend: Client[ClientTransportT] | ClientTransport | FastMCP[Any] | FastMCP1Server | AnyUrl | Path | MCPConfig | dict[str, Any] | str, **settings: Any) -> FastMCPProxy
@@ -22577,13 +22951,13 @@ instance or any value accepted as the `transport` argument of
 `fastmcp.client.Client`. This mirrors the convenience of the
 `fastmcp.client.Client` constructor.
 
-#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2490" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `generate_name` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2439" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 generate_name(cls, name: str | None = None) -> str
 ```
 
-### `MountedServer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2500" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `MountedServer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/server/server.py#L2449" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 
 # settings
@@ -22597,13 +22971,13 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-settings
 
 ### `ExperimentalSettings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L33" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
-### `Settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L52" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L57" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 FastMCP settings.
 
 **Methods:**
 
-#### `get_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L64" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `get_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L69" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 get_setting(self, attr: str) -> Any
@@ -22612,7 +22986,7 @@ get_setting(self, attr: str) -> Any
 Get a setting. If the setting contains one or more `__`, it will be
 treated as a nested setting.
 
-#### `set_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L77" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `set_setting` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L82" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 set_setting(self, attr: str, value: Any) -> None
@@ -22621,7 +22995,7 @@ set_setting(self, attr: str, value: Any) -> None
 Set a setting. If the setting contains one or more `__`, it will be
 treated as a nested setting.
 
-#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L91" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `settings` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L96" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 settings(self) -> Self
@@ -22630,13 +23004,13 @@ settings(self) -> Self
 This property is for backwards compatibility with FastMCP \< 2.8.0,
 which accessed fastmcp.settings.settings
 
-#### `normalize_log_level` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L111" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `normalize_log_level` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L116" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 normalize_log_level(cls, v)
 ```
 
-#### `server_auth_class` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L313" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `server_auth_class` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/settings.py#L318" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 server_auth_class(self) -> AuthProvider | None
@@ -22662,7 +23036,7 @@ Source: https://gofastmcp.com/python-sdk/fastmcp-tools-tool
 
 ## Functions
 
-### `default_serializer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L60" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `default_serializer` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L62" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 default_serializer(data: Any) -> str
@@ -22670,35 +23044,35 @@ default_serializer(data: Any) -> str
 
 ## Classes
 
-### `ToolResult` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L64" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ToolResult` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L66" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `to_mcp_result` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L97" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `to_mcp_result` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L99" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 to_mcp_result(self) -> list[ContentBlock] | tuple[list[ContentBlock], dict[str, Any]] | CallToolResult
 ```
 
-### `Tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L113" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `Tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L115" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 Internal tool registration info.
 
 **Methods:**
 
-#### `enable` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L131" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `enable` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L133" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 enable(self) -> None
 ```
 
-#### `disable` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L139" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `disable` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L141" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 disable(self) -> None
 ```
 
-#### `to_mcp_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L147" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `to_mcp_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L149" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 to_mcp_tool(self, **overrides: Any) -> MCPTool
@@ -22706,7 +23080,7 @@ to_mcp_tool(self, **overrides: Any) -> MCPTool
 
 Convert the FastMCP tool to an MCP tool.
 
-#### `from_function` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L175" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_function` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L177" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_function(fn: Callable[..., Any], name: str | None = None, title: str | None = None, description: str | None = None, icons: list[Icon] | None = None, tags: set[str] | None = None, annotations: ToolAnnotations | None = None, exclude_args: list[str] | None = None, output_schema: dict[str, Any] | NotSetT | None = NotSet, serializer: ToolResultSerializerType | None = None, meta: dict[str, Any] | None = None, enabled: bool | None = None) -> FunctionTool
@@ -22714,7 +23088,7 @@ from_function(fn: Callable[..., Any], name: str | None = None, title: str | None
 
 Create a Tool from a function.
 
-#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L205" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L207" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run(self, arguments: dict[str, Any]) -> ToolResult
@@ -22728,17 +23102,17 @@ implemented by subclasses.
 `run()` can EITHER return a list of ContentBlocks, or a tuple of
 (list of ContentBlocks, dict of structured output).
 
-#### `from_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L218" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_tool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L220" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_tool(cls, tool: Tool) -> TransformedTool
 ```
 
-### `FunctionTool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L252" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `FunctionTool` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L254" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `from_function` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L256" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_function` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L258" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_function(cls, fn: Callable[..., Any], name: str | None = None, title: str | None = None, description: str | None = None, icons: list[Icon] | None = None, tags: set[str] | None = None, annotations: ToolAnnotations | None = None, exclude_args: list[str] | None = None, output_schema: dict[str, Any] | NotSetT | None = NotSet, serializer: ToolResultSerializerType | None = None, meta: dict[str, Any] | None = None, enabled: bool | None = None) -> FunctionTool
@@ -22746,7 +23120,7 @@ from_function(cls, fn: Callable[..., Any], name: str | None = None, title: str |
 
 Create a Tool from a function.
 
-#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L318" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `run` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L320" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 run(self, arguments: dict[str, Any]) -> ToolResult
@@ -22754,11 +23128,11 @@ run(self, arguments: dict[str, Any]) -> ToolResult
 
 Run the tool with arguments.
 
-### `ParsedFunction` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L385" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `ParsedFunction` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L387" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 **Methods:**
 
-#### `from_function` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L393" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+#### `from_function` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/tools/tool.py#L395" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from_function(cls, fn: Callable[..., Any], exclude_args: list[str] | None = None, validate: bool = True, wrap_non_object_output_schema: bool = True) -> ParsedFunction
@@ -24200,16 +24574,64 @@ load_server(self) -> Any
 Load server from filesystem.
 
 
-# openapi
-Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi
+# __init__
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-__init__
 
 
 
 # `fastmcp.utilities.openapi`
 
+OpenAPI utilities for FastMCP - refactored for better maintainability.
+
+
+# director
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-director
+
+
+
+# `fastmcp.utilities.openapi.director`
+
+Request director using openapi-core for stateless HTTP request building.
+
+## Classes
+
+### `RequestDirector` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/director.py#L16" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Builds httpx.Request objects from HTTPRoute and arguments using openapi-core.
+
+**Methods:**
+
+#### `build` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/director.py#L23" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+build(self, route: HTTPRoute, flat_args: dict[str, Any], base_url: str = 'http://localhost') -> httpx.Request
+```
+
+Constructs a final httpx.Request object, handling all OpenAPI serialization.
+
+**Args:**
+
+* `route`: HTTPRoute containing OpenAPI operation details
+* `flat_args`: Flattened arguments from LLM (may include suffixed parameters)
+* `base_url`: Base URL for the request
+
+**Returns:**
+
+* httpx.Request: Properly formatted HTTP request
+
+
+# formatters
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-formatters
+
+
+
+# `fastmcp.utilities.openapi.formatters`
+
+Parameter formatting functions for OpenAPI operations.
+
 ## Functions
 
-### `format_array_parameter` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L41" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `format_array_parameter` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/formatters.py#L12" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 format_array_parameter(values: list, parameter_name: str, is_query_parameter: bool = False) -> str | list
@@ -24227,18 +24649,19 @@ Format an array parameter according to OpenAPI specifications.
 
 * String (comma-separated) or list (for query params with explode=True)
 
-### `format_deep_object_parameter` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L91" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `format_deep_object_parameter` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/formatters.py#L66" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 format_deep_object_parameter(param_value: dict, parameter_name: str) -> dict[str, str]
 ```
 
-Format a dictionary parameter for deepObject style serialization.
+Format a dictionary parameter for deep-object style serialization.
 
 According to OpenAPI 3.0 spec, deepObject style with explode=true serializes
 object properties as separate query parameters with bracket notation.
 
-For example: `{"id": "123", "type": "user"}` becomes `param[id]=123&param[type]=user`.
+For example, `{"id": "123", "type": "user"}` becomes
+`param[id]=123&param[type]=user`.
 
 **Args:**
 
@@ -24249,26 +24672,7 @@ For example: `{"id": "123", "type": "user"}` becomes `param[id]=123&param[type]=
 
 * Dictionary with bracketed parameter names as keys
 
-### `parse_openapi_to_http_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L201" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-parse_openapi_to_http_routes(openapi_dict: dict[str, Any]) -> list[HTTPRoute]
-```
-
-Parses an OpenAPI schema dictionary into a list of HTTPRoute objects
-using the openapi-pydantic library.
-
-Supports both OpenAPI 3.0.x and 3.1.x versions.
-
-### `clean_schema_for_display` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L741" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-clean_schema_for_display(schema: JsonSchema | None) -> JsonSchema | None
-```
-
-Clean up a schema dictionary for display by removing internal/complex fields.
-
-### `generate_example_from_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L801" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `generate_example_from_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/formatters.py#L100" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 generate_example_from_schema(schema: JsonSchema | None) -> Any
@@ -24277,15 +24681,34 @@ generate_example_from_schema(schema: JsonSchema | None) -> Any
 Generate a simple example value from a JSON schema dictionary.
 Very basic implementation focusing on types.
 
-### `format_json_for_description` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L884" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `format_json_for_description` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/formatters.py#L183" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 format_json_for_description(data: Any, indent: int = 2) -> str
 ```
 
-Formats Python data as a JSON string block for markdown.
+Formats Python data as a JSON string block for Markdown.
 
-### `format_description_with_responses` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L893" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+### `format_simple_description` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/formatters.py#L192" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+format_simple_description(base_description: str, parameters: list[ParameterInfo] | None = None, request_body: RequestBodyInfo | None = None) -> str
+```
+
+Formats a simple description for MCP objects (tools, resources, prompts).
+Excludes response details, examples, and verbose status codes.
+
+**Args:**
+
+* `base_description`: The initial description to be formatted.
+* `parameters`: A list of parameter information.
+* `request_body`: Information about the request body.
+
+**Returns:**
+
+* The formatted description string with minimal details.
+
+### `format_description_with_responses` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/formatters.py#L225" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 format_description_with_responses(base_description: str, responses: dict[str, Any], parameters: list[ParameterInfo] | None = None, request_body: RequestBodyInfo | None = None) -> str
@@ -24308,7 +24731,156 @@ Formats the base description string with response, parameter, and request body i
 * The formatted description string with additional details about responses, parameters,
 * and the request body.
 
-### `extract_output_schema_from_responses` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L1419" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+# json_schema_converter
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-json_schema_converter
+
+
+
+# `fastmcp.utilities.openapi.json_schema_converter`
+
+Clean OpenAPI 3.0 to JSON Schema converter for the experimental parser.
+
+This module provides a systematic approach to converting OpenAPI 3.0 schemas
+to JSON Schema, inspired by py-openapi-schema-to-json-schema but optimized
+for our specific use case.
+
+## Functions
+
+### `convert_openapi_schema_to_json_schema` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/json_schema_converter.py#L38" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+convert_openapi_schema_to_json_schema(schema: dict[str, Any], openapi_version: str | None = None, remove_read_only: bool = False, remove_write_only: bool = False, convert_one_of_to_any_of: bool = True) -> dict[str, Any]
+```
+
+Convert an OpenAPI schema to JSON Schema format.
+
+This is a clean, systematic approach that:
+
+1. Removes OpenAPI-specific fields
+2. Converts nullable fields to type arrays (for OpenAPI 3.0 only)
+3. Converts oneOf to anyOf for overlapping union handling
+4. Recursively processes nested schemas
+5. Optionally removes readOnly/writeOnly properties
+
+**Args:**
+
+* `schema`: OpenAPI schema dictionary
+* `openapi_version`: OpenAPI version for optimization
+* `remove_read_only`: Whether to remove readOnly properties
+* `remove_write_only`: Whether to remove writeOnly properties
+* `convert_one_of_to_any_of`: Whether to convert oneOf to anyOf
+
+**Returns:**
+
+* JSON Schema-compatible dictionary
+
+### `convert_schema_definitions` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/json_schema_converter.py#L322" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+convert_schema_definitions(schema_definitions: dict[str, Any] | None, openapi_version: str | None = None, **kwargs) -> dict[str, Any]
+```
+
+Convert a dictionary of OpenAPI schema definitions to JSON Schema.
+
+**Args:**
+
+* `schema_definitions`: Dictionary of schema definitions
+* `openapi_version`: OpenAPI version for optimization
+* `**kwargs`: Additional arguments passed to convert\_openapi\_schema\_to\_json\_schema
+
+**Returns:**
+
+* Dictionary of converted schema definitions
+
+
+# models
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-models
+
+
+
+# `fastmcp.utilities.openapi.models`
+
+Intermediate Representation (IR) models for OpenAPI operations.
+
+## Classes
+
+### `ParameterInfo` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/models.py#L17" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Represents a single parameter for an HTTP operation in our IR.
+
+### `RequestBodyInfo` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/models.py#L29" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Represents the request body for an HTTP operation in our IR.
+
+### `ResponseInfo` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/models.py#L39" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Represents response information in our IR.
+
+### `HTTPRoute` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/models.py#L47" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Intermediate Representation for a single OpenAPI operation.
+
+
+# parser
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-parser
+
+
+
+# `fastmcp.utilities.openapi.parser`
+
+OpenAPI parsing logic for converting OpenAPI specs to HTTPRoute objects.
+
+## Functions
+
+### `parse_openapi_to_http_routes` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/parser.py#L55" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+parse_openapi_to_http_routes(openapi_dict: dict[str, Any]) -> list[HTTPRoute]
+```
+
+Parses an OpenAPI schema dictionary into a list of HTTPRoute objects
+using the openapi-pydantic library.
+
+Supports both OpenAPI 3.0.x and 3.1.x versions.
+
+## Classes
+
+### `OpenAPIParser` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/parser.py#L109" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+Unified parser for OpenAPI schemas with generic type parameters to handle both 3.0 and 3.1.
+
+**Methods:**
+
+#### `parse` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/parser.py#L659" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+parse(self) -> list[HTTPRoute]
+```
+
+Parse the OpenAPI schema into HTTP routes.
+
+
+# schemas
+Source: https://gofastmcp.com/python-sdk/fastmcp-utilities-openapi-schemas
+
+
+
+# `fastmcp.utilities.openapi.schemas`
+
+Schema manipulation utilities for OpenAPI operations.
+
+## Functions
+
+### `clean_schema_for_display` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/schemas.py#L12" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+clean_schema_for_display(schema: JsonSchema | None) -> JsonSchema | None
+```
+
+Clean up a schema dictionary for display by removing internal/complex fields.
+
+### `extract_output_schema_from_responses` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi/schemas.py#L461" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 extract_output_schema_from_responses(responses: dict[str, ResponseInfo], schema_definitions: dict[str, Any] | None = None, openapi_version: str | None = None) -> dict[str, Any] | None
@@ -24329,38 +24901,6 @@ object type, it wraps it to comply with MCP requirements.
 **Returns:**
 
 * MCP-compliant output schema with potential wrapping, or None if no suitable schema found
-
-## Classes
-
-### `ParameterInfo` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L124" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Represents a single parameter for an HTTP operation in our IR.
-
-### `RequestBodyInfo` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L136" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Represents the request body for an HTTP operation in our IR.
-
-### `ResponseInfo` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L146" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Represents response information in our IR.
-
-### `HTTPRoute` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L154" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Intermediate Representation for a single OpenAPI operation.
-
-### `OpenAPIParser` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L255" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-Unified parser for OpenAPI schemas with generic type parameters to handle both 3.0 and 3.1.
-
-**Methods:**
-
-#### `parse` <sup><a href="https://github.com/jlowin/fastmcp/blob/main/src/fastmcp/utilities/openapi.py#L619" target="_blank"><Icon icon="github" style="width: 14px; height: 14px;" /></a></sup>
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-parse(self) -> list[HTTPRoute]
-```
-
-Parse the OpenAPI schema into HTTP routes.
 
 
 # tests
