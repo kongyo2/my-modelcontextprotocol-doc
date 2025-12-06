@@ -3870,6 +3870,167 @@ client = Client(
 </Note>
 
 
+# Background Tasks
+Source: https://gofastmcp.com/clients/tasks
+
+Execute operations asynchronously and track their progress
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.14" />
+
+The [MCP task protocol](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks) lets you request operations to run asynchronously. This returns a Task object immediately, letting you track progress, cancel operations, or await results.
+
+See [Server Background Tasks](/servers/tasks) for how to enable this on the server side.
+
+## Requesting Background Execution
+
+Pass `task=True` to run an operation as a background task:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import Client
+
+async with Client(server) as client:
+    # Start a background task
+    task = await client.call_tool("slow_computation", {"duration": 10}, task=True)
+
+    print(f"Task started: {task.task_id}")
+
+    # Do other work while it runs...
+
+    # Get the result when ready
+    result = await task.result()
+```
+
+This works with all three operation types:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# Tools
+tool_task = await client.call_tool("my_tool", args, task=True)
+
+# Resources
+resource_task = await client.read_resource("file://large.txt", task=True)
+
+# Prompts
+prompt_task = await client.get_prompt("my_prompt", args, task=True)
+```
+
+## Task Objects
+
+All task types share a common interface:
+
+### Getting Results
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+task = await client.call_tool("analyze", {"text": "hello"}, task=True)
+
+# Wait for and get the result
+result = await task.result()
+
+# Or use await directly (shorthand for .result())
+result = await task
+```
+
+### Checking Status
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+status = await task.status()
+
+print(f"Status: {status.status}")  # "working", "completed", "failed", "cancelled"
+print(f"Message: {status.statusMessage}")  # Progress message from server
+```
+
+### Waiting for Completion
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# Wait for task to complete (with timeout)
+status = await task.wait(timeout=30.0)
+
+# Wait for a specific state
+status = await task.wait(state="completed", timeout=30.0)
+```
+
+### Cancelling Tasks
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+await task.cancel()
+```
+
+### Status Notifications
+
+Register callbacks to receive real-time status updates:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+def on_status_change(status):
+    print(f"Task {status.taskId}: {status.status} - {status.statusMessage}")
+
+task.on_status_change(on_status_change)
+
+# Async callbacks also supported
+async def on_status_async(status):
+    await log_status(status)
+
+task.on_status_change(on_status_async)
+```
+
+## Graceful Degradation
+
+You can always pass `task=True` regardless of whether the server supports background tasks. Per the [MCP specification](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks), servers that don't support tasks will execute the operation immediately and return the result inline. Your code works either way:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+task = await client.call_tool("my_tool", args, task=True)
+
+if task.returned_immediately:
+    print("Server executed immediately (no background support)")
+else:
+    print("Running in background")
+
+# Either way, this works
+result = await task.result()
+```
+
+This means you can write task-aware client code without worrying about server capabilities—the Task API provides a consistent interface whether the operation runs in the background or completes immediately.
+
+## Complete Example
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+import asyncio
+from fastmcp import Client
+
+async def main():
+    async with Client(server) as client:
+        # Start background task
+        task = await client.call_tool(
+            "slow_computation",
+            {"duration": 10},
+            task=True,
+        )
+
+        # Subscribe to updates
+        def on_update(status):
+            print(f"Progress: {status.statusMessage}")
+
+        task.on_status_change(on_update)
+
+        # Do other work
+        print("Doing other work while task runs...")
+        await asyncio.sleep(2)
+
+        # Wait for completion and get result
+        result = await task.result()
+        print(f"Result: {result.data}")
+
+asyncio.run(main())
+```
+
+
 # Tool Operations
 Source: https://gofastmcp.com/clients/tools
 
@@ -27762,6 +27923,10 @@ export const VersionBadge = ({version}) => {
 
 When defining FastMCP [tools](/servers/tools), [resources](/servers/resources), resource templates, or [prompts](/servers/prompts), your functions might need to interact with the underlying MCP session or access advanced server capabilities. FastMCP provides the `Context` object for this purpose.
 
+<Note>
+  FastMCP uses [Docket](https://github.com/chrisguidry/docket)'s dependency injection system for managing runtime dependencies. This page covers Context and the built-in dependencies; see [Custom Dependencies](#custom-dependencies) for creating your own.
+</Note>
+
 ## What Is Context?
 
 The `Context` object provides a clean interface to access MCP features within your functions, including:
@@ -27778,21 +27943,53 @@ The `Context` object provides a clean interface to access MCP features within yo
 
 ## Accessing the Context
 
-### Via Dependency Injection
+<VersionBadge version="2.14" />
 
-To use the context object within any of your functions, simply add a parameter to your function signature and type-hint it as `Context`. FastMCP will automatically inject the context instance when your function is called.
+The preferred way to access context is using the `CurrentContext()` dependency:
+
+```python {1, 6} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
+from fastmcp.dependencies import CurrentContext
+from fastmcp.server.context import Context
+
+mcp = FastMCP(name="Context Demo")
+
+@mcp.tool
+async def process_file(file_uri: str, ctx: Context = CurrentContext()) -> str:
+    """Processes a file, using context for logging and resource access."""
+    await ctx.info(f"Processing {file_uri}")
+    return "Processed file"
+```
+
+This works with tools, resources, and prompts:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
+from fastmcp.dependencies import CurrentContext
+from fastmcp.server.context import Context
+
+mcp = FastMCP(name="Context Demo")
+
+@mcp.resource("resource://user-data")
+async def get_user_data(ctx: Context = CurrentContext()) -> dict:
+    await ctx.debug("Fetching user data")
+    return {"user_id": "example"}
+
+@mcp.prompt
+async def data_analysis_request(dataset: str, ctx: Context = CurrentContext()) -> str:
+    return f"Please analyze the following dataset: {dataset}"
+```
 
 **Key Points:**
 
-* The parameter name (e.g., `ctx`, `context`) doesn't matter, only the type hint `Context` is important.
-* The context parameter can be placed anywhere in your function's signature; it will not be exposed to MCP clients as a valid parameter.
-* The context is optional - functions that don't need it can omit the parameter entirely.
+* Dependency parameters are automatically excluded from the MCP schema—clients never see them.
 * Context methods are async, so your function usually needs to be async as well.
-* The type hint can be a union (`Context | None`) or use `Annotated[]` and it will still work properly.
 * **Each MCP request receives a new context object.** Context is scoped to a single request; state or data set in one request will not be available in subsequent requests.
-* Context is only available during a request; attempting to use context methods outside a request will raise errors. If you need to debug or call your context methods outside of a request, you can type your variable as `Context | None=None` to avoid missing argument errors.
+* Context is only available during a request; attempting to use context methods outside a request will raise errors.
 
-#### Tools
+### Legacy Type-Hint Injection
+
+For backwards compatibility, you can still access context by simply adding a parameter with the `Context` type hint. FastMCP will automatically inject the context instance:
 
 ```python {1, 6} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from fastmcp import FastMCP, Context
@@ -27802,55 +27999,17 @@ mcp = FastMCP(name="Context Demo")
 @mcp.tool
 async def process_file(file_uri: str, ctx: Context) -> str:
     """Processes a file, using context for logging and resource access."""
-    # Context is available as the ctx parameter
+    # Context is injected automatically based on the type hint
     return "Processed file"
 ```
 
-#### Resources and Templates
+This approach still works for tools, resources, and prompts. The parameter name doesn't matter—only the `Context` type hint is important. The type hint can also be a union (`Context | None`) or use `Annotated[]`.
 
-<VersionBadge version="2.2.5" />
-
-```python {1, 6, 12} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from fastmcp import FastMCP, Context
-
-mcp = FastMCP(name="Context Demo")
-
-@mcp.resource("resource://user-data")
-async def get_user_data(ctx: Context) -> dict:
-    """Fetch personalized user data based on the request context."""
-    # Context is available as the ctx parameter
-    return {"user_id": "example"}
-
-@mcp.resource("resource://users/{user_id}/profile")
-async def get_user_profile(user_id: str, ctx: Context) -> dict:
-    """Fetch user profile with context-aware logging."""
-    # Context is available as the ctx parameter
-    return {"id": user_id}
-```
-
-#### Prompts
-
-<VersionBadge version="2.2.5" />
-
-```python {1, 6} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from fastmcp import FastMCP, Context
-
-mcp = FastMCP(name="Context Demo")
-
-@mcp.prompt
-async def data_analysis_request(dataset: str, ctx: Context) -> str:
-    """Generate a request to analyze data with contextual information."""
-    # Context is available as the ctx parameter
-    return f"Please analyze the following dataset: {dataset}"
-```
-
-### Via Runtime Dependency Function
+### Via `get_context()` Function
 
 <VersionBadge version="2.2.11" />
 
-While the simplest way to access context is through function parameter injection as shown above, there are cases where you need to access the context in code that may not be easy to modify to accept a context parameter, or that is nested deeper within your function calls.
-
-FastMCP provides dependency functions that allow you to retrieve the active context from anywhere within a server request's execution flow:
+For code nested deeper within your function calls where passing context through parameters is inconvenient, use `get_context()` to retrieve the active context from anywhere within a request's execution flow:
 
 ```python {2,9} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from fastmcp import FastMCP
@@ -27861,9 +28020,9 @@ mcp = FastMCP(name="Dependency Demo")
 # Utility function that needs context but doesn't receive it as a parameter
 async def process_data(data: list[float]) -> dict:
     # Get the active context - only works when called within a request
-    ctx = get_context()    
+    ctx = get_context()
     await ctx.info(f"Processing {len(data)} data points")
-    
+
 @mcp.tool
 async def analyze_dataset(dataset_name: str) -> dict:
     # Call utility function that uses context internally
@@ -27873,8 +28032,8 @@ async def analyze_dataset(dataset_name: str) -> dict:
 
 **Important Notes:**
 
-* The `get_context` function should only be used within the context of a server request. Calling it outside of a request will raise a `RuntimeError`.
-* The `get_context` function is server-only and should not be used in client code.
+* The `get_context()` function should only be used within the context of a server request. Calling it outside of a request will raise a `RuntimeError`.
+* The `get_context()` function is server-only and should not be used in client code.
 
 ## Context Capabilities
 
@@ -28285,6 +28444,93 @@ async def get_tenant_data(resource_id: str) -> dict:
         "data": f"Tenant-specific data for {tenant_id}",
     }
 ```
+
+## Custom Dependencies
+
+<VersionBadge version="2.14" />
+
+FastMCP's dependency injection is powered by [Docket](https://github.com/chrisguidry/docket), which provides a flexible system for injecting values into your functions. Beyond the built-in dependencies like `CurrentContext()`, you can create your own.
+
+### Using `Depends()`
+
+The simplest way to create a custom dependency is with `Depends()`. Pass any callable (sync or async function, or async context manager) and its return value will be injected:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from contextlib import asynccontextmanager
+from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
+
+mcp = FastMCP(name="Custom Deps Demo")
+
+# Simple function dependency
+def get_config() -> dict:
+    return {"api_url": "https://api.example.com", "timeout": 30}
+
+# Async function dependency
+async def get_user_id() -> int:
+    return 42
+
+@mcp.tool
+async def fetch_data(
+    query: str,
+    config: dict = Depends(get_config),
+    user_id: int = Depends(get_user_id),
+) -> str:
+    return f"User {user_id} fetching '{query}' from {config['api_url']}"
+```
+
+Dependencies using `Depends()` are automatically excluded from the MCP schema—clients never see them as parameters.
+
+### Resource Management with Context Managers
+
+For dependencies that need cleanup (database connections, file handles, etc.), use an async context manager:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from contextlib import asynccontextmanager
+from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
+
+mcp = FastMCP(name="Resource Demo")
+
+@asynccontextmanager
+async def get_database():
+    db = await connect_to_database()
+    try:
+        yield db
+    finally:
+        await db.close()
+
+@mcp.tool
+async def query_users(sql: str, db = Depends(get_database)) -> list:
+    return await db.execute(sql)
+```
+
+The context manager's cleanup code runs after your function completes, even if an error occurs.
+
+### Nested Dependencies
+
+Dependencies can depend on other dependencies:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
+
+mcp = FastMCP(name="Nested Demo")
+
+def get_base_url() -> str:
+    return "https://api.example.com"
+
+def get_api_client(base_url: str = Depends(get_base_url)) -> dict:
+    return {"base_url": base_url, "version": "v1"}
+
+@mcp.tool
+async def call_api(endpoint: str, client: dict = Depends(get_api_client)) -> str:
+    return f"Calling {client['base_url']}/{client['version']}/{endpoint}"
+```
+
+### Advanced: Subclassing `Dependency`
+
+For more complex dependency patterns—like dependencies that need access to Docket's execution context or require custom lifecycle management—you can subclass Docket's `Dependency` class. See the [Docket documentation on dependencies](https://chrisguidry.github.io/docket/dependencies/) for details.
 
 
 # User Elicitation
@@ -32468,6 +32714,140 @@ This allows clients to reconnect without re-authenticating after restarts.
 * [Response Caching Middleware](/servers/middleware#caching-middleware) - Using storage for caching
 * [OAuth Token Security](/deployment/http#oauth-token-security) - Production OAuth configuration
 * [HTTP Deployment](/deployment/http) - Complete deployment guide
+
+
+# Background Tasks
+Source: https://gofastmcp.com/servers/tasks
+
+Run long-running operations asynchronously with progress tracking
+
+export const VersionBadge = ({version}) => {
+  return <code className="version-badge-container">
+            <p className="version-badge">
+                <span className="version-badge-label">New in version:</span> 
+                <code className="version-badge-version">{version}</code>
+            </p>
+        </code>;
+};
+
+<VersionBadge version="2.14" />
+
+Background tasks allow tools, resources, and prompts to execute asynchronously, returning immediately while work continues in the background. Clients can track progress, cancel operations, and retrieve results when ready.
+
+This implements the [MCP task protocol](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks) from the MCP specification, powered by [Docket](https://github.com/chrisguidry/docket) for task queue management.
+
+## Requirements
+
+For **single-process** deployments, everything works out of the box using an in-memory backend.
+
+For **multi-process** deployments (multiple workers, distributed systems), you'll need Redis or Valkey. See the [Docket documentation](https://chrisguidry.github.io/docket/) for backend configuration details.
+
+## Enabling Background Tasks
+
+Add `task=True` to any tool, resource, or prompt decorator:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+import asyncio
+from fastmcp import FastMCP
+from fastmcp.dependencies import Progress
+
+mcp = FastMCP("MyServer")
+
+@mcp.tool(task=True)
+async def slow_computation(duration: int, progress: Progress = Progress()) -> str:
+    """A long-running operation with progress tracking."""
+    await progress.set_total(duration)
+
+    for i in range(duration):
+        await asyncio.sleep(1)
+        await progress.increment()
+        await progress.set_message(f"Step {i + 1} of {duration}")
+
+    return f"Completed in {duration} seconds"
+```
+
+<Note>
+  Background tasks require async functions. Sync functions will log a warning and execute immediately instead.
+</Note>
+
+## Configuration
+
+Background tasks require explicit opt-in:
+
+| Environment Variable   | Default     | Description                                         |
+| ---------------------- | ----------- | --------------------------------------------------- |
+| `FASTMCP_ENABLE_TASKS` | `false`     | Enable the MCP task protocol                        |
+| `FASTMCP_DOCKET_URL`   | `memory://` | Backend URL (`memory://` or `redis://host:port/db`) |
+
+You can also set a server-wide default in the constructor:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+mcp = FastMCP("MyServer", tasks=True)
+```
+
+## Progress Reporting
+
+The `Progress` dependency lets you report progress back to clients:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.dependencies import Progress
+
+@mcp.tool(task=True)
+async def process_files(files: list[str], progress: Progress = Progress()) -> str:
+    await progress.set_total(len(files))
+
+    for file in files:
+        await progress.set_message(f"Processing {file}")
+        # ... do work ...
+        await progress.increment()
+
+    return f"Processed {len(files)} files"
+```
+
+The progress API:
+
+* `await progress.set_total(n)` - Set the total number of steps
+* `await progress.increment(amount=1)` - Increment progress
+* `await progress.set_message(text)` - Update the status message
+
+Progress works in both immediate and background execution modes.
+
+## Additional Dependencies
+
+FastMCP provides several Docket-style dependencies you can inject into your functions:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.dependencies import Progress, CurrentDocket, CurrentWorker
+
+@mcp.tool(task=True)
+async def my_task(
+    progress: Progress = Progress(),
+    # docket: Docket = CurrentDocket(),  # Access the Docket instance
+    # worker: Worker = CurrentWorker(),   # Access worker info
+) -> str:
+    ...
+```
+
+By injecting `CurrentDocket()`, you gain access to the full Docket API. This lets you schedule additional background tasks from within your tool, chain tasks together, or use any of Docket's advanced features like task priorities and retries. See the [Docket documentation](https://chrisguidry.github.io/docket/) for the complete API.
+
+## Running Additional Workers
+
+For distributed task processing, start additional workers:
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+fastmcp tasks worker server.py
+```
+
+Configure worker concurrency via environment:
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+export FASTMCP_DOCKET_CONCURRENCY=20
+fastmcp tasks worker server.py
+```
+
+<Tip>
+  Workers only work with Redis/Valkey backends. The `memory://` backend is single-process only.
+</Tip>
 
 
 # Tools
