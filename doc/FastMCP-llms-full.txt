@@ -3884,7 +3884,7 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<VersionBadge version="2.14" />
+<VersionBadge version="2.14.0" />
 
 The [MCP task protocol](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks) lets you request operations to run asynchronously. This returns a Task object immediately, letting you track progress, cancel operations, or await results.
 
@@ -3892,7 +3892,7 @@ See [Server Background Tasks](/servers/tasks) for how to enable this on the serv
 
 ## Requesting Background Execution
 
-Pass `task=True` to run an operation as a background task:
+Pass `task=True` to run an operation as a background task. The call returns immediately with a Task object while the work executes on the server.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 from fastmcp import Client
@@ -3909,63 +3909,46 @@ async with Client(server) as client:
     result = await task.result()
 ```
 
-This works with all three operation types:
+This works with tools, resources, and prompts:
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-# Tools
 tool_task = await client.call_tool("my_tool", args, task=True)
-
-# Resources
 resource_task = await client.read_resource("file://large.txt", task=True)
-
-# Prompts
 prompt_task = await client.get_prompt("my_prompt", args, task=True)
 ```
 
-## Task Objects
+## Working with Task Objects
 
-All task types share a common interface:
+All task types share a common interface for retrieving results, checking status, and receiving updates.
 
-### Getting Results
+To get the result, call `await task.result()` or simply `await task`. This blocks until the task completes and returns the result. You can also check status without blocking using `await task.status()`, which returns the current state (`"working"`, `"completed"`, `"failed"`, or `"cancelled"`) along with any progress message from the server.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 task = await client.call_tool("analyze", {"text": "hello"}, task=True)
 
-# Wait for and get the result
-result = await task.result()
-
-# Or use await directly (shorthand for .result())
-result = await task
-```
-
-### Checking Status
-
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+# Check current status (non-blocking)
 status = await task.status()
+print(f"{status.status}: {status.statusMessage}")
 
-print(f"Status: {status.status}")  # "working", "completed", "failed", "cancelled"
-print(f"Message: {status.statusMessage}")  # Progress message from server
+# Wait for result (blocking)
+result = await task.result()
 ```
 
-### Waiting for Completion
+For more control over waiting, use `task.wait()` with an optional timeout or target state:
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-# Wait for task to complete (with timeout)
+# Wait up to 30 seconds for completion
 status = await task.wait(timeout=30.0)
 
 # Wait for a specific state
 status = await task.wait(state="completed", timeout=30.0)
 ```
 
-### Cancelling Tasks
+To cancel a running task, call `await task.cancel()`.
 
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-await task.cancel()
-```
+### Real-Time Status Updates
 
-### Status Notifications
-
-Register callbacks to receive real-time status updates:
+Register callbacks to receive status updates as the server reports progress. Both sync and async callbacks are supported.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 def on_status_change(status):
@@ -3973,7 +3956,7 @@ def on_status_change(status):
 
 task.on_status_change(on_status_change)
 
-# Async callbacks also supported
+# Async callbacks work too
 async def on_status_async(status):
     await log_status(status)
 
@@ -3982,7 +3965,7 @@ task.on_status_change(on_status_async)
 
 ## Graceful Degradation
 
-You can always pass `task=True` regardless of whether the server supports background tasks. Per the [MCP specification](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks), servers that don't support tasks will execute the operation immediately and return the result inline. Your code works either way:
+You can always pass `task=True` regardless of whether the server supports background tasks. Per the MCP specification, servers without task support execute the operation immediately and return the result inline. The Task API provides a consistent interface either way.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 task = await client.call_tool("my_tool", args, task=True)
@@ -3996,7 +3979,7 @@ else:
 result = await task.result()
 ```
 
-This means you can write task-aware client code without worrying about server capabilities—the Task API provides a consistent interface whether the operation runs in the background or completes immediately.
+This means you can write task-aware client code without worrying about server capabilities.
 
 ## Complete Example
 
@@ -4019,13 +4002,13 @@ async def main():
 
         task.on_status_change(on_update)
 
-        # Do other work
-        print("Doing other work while task runs...")
+        # Do other work while task runs
+        print("Doing other work...")
         await asyncio.sleep(2)
 
         # Wait for completion and get result
         result = await task.result()
-        print(f"Result: {result.data}")
+        print(f"Result: {result.content}")
 
 asyncio.run(main())
 ```
@@ -5340,9 +5323,64 @@ When deploying to production, you'll want to optimize your server for performanc
 # Run with basic configuration
 uvicorn app:app --host 0.0.0.0 --port 8000
 
-# Ensure stateless HTTP mode is enabled (stateless_http=True)
-# Run with multiple workers for production
+# Run with multiple workers for production (requires stateless mode - see below)
 uvicorn app:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+### Horizontal Scaling
+
+<VersionBadge version="2.10.2" />
+
+When deploying FastMCP behind a load balancer or running multiple server instances, you need to understand how the HTTP transport handles sessions and configure your server appropriately.
+
+#### Understanding Sessions
+
+By default, FastMCP's Streamable HTTP transport maintains server-side sessions. Sessions enable stateful MCP features like [elicitation](/servers/elicitation) and [sampling](/servers/sampling), where the server needs to maintain context across multiple requests from the same client.
+
+This works perfectly for single-instance deployments. However, sessions are stored in memory on each server instance, which creates challenges when scaling horizontally.
+
+#### Without Stateless Mode
+
+When running multiple server instances behind a load balancer (Traefik, nginx, HAProxy, Kubernetes, etc.), requests from the same client may be routed to different instances:
+
+1. Client connects to Instance A → session created on Instance A
+2. Next request routes to Instance B → session doesn't exist → **request fails**
+
+You might expect sticky sessions (session affinity) to solve this, but they don't work reliably with MCP clients.
+
+<Warning>
+  **Why sticky sessions don't work:** Most MCP clients—including Cursor and Claude Code—use `fetch()` internally and don't properly forward `Set-Cookie` headers. Without cookies, load balancers can't identify which instance should handle subsequent requests. This is a limitation in how these clients implement HTTP, not something you can fix with load balancer configuration.
+</Warning>
+
+#### Enabling Stateless Mode
+
+For horizontally scaled deployments, enable stateless HTTP mode. In stateless mode, each request creates a fresh transport context, eliminating the need for session affinity entirely.
+
+**Option 1: Via constructor**
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
+
+mcp = FastMCP("My Server", stateless_http=True)
+
+@mcp.tool
+def process(data: str) -> str:
+    return f"Processed: {data}"
+
+app = mcp.http_app()
+```
+
+**Option 2: Via `run()`**
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+if __name__ == "__main__":
+    mcp.run(transport="http", stateless_http=True)
+```
+
+**Option 3: Via environment variable**
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+FASTMCP_STATELESS_HTTP=true uvicorn app:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ### Environment Variables
@@ -7056,6 +7094,115 @@ Source: https://gofastmcp.com/development/upgrade-guide
 Migration instructions for upgrading between FastMCP versions
 
 This guide provides migration instructions for breaking changes and major updates when upgrading between FastMCP versions.
+
+## v2.14.0
+
+### OpenAPI Parser Promotion
+
+The experimental OpenAPI parser is now the standard implementation. The legacy parser has been removed.
+
+**If you were using the legacy parser:** No code changes required. The new parser is a drop-in replacement with improved architecture.
+
+**If you were using the experimental parser:** Update your imports from the experimental module to the standard location:
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp.experimental.server.openapi import FastMCPOpenAPI, RouteMap, MCPType
+  ```
+
+  ```python After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp.server.openapi import FastMCPOpenAPI, RouteMap, MCPType
+  ```
+</CodeGroup>
+
+The experimental imports will continue working temporarily but will show deprecation warnings. The `FASTMCP_EXPERIMENTAL_ENABLE_NEW_OPENAPI_PARSER` environment variable is no longer needed and can be removed.
+
+### Deprecated Features Removed
+
+The following deprecated features have been removed in v2.14.0:
+
+**BearerAuthProvider** (deprecated in v2.11):
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp.server.auth.providers.bearer import BearerAuthProvider
+  ```
+
+  ```python After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp.server.auth.providers.jwt import JWTVerifier
+  ```
+</CodeGroup>
+
+**Context.get\_http\_request()** (deprecated in v2.2.11):
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  request = context.get_http_request()
+  ```
+
+  ```python After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp.server.dependencies import get_http_request
+  request = get_http_request()
+  ```
+</CodeGroup>
+
+**Top-level Image import** (deprecated in v2.8.1):
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp import Image
+  ```
+
+  ```python After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from fastmcp.utilities.types import Image
+  ```
+</CodeGroup>
+
+**FastMCP dependencies parameter** (deprecated in v2.11.4):
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  mcp = FastMCP("server", dependencies=["requests", "pandas"])
+  ```
+
+  ```json After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  {
+    "environment": {
+      "dependencies": ["requests", "pandas"]
+    }
+  }
+  ```
+</CodeGroup>
+
+**Legacy resource prefix format**: The `resource_prefix_format` parameter and "protocol" format have been removed. Only the "path" format is supported (this was already the default).
+
+**FastMCPProxy client parameter**:
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  proxy = FastMCPProxy(client=my_client)
+  ```
+
+  ```python After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  proxy = FastMCPProxy(client_factory=lambda: my_client)
+  ```
+</CodeGroup>
+
+**output\_schema=False**:
+
+<CodeGroup>
+  ```python Before theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  @mcp.tool(output_schema=False)
+  def my_tool() -> str:
+      return "result"
+  ```
+
+  ```python After theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  @mcp.tool(output_schema=None)
+  def my_tool() -> str:
+      return "result"
+  ```
+</CodeGroup>
 
 ## v2.13.0
 
@@ -32730,67 +32877,144 @@ export const VersionBadge = ({version}) => {
         </code>;
 };
 
-<VersionBadge version="2.14" />
+<VersionBadge version="2.14.0" />
 
-Background tasks allow tools, resources, and prompts to execute asynchronously, returning immediately while work continues in the background. Clients can track progress, cancel operations, and retrieve results when ready.
+FastMCP implements the MCP background task protocol ([SEP-1686](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks)), giving your servers a production-ready distributed task scheduler with a single decorator change.
 
-This implements the [MCP task protocol](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks) from the MCP specification, powered by [Docket](https://github.com/chrisguidry/docket) for task queue management.
+<Tip>
+  **What is Docket?** FastMCP's task system is powered by [Docket](https://github.com/chrisguidry/docket), originally built by [Prefect](https://prefect.io) to power [Prefect Cloud](https://www.prefect.io/prefect/cloud)'s managed task scheduling and execution service. Docket is the beating heart of Prefect's enterprise task infrastructure, processing millions of tasks daily across their multi-tenant SaaS platform. It's now open-sourced for the community.
+</Tip>
 
-## Requirements
+<Note>
+  Background tasks are disabled by default in v2.14.0. Enable them with `FASTMCP_ENABLE_TASKS=true` or by passing `tasks=True` to the FastMCP constructor. This default will change in a future release.
+</Note>
 
-For **single-process** deployments, everything works out of the box using an in-memory backend.
+## What Are MCP Background Tasks?
 
-For **multi-process** deployments (multiple workers, distributed systems), you'll need Redis or Valkey. See the [Docket documentation](https://chrisguidry.github.io/docket/) for backend configuration details.
+In MCP, all component interactions are blocking by default. When a client calls a tool, reads a resource, or fetches a prompt, it sends a request and waits for the response. For operations that take seconds or minutes, this creates a poor user experience.
+
+The MCP background task protocol solves this by letting clients:
+
+1. **Start** an operation and receive a task ID immediately
+2. **Track** progress as the operation runs
+3. **Retrieve** the result when ready
+
+FastMCP handles all of this for you. Add `task=True` to your decorator, and your function gains full background execution with progress reporting, distributed processing, and horizontal scaling.
+
+### MCP Background Tasks vs Python Concurrency
+
+You can always use Python's concurrency primitives (asyncio, threads, multiprocessing) or external task queues in your FastMCP servers. FastMCP is just Python—run code however you like.
+
+MCP background tasks are different: they're **protocol-native**. This means MCP clients that support the task protocol can start operations, receive progress updates, and retrieve results through the standard MCP interface. The coordination happens at the protocol level, not inside your application code.
 
 ## Enabling Background Tasks
 
-Add `task=True` to any tool, resource, or prompt decorator:
+Add `task=True` to any tool, resource, resource template, or prompt decorator. This marks the component as capable of background execution.
 
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+```python {6} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
 import asyncio
 from fastmcp import FastMCP
-from fastmcp.dependencies import Progress
 
 mcp = FastMCP("MyServer")
 
 @mcp.tool(task=True)
-async def slow_computation(duration: int, progress: Progress = Progress()) -> str:
-    """A long-running operation with progress tracking."""
-    await progress.set_total(duration)
-
+async def slow_computation(duration: int) -> str:
+    """A long-running operation."""
     for i in range(duration):
         await asyncio.sleep(1)
-        await progress.increment()
-        await progress.set_message(f"Step {i + 1} of {duration}")
-
     return f"Completed in {duration} seconds"
 ```
 
-<Note>
-  Background tasks require async functions. Sync functions will log a warning and execute immediately instead.
-</Note>
+When a client requests background execution, the call returns immediately with a task ID. The work executes in a background worker, and the client can poll for status or wait for the result.
 
-## Configuration
+<Warning>
+  Background tasks require async functions. Attempting to use `task=True` with a sync function raises a `ValueError` at registration time.
+</Warning>
 
-Background tasks require explicit opt-in:
+### Server-Wide Default
+
+To enable background task support for all components by default, pass `tasks=True` to the constructor. Individual decorators can still override this with `task=False`.
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+mcp = FastMCP("MyServer", tasks=True)
+```
+
+<Warning>
+  If your server defines any synchronous tools, resources, or prompts, you will need to explicitly set `task=False` on their decorators to avoid an error.
+</Warning>
+
+### Graceful Degradation
+
+When a client requests background execution (`task=True` in the request) but the component doesn't support it (`task=False` on the decorator), FastMCP executes synchronously and returns the result inline. This follows the SEP-1686 specification for graceful degradation—clients can always request background execution without worrying about server capabilities.
+
+### Configuration
+
+Background tasks require explicit opt-in via environment variable:
 
 | Environment Variable   | Default     | Description                                         |
 | ---------------------- | ----------- | --------------------------------------------------- |
 | `FASTMCP_ENABLE_TASKS` | `false`     | Enable the MCP task protocol                        |
 | `FASTMCP_DOCKET_URL`   | `memory://` | Backend URL (`memory://` or `redis://host:port/db`) |
 
-You can also set a server-wide default in the constructor:
+## Backends
 
-```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-mcp = FastMCP("MyServer", tasks=True)
+FastMCP supports two backends for task execution, each with different tradeoffs.
+
+### In-Memory Backend (Default)
+
+The in-memory backend (`memory://`) requires zero configuration and works out of the box.
+
+**Advantages:**
+
+* No external dependencies
+* Simple single-process deployment
+
+**Disadvantages:**
+
+* **Ephemeral**: If the server restarts, all pending tasks are lost
+* **Higher latency**: \~250ms task pickup time vs single-digit milliseconds with Redis
+* **No horizontal scaling**: Single process only—you cannot add additional workers
+
+### Redis Backend
+
+For production deployments, use Redis (or Valkey) as your backend by setting `FASTMCP_DOCKET_URL=redis://localhost:6379`.
+
+**Advantages:**
+
+* **Persistent**: Tasks survive server restarts
+* **Fast**: Single-digit millisecond task pickup latency
+* **Scalable**: Add workers to distribute load across processes or machines
+
+## Workers
+
+Every FastMCP server with task-enabled components automatically starts an **embedded worker**. You do not need to start a separate worker process for tasks to execute.
+
+To scale horizontally, add more workers using the CLI:
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+fastmcp tasks worker server.py
 ```
+
+Each additional worker pulls tasks from the same queue, distributing load across processes. Configure worker concurrency via environment:
+
+```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+export FASTMCP_DOCKET_CONCURRENCY=20
+fastmcp tasks worker server.py
+```
+
+<Note>
+  Additional workers only work with Redis/Valkey backends. The in-memory backend is single-process only.
+</Note>
 
 ## Progress Reporting
 
-The `Progress` dependency lets you report progress back to clients:
+The `Progress` dependency lets you report progress back to clients. Inject it as a parameter with a default value, and FastMCP will provide the active progress reporter.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
 from fastmcp.dependencies import Progress
+
+mcp = FastMCP("MyServer")
 
 @mcp.tool(task=True)
 async def process_files(files: list[str], progress: Progress = Progress()) -> str:
@@ -32806,48 +33030,39 @@ async def process_files(files: list[str], progress: Progress = Progress()) -> st
 
 The progress API:
 
-* `await progress.set_total(n)` - Set the total number of steps
-* `await progress.increment(amount=1)` - Increment progress
-* `await progress.set_message(text)` - Update the status message
+* `await progress.set_total(n)` — Set the total number of steps
+* `await progress.increment(amount=1)` — Increment progress
+* `await progress.set_message(text)` — Update the status message
 
-Progress works in both immediate and background execution modes.
+Progress works in both immediate and background execution modes—you can use the same code regardless of how the client invokes your function.
 
-## Additional Dependencies
+## Docket Dependencies
 
-FastMCP provides several Docket-style dependencies you can inject into your functions:
+FastMCP exposes Docket's full dependency injection system within your task-enabled functions. Beyond `Progress`, you can access the Docket instance, worker information, and use advanced features like retries and timeouts.
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from docket import Docket, Worker
+from fastmcp import FastMCP
 from fastmcp.dependencies import Progress, CurrentDocket, CurrentWorker
+
+mcp = FastMCP("MyServer")
 
 @mcp.tool(task=True)
 async def my_task(
     progress: Progress = Progress(),
-    # docket: Docket = CurrentDocket(),  # Access the Docket instance
-    # worker: Worker = CurrentWorker(),   # Access worker info
+    docket: Docket = CurrentDocket(),
+    worker: Worker = CurrentWorker(),
 ) -> str:
-    ...
+    # Schedule additional background work
+    await docket.add(another_task, arg1, arg2)
+
+    # Access worker metadata
+    worker_name = worker.name
+
+    return "Done"
 ```
 
-By injecting `CurrentDocket()`, you gain access to the full Docket API. This lets you schedule additional background tasks from within your tool, chain tasks together, or use any of Docket's advanced features like task priorities and retries. See the [Docket documentation](https://chrisguidry.github.io/docket/) for the complete API.
-
-## Running Additional Workers
-
-For distributed task processing, start additional workers:
-
-```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-fastmcp tasks worker server.py
-```
-
-Configure worker concurrency via environment:
-
-```bash  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-export FASTMCP_DOCKET_CONCURRENCY=20
-fastmcp tasks worker server.py
-```
-
-<Tip>
-  Workers only work with Redis/Valkey backends. The `memory://` backend is single-process only.
-</Tip>
+With `CurrentDocket()`, you can schedule additional background tasks, chain work together, and coordinate complex workflows. See the [Docket documentation](https://chrisguidry.github.io/docket/) for the complete API, including retry policies, timeouts, and custom dependencies.
 
 
 # Tools
