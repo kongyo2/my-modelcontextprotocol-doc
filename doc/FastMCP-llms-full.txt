@@ -4958,6 +4958,79 @@ Without `expose_headers=["mcp-session-id"]`, browsers will receive the session I
   **Production Security**: Never use `allow_origins=["*"]` in production. Specify the exact origins of your browser-based clients. Using wildcards exposes your server to unauthorized access from any website.
 </Warning>
 
+### SSE Polling for Long-Running Operations
+
+<VersionBadge version="2.14.0" />
+
+<Note>
+  This feature only applies to the **StreamableHTTP transport** (the default for `http_app()`). It does not apply to the legacy SSE transport (`transport="sse"`).
+</Note>
+
+When running tools that take a long time to complete, you may encounter issues with load balancers or proxies terminating connections that stay idle too long. [SEP-1699](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1699) introduces SSE polling to solve this by allowing the server to gracefully close connections and have clients automatically reconnect.
+
+To enable SSE polling, configure an `EventStore` when creating your HTTP application:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP, Context
+from fastmcp.server.event_store import EventStore
+
+mcp = FastMCP("My Server")
+
+@mcp.tool
+async def long_running_task(ctx: Context) -> str:
+    """A task that takes several minutes to complete."""
+    for i in range(100):
+        await ctx.report_progress(i, 100)
+
+        # Periodically close the connection to avoid load balancer timeouts
+        # Client will automatically reconnect and resume receiving progress
+        if i % 30 == 0 and i > 0:
+            await ctx.close_sse_stream()
+
+        await do_expensive_work()
+
+    return "Done!"
+
+# Configure with EventStore for resumability
+event_store = EventStore()
+app = mcp.http_app(
+    event_store=event_store,
+    retry_interval=2000,  # Client reconnects after 2 seconds
+)
+```
+
+**How it works:**
+
+1. When `event_store` is configured, the server stores all events (progress updates, results) with unique IDs
+2. Calling `ctx.close_sse_stream()` gracefully closes the HTTP connection
+3. The client automatically reconnects with a `Last-Event-ID` header
+4. The server replays any events the client missed during the disconnection
+
+The `retry_interval` parameter (in milliseconds) controls how long clients wait before reconnecting. Choose a value that balances responsiveness with server load.
+
+<Note>
+  `close_sse_stream()` is a no-op if called without an `EventStore` configured, so you can safely include it in tools that may run in different deployment configurations.
+</Note>
+
+#### Custom Storage Backends
+
+By default, `EventStore` uses in-memory storage. For production deployments with multiple server instances, you can provide a custom storage backend using the `key_value` package:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp.server.event_store import EventStore
+from key_value.aio.stores.redis import RedisStore
+
+# Use Redis for distributed deployments
+redis_store = RedisStore(url="redis://localhost:6379")
+event_store = EventStore(
+    storage=redis_store,
+    max_events_per_stream=100,  # Keep last 100 events per stream
+    ttl=3600,  # Events expire after 1 hour
+)
+
+app = mcp.http_app(event_store=event_store)
+```
+
 ## Integration with Web Frameworks
 
 If you already have a web application running, you can add MCP capabilities by mounting a FastMCP server as a sub-application. This allows you to expose MCP tools alongside your existing API endpoints, sharing the same domain and infrastructure. The MCP server becomes just another route in your application, making it easy to manage and deploy.
@@ -28744,10 +28817,10 @@ Often you'll want to constrain the user's response to a specific set of values. 
   async def set_priority(ctx: Context) -> str:
       """Set task priority level."""
       result = await ctx.elicit(
-          "What priority level?", 
+          "What priority level?",
           response_type=["low", "medium", "high"],
       )
-      
+
       if result.action == "accept":
           return f"Priority set to: {result.data}"
   ```
@@ -28759,10 +28832,10 @@ Often you'll want to constrain the user's response to a specific set of values. 
   async def set_priority(ctx: Context) -> str:
       """Set task priority level."""
       result = await ctx.elicit(
-          "What priority level?", 
+          "What priority level?",
           response_type=Literal["low", "medium", "high"]
       )
-      
+
       if result.action == "accept":
           return f"Priority set to: {result.data}"
       return "No priority set"
@@ -28774,18 +28847,124 @@ Often you'll want to constrain the user's response to a specific set of values. 
   class Priority(Enum):
       LOW = "low"
       MEDIUM = "medium"
-      HIGH = "high"   
+      HIGH = "high"
 
   @mcp.tool
   async def set_priority(ctx: Context) -> str:
       """Set task priority level."""
       result = await ctx.elicit("What priority level?", response_type=Priority)
-      
+
       if result.action == "accept":
           return f"Priority set to: {result.data.value}"
       return "No priority set"
   ```
 </CodeGroup>
+
+#### Multi-Select
+
+<VersionBadge version="2.14.0" />
+
+Enable multi-select by wrapping your choices in an additional list level. This allows users to select multiple values from the available options.
+
+<CodeGroup>
+  ```python {6-8} title="List of a list of strings" theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  @mcp.tool
+  async def select_tags(ctx: Context) -> str:
+      """Select multiple tags."""
+      result = await ctx.elicit(
+          "Choose tags",
+          response_type=[["bug", "feature", "documentation"]]  # Note: list of a list
+      )
+
+      if result.action == "accept":
+          tags = result.data  # List of selected strings
+          return f"Selected tags: {', '.join(tags)}"
+  ```
+
+  ```python {1, 3-6, 11-14} title="list[Enum] type annotation" theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+  from enum import Enum
+
+  class Tag(Enum):
+      BUG = "bug"
+      FEATURE = "feature"
+      DOCS = "documentation"
+
+  @mcp.tool
+  async def select_tags(ctx: Context) -> str:
+      result = await ctx.elicit(
+          "Choose tags",
+          response_type=list[Tag]  # Type annotation for multi-select
+      )
+      if result.action == "accept":
+          tags = [tag.value for tag in result.data]
+          return f"Selected: {', '.join(tags)}"
+  ```
+</CodeGroup>
+
+For titled multi-select, wrap a dict in a list (see [Titled Options](#titled-options) for dict syntax):
+
+```python {6-12} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+@mcp.tool
+async def select_priorities(ctx: Context) -> str:
+    """Select multiple priorities."""
+    result = await ctx.elicit(
+        "Choose priorities",
+        response_type=[{  # Note: list containing a dict
+            "low": {"title": "Low Priority"},
+            "medium": {"title": "Medium Priority"},
+            "high": {"title": "High Priority"}
+        }]
+    )
+
+    if result.action == "accept":
+        priorities = result.data  # List of selected strings
+        return f"Selected: {', '.join(priorities)}"
+```
+
+#### Titled Options
+
+<VersionBadge version="2.14.0" />
+
+For better UI display, you can provide human-readable titles for enum options. FastMCP generates SEP-1330 compliant schemas using the `oneOf` pattern with `const` and `title` fields.
+
+Use a dict to specify titles for enum values:
+
+```python {6-10} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+@mcp.tool
+async def set_priority(ctx: Context) -> str:
+    """Set task priority level."""
+    result = await ctx.elicit(
+        "What priority level?",
+        response_type={
+            "low": {"title": "Low Priority"},
+            "medium": {"title": "Medium Priority"},
+            "high": {"title": "High Priority"}
+        }
+    )
+
+    if result.action == "accept":
+        return f"Priority set to: {result.data}"
+```
+
+For multi-select with titles, wrap the dict in a list:
+
+```python {6-12} theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+@mcp.tool
+async def select_priorities(ctx: Context) -> str:
+    """Select multiple priorities."""
+    result = await ctx.elicit(
+        "Choose priorities",
+        response_type=[{  # List containing a dict for multi-select
+            "low": {"title": "Low Priority"},
+            "medium": {"title": "Medium Priority"},
+            "high": {"title": "High Priority"}
+        }]
+    )
+
+    if result.action == "accept":
+        priorities = result.data  # List of selected strings
+        return f"Selected: {', '.join(priorities)}"
+```
 
 ### Structured Responses
 
@@ -28817,6 +28996,8 @@ async def create_task(ctx: Context) -> str:
 ```
 
 ### Default Values
+
+<VersionBadge version="2.14.0" />
 
 You can provide default values for elicitation fields using Pydantic's `Field(default=...)`. Clients will pre-populate form fields with these defaults, making it easier for users to provide input.
 
@@ -32699,10 +32880,6 @@ FastMCP implements the MCP background task protocol ([SEP-1686](https://modelcon
   **What is Docket?** FastMCP's task system is powered by [Docket](https://github.com/chrisguidry/docket), originally built by [Prefect](https://prefect.io) to power [Prefect Cloud](https://www.prefect.io/prefect/cloud)'s managed task scheduling and execution service. Docket is the beating heart of Prefect's enterprise task infrastructure, processing millions of tasks daily across their multi-tenant SaaS platform. It's now open-sourced for the community.
 </Tip>
 
-<Note>
-  Background tasks are disabled by default in v2.14.0. Enable them with `FASTMCP_ENABLE_TASKS=true` or by passing `tasks=True` to the FastMCP constructor. This default will change in a future release.
-</Note>
-
 ## What Are MCP Background Tasks?
 
 In MCP, all component interactions are blocking by default. When a client calls a tool, reads a resource, or fetches a prompt, it sends a request and waits for the response. For operations that take seconds or minutes, this creates a poor user experience.
@@ -32756,7 +32933,8 @@ For fine-grained control over task execution behavior, use `TaskConfig` instead 
 | `"required"`  | Error: task required      | Executes as background task |
 
 ```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
-from fastmcp import FastMCP, TaskConfig
+from fastmcp import FastMCP
+from fastmcp.server.tasks import TaskConfig
 
 mcp = FastMCP("MyServer")
 
@@ -32801,12 +32979,9 @@ Conversely, when a component has `mode="required"` but the client doesn't reques
 
 ### Configuration
 
-Background tasks require explicit opt-in via environment variable:
-
-| Environment Variable   | Default     | Description                                         |
-| ---------------------- | ----------- | --------------------------------------------------- |
-| `FASTMCP_ENABLE_TASKS` | `false`     | Enable the MCP task protocol                        |
-| `FASTMCP_DOCKET_URL`   | `memory://` | Backend URL (`memory://` or `redis://host:port/db`) |
+| Environment Variable | Default     | Description                                         |
+| -------------------- | ----------- | --------------------------------------------------- |
+| `FASTMCP_DOCKET_URL` | `memory://` | Backend URL (`memory://` or `redis://host:port/db`) |
 
 ## Backends
 
@@ -33752,6 +33927,59 @@ FastMCP supports these standard annotations:
 | `openWorldHint`   | boolean | true    | Specifies if the tool interacts with external systems                       |
 
 Remember that annotations help make better user experiences but should be treated as advisory hints. They help client applications present appropriate UI elements and safety controls, but won't enforce security boundaries on their own. Always focus on making your annotations accurately represent what your tool actually does.
+
+### Using Annotation Hints
+
+MCP clients like Claude and ChatGPT use annotation hints to determine when to skip confirmation prompts and how to present tools to users. The most commonly used hint is `readOnlyHint`, which signals that a tool only reads data without making changes.
+
+**Read-only tools** improve user experience by:
+
+* Skipping confirmation prompts for safe operations
+* Allowing broader access without security concerns
+* Enabling more aggressive batching and caching
+
+Mark a tool as read-only when it retrieves data, performs calculations, or checks status without modifying state:
+
+```python  theme={"theme":{"light":"snazzy-light","dark":"dark-plus"}}
+from fastmcp import FastMCP
+from mcp.types import ToolAnnotations
+
+mcp = FastMCP("Data Server")
+
+@mcp.tool(annotations={"readOnlyHint": True})
+def get_user(user_id: str) -> dict:
+    """Retrieve user information by ID."""
+    return {"id": user_id, "name": "Alice"}
+
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        idempotentHint=True,  # Same result for repeated calls
+        openWorldHint=False   # Only internal data
+    )
+)
+def search_products(query: str) -> list[dict]:
+    """Search the product catalog."""
+    return [{"id": 1, "name": "Widget", "price": 29.99}]
+
+# Write operations - no readOnlyHint
+@mcp.tool()
+def update_user(user_id: str, name: str) -> dict:
+    """Update user information."""
+    return {"id": user_id, "name": name, "updated": True}
+
+@mcp.tool(annotations={"destructiveHint": True})
+def delete_user(user_id: str) -> dict:
+    """Permanently delete a user account."""
+    return {"deleted": user_id}
+```
+
+For tools that write to databases, send notifications, create/update/delete resources, or trigger workflows, omit `readOnlyHint` or set it to `False`. Use `destructiveHint=True` for operations that cannot be undone.
+
+Client-specific behavior:
+
+* **ChatGPT**: Skips confirmation prompts for read-only tools in Chat mode (see [ChatGPT integration](/integrations/chatgpt))
+* **Claude**: Uses hints to understand tool safety profiles and make better execution decisions
 
 ## Notifications
 
