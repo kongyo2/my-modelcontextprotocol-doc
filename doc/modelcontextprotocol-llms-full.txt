@@ -2204,11 +2204,17 @@ This tutorial will primarily focus on tools.
 
     ```typescript  theme={null}
     // Register weather tools
-    server.tool(
+
+    server.registerTool(
       "get_alerts",
-      "Get weather alerts for a state",
       {
-        state: z.string().length(2).describe("Two-letter state code (e.g. CA, NY)"),
+        description: "Get weather alerts for a state",
+        inputSchema: {
+          state: z
+            .string()
+            .length(2)
+            .describe("Two-letter state code (e.g. CA, NY)"),
+        },
       },
       async ({ state }) => {
         const stateCode = state.toUpperCase();
@@ -2252,16 +2258,22 @@ This tutorial will primarily focus on tools.
       },
     );
 
-    server.tool(
+    server.registerTool(
       "get_forecast",
-      "Get weather forecast for a location",
       {
-        latitude: z.number().min(-90).max(90).describe("Latitude of the location"),
-        longitude: z
-          .number()
-          .min(-180)
-          .max(180)
-          .describe("Longitude of the location"),
+        description: "Get weather forecast for a location",
+        inputSchema: {
+          latitude: z
+            .number()
+            .min(-90)
+            .max(90)
+            .describe("Latitude of the location"),
+          longitude: z
+            .number()
+            .min(-180)
+            .max(180)
+            .describe("Longitude of the location"),
+        },
       },
       async ({ latitude, longitude }) => {
         // Get grid point data
@@ -7739,6 +7751,7 @@ Icons are represented as an array of `Icon` objects, where each icon includes:
   * A data URI with base64-encoded image data
 * `mimeType`: Optional MIME type if the server's type is missing or generic
 * `sizes`: Optional array of size specifications (e.g., `["48x48"]`, `["any"]` for scalable formats like SVG, or `["48x48", "96x96"]` for multiple sizes)
+* `theme`: Optional theme preference (`light` or `dark`) for the icon background
 
 **Required MIME type support:**
 
@@ -12707,6 +12720,7 @@ A prompt definition includes:
 * `name`: Unique identifier for the prompt
 * `title`: Optional human-readable name of the prompt for display purposes.
 * `description`: Optional human-readable description
+* `icons`: Optional array of icons for display in user interfaces
 * `arguments`: Optional list of arguments for customization
 
 ### PromptMessage
@@ -13102,6 +13116,7 @@ A resource definition includes:
 * `name`: The name of the resource.
 * `title`: Optional human-readable name of the resource for display purposes.
 * `description`: Optional description
+* `icons`: Optional array of icons for display in user interfaces
 * `mimeType`: Optional MIME type
 * `size`: Optional size in bytes
 
@@ -13420,6 +13435,7 @@ A tool definition includes:
 * `name`: Unique identifier for the tool
 * `title`: Optional human-readable name of the tool for display purposes.
 * `description`: Human-readable description of functionality
+* `icons`: Optional array of icons for display in user interfaces
 * `inputSchema`: JSON Schema defining expected parameters
   * Follows the [JSON Schema usage guidelines](/specification/2025-11-25/basic#json-schema-usage)
   * Defaults to 2020-12 if no `$schema` field is present
@@ -14330,6 +14346,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [TheiaAI/TheiaIDE][TheiaAI/TheiaIDE]                       | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Tome][Tome]                                               | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [TypingMind App][TypingMind App]                           | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
+  | [v0][v0]                                                   | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             | ❌              |
   | [VS Code GitHub Copilot][VS Code]                          | ✅           | ✅         | ✅       | ✅           | ✅          | ✅       | ✅             | ✅              |
   | [VT Code][VT Code]                                         | ✅           | ✅         | ✅       | ✅           | ⚠️         | ✅       | ✅             | ❓              |
   | [Warp][Warp]                                               | ✅           | ❌         | ✅       | ✅           | ❌          | ❌       | ❓             | ❓              |
@@ -14524,6 +14541,8 @@ This page provides an overview of applications that support the Model Context Pr
   [Tome]: https://github.com/runebookai/tome
 
   [TypingMind App]: https://www.typingmind.com
+
+  [v0]: https://v0.app
 
   [VS Code]: https://code.visualstudio.com/
 
@@ -15604,6 +15623,24 @@ Theia AI and Theia IDE's MCP integration provide users with flexibility, making 
 
 * [TypingMind MCP Document](https://www.typingmind.com/mcp)
 * [Download TypingMind (PWA)](https://www.typingmind.com/)
+
+### v0
+
+[v0](https://v0.app) turns your ideas into fullstack apps, no code required. Describe what you want with natural language, and v0 builds it for you. v0 can search the web, inspect sites, automatically fix errors, and integrate with external tools.
+
+**Key features:**
+
+* **Visual to Code**: Create high-fidelity UIs from your wireframes or mockups
+* **One-Click Deploy**: Deploy with one click to a secure, scalable infrastructure
+* **Web Search**: Search the web for current information and get cited results
+* **Site Inspector**: Inspect websites to understand their structure and content
+* **Auto Error Fixing**: Automatically fix errors in your code with intelligent diagnostics
+* **MCP Integrations**: Connect to MCP servers from the Vercel Marketplace for zero-config setup, or add your own custom MCP servers
+
+**Learn more:**
+
+* [v0 Website](https://v0.app)
+* [v0 MCP Documentation](https://v0.app/docs/MCP)
 
 ### VS Code GitHub Copilot
 
