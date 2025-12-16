@@ -1774,6 +1774,7 @@ This tutorial will primarily focus on tools.
 
     ```python  theme={null}
     from typing import Any
+
     import httpx
     from mcp.server.fastmcp import FastMCP
 
@@ -1794,11 +1795,8 @@ This tutorial will primarily focus on tools.
     ```python  theme={null}
     async def make_nws_request(url: str) -> dict[str, Any] | None:
         """Make a request to the NWS API with proper error handling."""
-        headers = {
-            "User-Agent": USER_AGENT,
-            "Accept": "application/geo+json"
-        }
-        async with httpx.AsyncClient(follow_redirects=True) as client:
+        headers = {"User-Agent": USER_AGENT, "Accept": "application/geo+json"}
+        async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(url, headers=headers, timeout=30.0)
                 response.raise_for_status()
@@ -1806,15 +1804,16 @@ This tutorial will primarily focus on tools.
             except Exception:
                 return None
 
+
     def format_alert(feature: dict) -> str:
         """Format an alert feature into a readable string."""
         props = feature["properties"]
         return f"""
-    Event: {props.get('event', 'Unknown')}
-    Area: {props.get('areaDesc', 'Unknown')}
-    Severity: {props.get('severity', 'Unknown')}
-    Description: {props.get('description', 'No description available')}
-    Instructions: {props.get('instruction', 'No specific instructions provided')}
+    Event: {props.get("event", "Unknown")}
+    Area: {props.get("areaDesc", "Unknown")}
+    Severity: {props.get("severity", "Unknown")}
+    Description: {props.get("description", "No description available")}
+    Instructions: {props.get("instruction", "No specific instructions provided")}
     """
     ```
 
@@ -1842,13 +1841,14 @@ This tutorial will primarily focus on tools.
         alerts = [format_alert(feature) for feature in data["features"]]
         return "\n---\n".join(alerts)
 
+
     @mcp.tool()
     async def get_forecast(latitude: float, longitude: float) -> str:
         """Get weather forecast for a location.
 
         Args:
-        	latitude: Latitude of the location (recommended: up to 4 decimal places)
-        	longitude: Longitude of the location (recommended: up to 4 decimal places)
+            latitude: Latitude of the location
+            longitude: Longitude of the location
         """
         # First get the forecast grid endpoint
         points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
@@ -1869,10 +1869,10 @@ This tutorial will primarily focus on tools.
         forecasts = []
         for period in periods[:5]:  # Only show next 5 periods
             forecast = f"""
-    {period['name']}:
-    Temperature: {period['temperature']}°{period['temperatureUnit']}
-    Wind: {period['windSpeed']} {period['windDirection']}
-    Forecast: {period['detailedForecast']}
+    {period["name"]}:
+    Temperature: {period["temperature"]}°{period["temperatureUnit"]}
+    Wind: {period["windSpeed"]} {period["windDirection"]}
+    Forecast: {period["detailedForecast"]}
     """
             forecasts.append(forecast)
 
@@ -1886,7 +1886,8 @@ This tutorial will primarily focus on tools.
     ```python  theme={null}
     def main():
         # Initialize and run the server
-        mcp.run(transport='stdio')
+        mcp.run(transport="stdio")
+
 
     if __name__ == "__main__":
         main()
@@ -14330,7 +14331,7 @@ This page provides an overview of applications that support the Model Context Pr
   | [oterm][oterm]                                             | ❌           | ✅         | ✅       | ❓           | ✅          | ❌       | ❓             | ❓              |
   | [Postman][postman]                                         | ✅           | ✅         | ✅       | ✅           | ✅          | ❌       | ✅             | ❓              |
   | [RecurseChat][RecurseChat]                                 | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
-  | [Replit][Replit]                                           | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
+  | [Replit][Replit]                                           | ❌           | ❌         | ✅       | ❌           | ❌          | ❌       | ❌             | ❌              |
   | [Roo Code][Roo Code]                                       | ✅           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Shortwave][Shortwave]                                     | ❌           | ❌         | ✅       | ❓           | ❌          | ❌       | ❓             | ❓              |
   | [Simtheory][Simtheory]                                     | ✅           | ✅         | ✅       | ✅           | ❌          | ❌       | ❓             | ❓              |
